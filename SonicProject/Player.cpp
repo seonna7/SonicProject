@@ -396,10 +396,20 @@ void Player::OnComponentEndOverlap(Collider* collider, Collider* other)
 			case eComponentType::LOOP :
 			{
 				LoopCollider* loopcollider = dynamic_cast<LoopCollider*>(other);
-				if (_onLoopCondition == true)
+				if (loopcollider->GetIsLoopCoursePassed() == true)
 				{
-					if (_pos.x <= loopcollider->GetPos().x&& loopcollider->GetDirection()== ePixelDirection::P_RIGHT)
+					
+				}
+				else
+				{
+					if (loopcollider->GetDirection() == ePixelDirection::P_LEFT)
+					{
+						loopcollider->SetDirection(ePixelDirection::P_RIGHT);
+					}
+					else if (loopcollider->GetDirection() == ePixelDirection::P_RIGHT)
+					{
 						loopcollider->SetDirection(ePixelDirection::P_LEFT);
+					}
 				}
 			}
 			case eComponentType::BACKGROUND_COLLIDER : 
@@ -714,7 +724,10 @@ bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
 	if (abs(_onLoopPlayerAngle._myDegree) >= 340.f)
 	{
 		_currLoop->SetIsLoopCoursePassed(true);
-
+		if (_currLoop->GetDirection() == ePixelDirection::P_RIGHT)
+			_currLoop->SetDirection(ePixelDirection::P_RIGHT);
+		else
+			_currLoop->SetDirection(ePixelDirection::P_LEFT);
 	}
 
 	if (_onLoopCondition == true && ((_onLoopPlayerAngle._myDegree >= 360.f) ||
@@ -726,11 +739,6 @@ bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
 			_onLoopCondition = false;
 			_onLoopPlayerAngle = 0.f;
 			_currLoop->SetIsLoopCoursePassed(false);
-
-			if (_currLoop->GetDirection() == ePixelDirection::P_RIGHT)
-				_currLoop->SetDirection(ePixelDirection::P_LEFT);
-			else
-				_currLoop->SetDirection(ePixelDirection::P_RIGHT);
 		}
 	}
 	else if (_onLoopCondition == false)
