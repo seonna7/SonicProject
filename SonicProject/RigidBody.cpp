@@ -43,13 +43,6 @@ void RigidBody::MoveLeft()
 	{
 		_physic->Speed.x = -_physic->_maxSpeedX * deltaTime;
 	}
-#if 1
-
-	{
-		_physic->Speed.x -= 1 / sqrt(1 + angle * angle);
-		_physic->Speed.y += -angle / sqrt(1 + angle * angle);
-	}
-#endif
 }
 
 void RigidBody::MoveRight()
@@ -64,12 +57,6 @@ void RigidBody::MoveRight()
 	{
 		_physic->Speed.x = _physic->_maxSpeedX * deltaTime;
 	}
-#if 1
-	{
-		_physic->Speed.x += 1 / sqrt(1 + angle * angle);
-		_physic->Speed.y += -angle / sqrt(1 + angle * angle);
-	}
-#endif
 }
 
 void RigidBody::Jump()

@@ -123,6 +123,7 @@ Player::~Player()
 
 void Player::BeginPlay()
 {	
+	SetPos(Vector(100, 100));
 	Super::BeginPlay();
 	setFlipbook(_flipbook_Pause);
 }
@@ -182,7 +183,7 @@ void Player::Tick()
 		Player::SkiddlingMovement();
 	}
 
-	Player::AdjustMovement();
+	Player::SetMovement();
 }
 
 void Player::Render(HDC hdc)
@@ -376,8 +377,6 @@ void Player::OnComponentBeginOverlap(Collider* collider, Collider* other)
 
 void Player::OnComponentEndOverlap(Collider* collider, Collider* other)
 {
-
-
 	// 픽셀 콜라이더면서, ground여야함
 	PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
 	
@@ -398,17 +397,20 @@ void Player::OnComponentEndOverlap(Collider* collider, Collider* other)
 				LoopCollider* loopcollider = dynamic_cast<LoopCollider*>(other);
 				if (loopcollider->GetIsLoopCoursePassed() == true)
 				{
-					
+					int a = 1;
 				}
 				else
 				{
-					if (loopcollider->GetDirection() == ePixelDirection::P_LEFT)
+					if(_onLoopCondition==true)
 					{
-						loopcollider->SetDirection(ePixelDirection::P_RIGHT);
-					}
-					else if (loopcollider->GetDirection() == ePixelDirection::P_RIGHT)
-					{
-						loopcollider->SetDirection(ePixelDirection::P_LEFT);
+						if (loopcollider->GetDirection() == ePixelDirection::P_LEFT)
+						{
+							loopcollider->SetDirection(ePixelDirection::P_RIGHT);
+						}
+						else if (loopcollider->GetDirection() == ePixelDirection::P_RIGHT)
+						{
+							loopcollider->SetDirection(ePixelDirection::P_LEFT);
+						}
 					}
 				}
 			}
@@ -543,7 +545,7 @@ void Player::OnDownPressed()
 	}
 }
 
-void Player::ModifyGroundMovement()
+void Player::AdjustGroundMovement()
 {
 	Vector& pixel = _groundPixelCollider->GetPixel();
 	bool CollisionDetect = 1;
@@ -552,12 +554,16 @@ void Player::ModifyGroundMovement()
 	bool RunRight = (_physic->Speed.x > 0) && (_IsOnGround == true);
 
 	bool LeftHighSlope = (_angle > 3 * M_PI / 4 && _angle < 4 * M_PI / 4);
-	bool RightHighSlope = ((_angle > 0 * M_PI / 4 && _angle < 1 * M_PI / 4) || (_angle < 0));
+	bool RightHighSlope = (_angle > 0 * M_PI / 4 && _angle < 1 * M_PI / 4);
 	
 	if (RunLeft == true && LeftHighSlope)
+	{
 		CollisionDetect = 0;
+	}
 	else if (RunRight == true && RightHighSlope)
+	{
 		CollisionDetect = 0;
+	}
 
 
 	int addVal = ((CollisionDetect) ? -1 : 1);
@@ -567,22 +573,6 @@ void Player::ModifyGroundMovement()
 		AdjustAllPixelCollider;
 	}
 	_IsOnGround = true;
-	
-	#pragma region 벽 충돌 확인 
-	{
-		Vector& Rwall = _RwallPixelCollider->GetPixel();
-		while (CheckCollsion_ColorRef(Rwall, ColorRef::RED) == true)
-		{
-			_pos.y -= 1;
-			AdjustAllPixelCollider;
-		}
-		Vector& Lwall = _LwallPixelCollider->GetPixel();
-		while (CheckCollsion_ColorRef(Lwall, ColorRef::RED) == true)
-		{
-			_pos.y -= 1;
-			AdjustAllPixelCollider;
-		}
-	}
 }
 
 void Player::ModifyWallMovement(ePixelDirection _dir)
@@ -659,7 +649,7 @@ void Player::JumpMovement()
 	_rigidBody->Jump();
 
 	SetSonicState(SonicState::JUMPING);
-	Player::ModifyGroundMovement();
+	Player::AdjustGroundMovement();
 	return;
 }
 
@@ -669,10 +659,9 @@ void Player::LeftMovement()
 
 	if (_IsOnGround == true)
 	{
-		if (_state == SonicState::ROLLING);
 		AdjustState_Angle_LEFT();
 	}
-	Player::AdjustMovement();
+	Player::SetMovement();
 }
 
 void Player::RightMovement()
@@ -683,7 +672,7 @@ void Player::RightMovement()
 	{
 		AdjustState_Angle_RIGHT();
 	}
-	Player::AdjustMovement();
+	Player::SetMovement();
 }
 
 bool Player::IsSkiddlingCondition()
@@ -706,7 +695,7 @@ void Player::MovementCallBack
 	else
 		(this->*FailedFunc)();
 
-	Player::AdjustMovement();
+	Player::SetMovement();
 }
 
 bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
@@ -882,7 +871,7 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 		Player::SetGravitationVec(GravitationVec::GROUND);
 		_physic->RemoveSpeedY();
 		_physic->_gravity = false;
-		Player::ModifyGroundMovement();
+		Player::AdjustGroundMovement();
 		Player::SlipMovement();
 		_slopeType = _slopeType | SlopeType::GROUND;
 		break;
@@ -1029,13 +1018,23 @@ void Player::SetAngle(uint16 type)
 		else
 			_angle = atan2(Yval, Xval);
 	}
+	if (_angle < 0)
+	{
+		_angle = 2 * M_PI + _angle;
+	}
+	else if (_angle > 2 * M_PI)
+	{
+		_angle = fmod(_angle, 2*M_PI);
+	}
 }
 
 void Player::AdjustState_Angle_LEFT()
 {
-
-	float angle = abs(_angle);
-	int StandardAngle = (angle - fmod(angle, M_PI / 4)) / (M_PI / 4);
+	if (_angle < 0)
+	{
+		_angle = 2 * M_PI + _angle;
+	}
+	int StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
 
 	switch (StandardAngle)
 	{
@@ -1043,32 +1042,38 @@ void Player::AdjustState_Angle_LEFT()
 		SetSonicState(SonicState::RUNLEFT_180);
 		break;
 	case 1:
-		SetSonicState(SonicState::RUNLEFT_135);
+		SetSonicState(SonicState::RUNLEFT_225);
 		break;
 	case 2:
-		SetSonicState(SonicState::RUNLEFT_90);
+		SetSonicState(SonicState::RUNLEFT_270);
 		break;
 	case 3:
-		SetSonicState(SonicState::RUNLEFT_45);
+		SetSonicState(SonicState::RUNLEFT_315);
 		break;
 	case 4:
 		SetSonicState(SonicState::RUNLEFT_0);
 		break;
 	case 5:
-		SetSonicState(SonicState::RUNLEFT_315);
+		SetSonicState(SonicState::RUNLEFT_45);
 		break;
 	case 6:
-		SetSonicState(SonicState::RUNLEFT_270);
+		SetSonicState(SonicState::RUNLEFT_90);
 		break;
 	case 7:
-		SetSonicState(SonicState::RUNLEFT_225);
+		SetSonicState(SonicState::RUNLEFT_135);
 		break;
 	}
 }
 
 void Player::AdjustState_Angle_RIGHT()
 {
-	int StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
+	int StandardAngle;
+	if (_angle < 0)
+	{
+		_angle = 2 * M_PI + _angle;
+	}
+
+	StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
 
 	switch (StandardAngle)
 	{
@@ -1193,7 +1198,7 @@ void Player::SkiddlingMovement()
 		else _state = SonicState::SKIDDLING_LEFT;
 	}
 	if (_IsOnGround == true)
-		Player::ModifyGroundMovement();
+		Player::AdjustGroundMovement();
 	
 }
 
@@ -1217,14 +1222,14 @@ void Player::SetGravitationVec(GravitationVec vec)
 	}
 }
 
-void Player::AdjustMovement()
+void Player::SetMovement()
 {
 	if (_onLoopCondition == true)
 		return;
 #pragma region 이동 연산 
 	{
 		SetPos(_pos + _physic->Speed);
-		Player::ModifyGroundMovement();
+		Player::AdjustGroundMovement();
 		AdjustAllPixelCollider;
 	}
 }

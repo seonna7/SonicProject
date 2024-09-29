@@ -104,14 +104,15 @@ public :
 	void OnDownPressed();
 
 private : 
-	void ModifyGroundMovement();
+	void AdjustGroundMovement();
 	void ModifyWallMovement(ePixelDirection _dir);
 	
 	void SlipMovement();
 	void JumpMovement();
 	void LeftMovement();
 	void RightMovement();
-	void AdjustMovement();
+
+	void SetMovement();
 
 	bool IsSkiddlingCondition();
 	void SkiddlingMovement();
