@@ -204,7 +204,7 @@ void DevScene::Init()
 	//
 	//	_backgrounds.push_back(background);
 	//}
-#if 1
+#if 0
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest1");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest1", tex, 0, 0, 0, 0);
 	{

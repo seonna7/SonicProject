@@ -555,7 +555,7 @@ void Player::AdjustGroundMovement()
 
 	bool LeftHighSlope = (_angle > 3 * M_PI / 4 && _angle < 4 * M_PI / 4);
 	bool RightHighSlope = (_angle > 0 * M_PI / 4 && _angle < 1 * M_PI / 4);
-	
+	// 경사면 이동 수정 필요 
 	if (RunLeft == true && LeftHighSlope)
 	{
 		CollisionDetect = 0;
