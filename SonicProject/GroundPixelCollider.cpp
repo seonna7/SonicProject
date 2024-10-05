@@ -58,7 +58,7 @@ bool GroundPixelCollider::CheckCollision(Collider* other)
 	if (other->GetComponentType() == eComponentType::BACKGROUND_COLLIDER)
 	{
 		Player* player = dynamic_cast<Player*>(_owner);
-		return player->CheckCollision_Ground();
+		return player->GetIsOnGround();
 	}
 	return false;
 }

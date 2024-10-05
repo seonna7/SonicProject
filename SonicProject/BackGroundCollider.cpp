@@ -41,7 +41,8 @@ bool BackGroundCollider::CheckCollision(Collider* other)
     switch (_type)
     {
     case ePixelColliderType::GROUND : 
-        return player->CheckCollision_Ground();
+        //player->CheckCollision_Ground();
+        return false;
     case ePixelColliderType::WALL :
     {
         WallPixelCollider* pixel = dynamic_cast<WallPixelCollider*>(other);

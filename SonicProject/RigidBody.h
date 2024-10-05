@@ -13,8 +13,11 @@ struct Physic
 	Vector Speed = { 0,0 };
 	float _accelerationSpeed = 5.0f;
 	float _frictionSpeed = 5.0f;
-	float _maxSpeedX = 100;
-	float _jumpForce = 300;
+	float _maxSpeedX = 200;
+	float _jumpForce = 600;
+
+	float _groundSpeed = 0.f;
+
 	void RemoveSpeedX(){ Speed.x = 0; }
 	void RemoveSpeedY() { Speed.y = 0; }
 	bool _gravity = false;

@@ -88,7 +88,7 @@ public :
 	void AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2);
 	
 	// ¾ê´Â yÁÂÇ¥¶«¿¡ ³¿°ÜµÎ±â 
-	bool CheckCollision_Ground();
+	void CheckCollision_Ground();
 
 	bool CheckCollsion_ColorRef(Vector& pos, COLORREF color);
 private : 
@@ -133,6 +133,8 @@ private :
 
 public : 
 	float GetAngle() { return _angle; }
+
+	bool GetIsOnGround() { return _IsOnGround; }
 
 private : 
 	//=======================================================

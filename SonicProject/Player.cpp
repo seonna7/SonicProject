@@ -1,4 +1,4 @@
-#include "pch.h"
+Ôªø#include "pch.h"
 #include "Player.h"
 #include "TimeManager.h"
 #include "InputManager.h"
@@ -40,77 +40,63 @@
 }
 
 
-//===================================================================
-//								RULES
-//===================================================================
-// 1. ≥ª∞° ¡ˆ±› ¡¢√À«— ∞ÊªÁ∏È¿∫ ∫Ò∆Æ ø¨ªÍ¿∏∑Œ ¿Œ«ÿº≠ µøΩ√ ¡¢√À¿Ã ∞°¥…«œ¥Ÿ
-//		∞ÊªÁ∏È¿« ∞¢µµ ºº∆√ø° ¥Î«— øÏº±º¯¿ß¥¬ ¥Ÿ¿Ω∞˙ ∞∞¥Ÿ
-//		AIR -> GROUND -> CEILING -> LWALL -> RWALL	
-// 
-// 2. ∆˜¡ˆº« ºˆ¡§ »ƒ CorrectingMovement∑Œ ¡ø∞∞¿∫ ¥˙¥˙∞≈∏≤¿ª æ¯æÿ¥Ÿ 
-// 3. ∆˜¡ˆº« ºˆ¡§ »ƒ AdjustAllPixelCollider∑Œ «»ºø ¿ßƒ°∏¶ ¡ø∞∞∞‘ «œ¡ˆ æ ¥¬¥Ÿ 
-// 4. «‘ºˆ ¡ﬂ∫π¿Ã ¿œæÓ≥™∏È π´¡∂∞« ¡Ÿø©∂Û 
-// 5. ¥Î∞°∏Æ æ»µπæ∆∞°∏È Ω√∞£≤¯¡ˆ ∏ª∞Ì µ˛¿‚∞Ì øÕ∂Û 
-// 6. ¿ÃªÛ«— ƒ⁄µÂ ΩŒ¡ˆ∏∂∂Û  
-//====================================================================
-
-Player::Player()  
+Player::Player()
 {
-#pragma region FlipBook ∞°¡Æø¿±‚ 
+#pragma region FlipBook ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ 
 	{
 		_flipbook_Pause = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Standing");
 
 		_flipbookSkiddling_Left = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Skiddling_Left");
 		_flipbookSkiddling_Right = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Skiddling_Right");
 
-		_flipbook_RunningLeft_0		= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_0");
-		_flipbook_RunningLeft_45	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_45");
-		_flipbook_RunningLeft_90	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_90");
-		_flipbook_RunningLeft_135	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_135");
-		_flipbook_RunningLeft_180	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_180");
-		_flipbook_RunningLeft_225	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_225");
-		_flipbook_RunningLeft_270	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_270");
-		_flipbook_RunningLeft_315	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_315");
+		_flipbook_RunningLeft_0 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_0");
+		_flipbook_RunningLeft_45 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_45");
+		_flipbook_RunningLeft_90 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_90");
+		_flipbook_RunningLeft_135 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_135");
+		_flipbook_RunningLeft_180 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_180");
+		_flipbook_RunningLeft_225 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_225");
+		_flipbook_RunningLeft_270 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_270");
+		_flipbook_RunningLeft_315 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_315");
 
-		_flipbook_RunningRight_0	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_0");
-		_flipbook_RunningRight_45	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_45");
-		_flipbook_RunningRight_90	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_90");
-		_flipbook_RunningRight_135	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_135");
-		_flipbook_RunningRight_180	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_180");
-		_flipbook_RunningRight_225	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_225");
-		_flipbook_RunningRight_270	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_270");
-		_flipbook_RunningRight_315	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_315");
+		_flipbook_RunningRight_0 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_0");
+		_flipbook_RunningRight_45 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_45");
+		_flipbook_RunningRight_90 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_90");
+		_flipbook_RunningRight_135 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_135");
+		_flipbook_RunningRight_180 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_180");
+		_flipbook_RunningRight_225 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_225");
+		_flipbook_RunningRight_270 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_270");
+		_flipbook_RunningRight_315 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_315");
 
 		_flipbook_Rolling = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Rolling");
 		_flipbook_Sitting = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Sitting");
 	}
-	
-#pragma region ƒ´∏ﬁ∂Û √ﬂ∞°
+
+#pragma region ƒ´ÔøΩﬁ∂ÔøΩ ÔøΩﬂ∞ÔøΩ
 	{
 		CameraComponent* camera = new CameraComponent(this);
 	}
 
-#pragma region rigidBody √ﬂ∞°
-	 {
-		 _rigidBody = new RigidBody(this, new Physic());
-		 SetRigidBody(_rigidBody);
-		 _physic = _rigidBody->GetPhysic();
-	 }
+#pragma region rigidBody ÔøΩﬂ∞ÔøΩ
+	{
+		_rigidBody = new RigidBody(this, new Physic());
+		SetRigidBody(_rigidBody);
+		_physic = _rigidBody->GetPhysic();
+	}
 
-#pragma region pixelCollider √ﬂ∞° 
-	 {
-		 _ceilingPixelCollider = new CeilingPixelCollider(this);
-		 _groundPixelCollider = new GroundPixelCollider(this);
-		 _pushPixelCollider= new PushPixelCollider(this);
-		 _RwallPixelCollider = new WallPixelCollider(this, ePixelDirection::P_RIGHT);
-		 _LwallPixelCollider = new WallPixelCollider(this, ePixelDirection::P_LEFT);
-		 _cliffPixelCollider = new CliffPixelCollider(this);
-	 }
+#pragma region pixelCollider ÔøΩﬂ∞ÔøΩ 
+	{
+		_ceilingPixelCollider = new CeilingPixelCollider(this);
+		_groundPixelCollider = new GroundPixelCollider(this);
+		_pushPixelCollider = new PushPixelCollider(this);
+		_RwallPixelCollider = new WallPixelCollider(this, ePixelDirection::P_RIGHT);
+		_LwallPixelCollider = new WallPixelCollider(this, ePixelDirection::P_LEFT);
+		_cliffPixelCollider = new CliffPixelCollider(this);
+	}
 }
 
 Player::~Player()
 {
-	for(int i = 0 ; i<2; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		if (_anglePixel[i] != nullptr)
 		{
@@ -122,7 +108,7 @@ Player::~Player()
 }
 
 void Player::BeginPlay()
-{	
+{
 	SetPos(Vector(100, 100));
 	Super::BeginPlay();
 	setFlipbook(_flipbook_Pause);
@@ -133,14 +119,13 @@ void Player::Tick()
 	Super::Tick();
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
 
-	_IsOnGround = Player::CheckCollision_Ground();
+ 	Player::CheckCollision_Ground();
 
 	if (_IsOnGround == false)
 	{
 		Player::SetGravitationVec(GravitationVec::GROUND);
 	}
-
-	else if (_IsOnGround==true)
+	else if (_IsOnGround == true)
 	{
 		_rigidBody->GetPhysic()->RemoveSpeedY();
 		_slopeType = SlopeType::GROUND;
@@ -148,23 +133,26 @@ void Player::Tick()
 
 	if (_onLoopCondition == false)
 	{
-		
+
 	}
 
 	Player::JumpStateUpdate();
 
 	Player::SetAngle(_slopeType);
-	
+
 	if (_IsOnGround == true && _physic->Speed == Vector{ 0,0 })
 		SetSonicState(SonicState::PAUSE);
-	
+
 	GET_SINGLE(EventManager)->InputEventFunctionExecution();
 
-	if(_currLoop!=nullptr)
+
+
+
+
+	if (_currLoop != nullptr)
 	{
 	}
 
-	// ∑Á«¡ Ω«∆– øÚ¡˜¿” 
 	if ((_onLoopCondition == true) &&
 		(GET_SINGLE(InputManager)->GetButtonUp(KeyType::D) ||
 			GET_SINGLE(InputManager)->GetButtonUp(KeyType::A)))
@@ -190,7 +178,6 @@ void Player::Render(HDC hdc)
 {
 	Super::Render(hdc);
 
-#pragma region «√∑π¿ÃæÓ ªÛ≈¬ √‚∑¬ 
 	{
 		{
 			wstring str = std::format(L"Player Position({0}, {1})", _pos.x, _pos.y);
@@ -234,7 +221,7 @@ void Player::Render(HDC hdc)
 		}
 	}
 
-#pragma region AnglePixel √‚∑¬ 
+#pragma region AnglePixel ÔøΩÔøΩÔøΩ 
 	{
 		Vector cameraPos = GET_SINGLE(SceneManager)->GetCameraPos();
 		if (_anglePixel[0] != nullptr && _anglePixel[1] != nullptr)
@@ -272,7 +259,7 @@ void Player::FlipbookRender()
 	case SonicState::PAUSE:
 		setFlipbook(_flipbook_Pause);
 		break;
-	case SonicState::RUNLEFT_0 : 
+	case SonicState::RUNLEFT_0:
 		setFlipbook(_flipbook_RunningLeft_0);
 		break;
 	case SonicState::RUNLEFT_45:
@@ -322,7 +309,7 @@ void Player::FlipbookRender()
 		break;
 	case SonicState::ROLLING:
 		setFlipbook(_flipbook_Rolling);
-	case SonicState::JUMPING :
+	case SonicState::JUMPING:
 		setFlipbook(_flipbook_Rolling);
 		break;
 	case SonicState::SKIDDLING_LEFT:
@@ -331,7 +318,7 @@ void Player::FlipbookRender()
 	case SonicState::SKIDDLING_RIGHT:
 		setFlipbook(_flipbookSkiddling_Right);
 		break;
-	case SonicState::SITTING : 
+	case SonicState::SITTING:
 		setFlipbook(_flipbook_Sitting);
 		break;
 	}
@@ -339,7 +326,7 @@ void Player::FlipbookRender()
 
 void Player::OnComponentBeginOverlap(Collider* collider, Collider* other)
 {
-#pragma region BoxColliderø° ¥Î«— √Êµπ √≥∏Æ
+#pragma region BoxColliderÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÊµπ √≥ÔøΩÔøΩ
 	{
 		BoxCollider* b1 = dynamic_cast<BoxCollider*>(collider);
 
@@ -353,23 +340,23 @@ void Player::OnComponentBeginOverlap(Collider* collider, Collider* other)
 	PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
 	eComponentType otherComponentType = other->GetComponentType();
 	ePixelColliderType _pixelcollidertype = pixelcollider->GetPixelColliderType();
-	if ( otherComponentType == eComponentType::BACKGROUND_COLLIDER)
+	if (otherComponentType == eComponentType::BACKGROUND_COLLIDER)
 	{
 		switch (_pixelcollidertype)
 		{
-		case ePixelColliderType::GROUND : 
-			Player::OnComponentBeginOverlap_Ground_Pixel(collider);
-			_IsOnGround = true;
+		case ePixelColliderType::GROUND:
+			//Player::OnComponentBeginOverlap_Ground_Pixel(collider);
+			//_IsOnGround = true;
 			break;
 		case ePixelColliderType::WALL:
 			break;
-		case ePixelColliderType::CLIFF : 
+		case ePixelColliderType::CLIFF:
 			break;
-		case ePixelColliderType::CEILING : 
+		case ePixelColliderType::CEILING:
 			break;
-		case ePixelColliderType::PUSH : 
+		case ePixelColliderType::PUSH:
 			break;
-		default : 
+		default:
 			break;
 		}
 	}
@@ -377,59 +364,59 @@ void Player::OnComponentBeginOverlap(Collider* collider, Collider* other)
 
 void Player::OnComponentEndOverlap(Collider* collider, Collider* other)
 {
-	// «»ºø ƒ›∂Û¿Ã¥ı∏Èº≠, groundø©æﬂ«‘
+	// ÔøΩ»ºÔøΩ ÔøΩ›∂ÔøΩÔøΩÃ¥ÔøΩÔøΩÈº≠, groundÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
 	PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
-	
+
 	if (pixelcollider == nullptr)
 		return;
-	
+
 	eComponentType componentType = collider->GetComponentType();
 	ePixelColliderType colliderType = pixelcollider->GetPixelColliderType();
-	
+
 	eComponentType otherComponentType = other->GetComponentType();
 	switch (colliderType)
 	{
-	case ePixelColliderType::GROUND :  
+	case ePixelColliderType::GROUND:
 		switch (otherComponentType)
 		{
-			case eComponentType::LOOP :
+		case eComponentType::LOOP:
+		{
+			LoopCollider* loopcollider = dynamic_cast<LoopCollider*>(other);
+			if (loopcollider->GetIsLoopCoursePassed() == true)
 			{
-				LoopCollider* loopcollider = dynamic_cast<LoopCollider*>(other);
-				if (loopcollider->GetIsLoopCoursePassed() == true)
+				int a = 1;
+			}
+			else
+			{
+				if (_onLoopCondition == true)
 				{
-					int a = 1;
-				}
-				else
-				{
-					if(_onLoopCondition==true)
+					if (loopcollider->GetDirection() == ePixelDirection::P_LEFT)
 					{
-						if (loopcollider->GetDirection() == ePixelDirection::P_LEFT)
-						{
-							loopcollider->SetDirection(ePixelDirection::P_RIGHT);
-						}
-						else if (loopcollider->GetDirection() == ePixelDirection::P_RIGHT)
-						{
-							loopcollider->SetDirection(ePixelDirection::P_LEFT);
-						}
+						loopcollider->SetDirection(ePixelDirection::P_RIGHT);
+					}
+					else if (loopcollider->GetDirection() == ePixelDirection::P_RIGHT)
+					{
+						loopcollider->SetDirection(ePixelDirection::P_LEFT);
 					}
 				}
 			}
-			case eComponentType::BACKGROUND_COLLIDER : 
-				_IsOnGround = false;
-				_physic->_gravity = true;
-				_slopeType = SlopeType::AIR;
-				break;
+		}
+		case eComponentType::BACKGROUND_COLLIDER:
+			_IsOnGround = false;
+			_physic->_gravity = true;
+			_slopeType = SlopeType::AIR;
+			break;
 
 		}
 
 		break;
-	case ePixelColliderType::WALL : 
+	case ePixelColliderType::WALL:
 		break;
-	case ePixelColliderType::CEILING : 
+	case ePixelColliderType::CEILING:
 		break;
-	case ePixelColliderType::CLIFF : 
+	case ePixelColliderType::CLIFF:
 		break;
-	case ePixelColliderType::PUSH : 
+	case ePixelColliderType::PUSH:
 		break;
 	}
 }
@@ -473,14 +460,15 @@ void Player::AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2)
 	SetPos(pos);
 }
 
-bool Player::CheckCollision_Ground()
+void Player::CheckCollision_Ground()
 {
-	Vector Ground= _groundPixelCollider->GetPixel();
+	Vector Ground = _groundPixelCollider->GetPixel();
 	Ground.y += 3;
 	if (CheckCollsion_ColorRef(Ground, ColorRef::RED))
-		return true;
+		_IsOnGround = true;
 
-	return false;
+	else 
+		_IsOnGround = false;
 }
 
 
@@ -549,13 +537,13 @@ void Player::AdjustGroundMovement()
 {
 	Vector& pixel = _groundPixelCollider->GetPixel();
 	bool CollisionDetect = 1;
-	
+
 	bool RunLeft = (_physic->Speed.x < 0) && (_IsOnGround == true);
 	bool RunRight = (_physic->Speed.x > 0) && (_IsOnGround == true);
 
 	bool LeftHighSlope = (_angle > 3 * M_PI / 4 && _angle < 4 * M_PI / 4);
 	bool RightHighSlope = (_angle > 0 * M_PI / 4 && _angle < 1 * M_PI / 4);
-	// ∞ÊªÁ∏È ¿Ãµø ºˆ¡§ « ø‰ 
+
 	if (RunLeft == true && LeftHighSlope)
 	{
 		CollisionDetect = 0;
@@ -567,7 +555,7 @@ void Player::AdjustGroundMovement()
 
 
 	int addVal = ((CollisionDetect) ? -1 : 1);
-	while (CheckCollsion_ColorRef(pixel,ColorRef::RED) == CollisionDetect)
+	while (CheckCollsion_ColorRef(pixel, ColorRef::RED) == CollisionDetect)
 	{
 		_pos.y += addVal;
 		AdjustAllPixelCollider;
@@ -578,12 +566,12 @@ void Player::AdjustGroundMovement()
 void Player::ModifyWallMovement(ePixelDirection _dir)
 {
 	Vector* pixel = nullptr;
-	if(_dir ==ePixelDirection::P_RIGHT)
+	if (_dir == ePixelDirection::P_RIGHT)
 		pixel = &_RwallPixelCollider->GetPixel();
 	else if (_dir == ePixelDirection::P_LEFT)
 		pixel = &_LwallPixelCollider->GetPixel();
-	
-	while (CheckCollsion_ColorRef(*pixel,ColorRef::MANGENTA) == true||
+
+	while (CheckCollsion_ColorRef(*pixel, ColorRef::MANGENTA) == true ||
 		CheckCollsion_ColorRef(*pixel, ColorRef::CYAN) == true)
 	{
 		_pos.y += -1;
@@ -622,7 +610,7 @@ void Player::JumpMovement()
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
 	if (_IsOnGround == true && _angle == 0)
 		_pos.y -= 10;
-	else 
+	else
 	{
 		_pos.x -= 20 * sin(_angle);
 		_pos.y -= 20 * cos(_angle);
@@ -630,10 +618,7 @@ void Player::JumpMovement()
 
 	_physic->RemoveSpeedY();
 
-	_physic->Speed.x -= _physic->_jumpForce * deltaTime * sin(_angle);
-	_physic->Speed.y -= _physic->_jumpForce * deltaTime * cos(_angle);
-	
-	if(_onLoopCondition ==true)
+	if (_onLoopCondition == true)
 	{
 		_onLoopCondition = false;
 		_onLoopPlayerAngle._myDegree = 0;
@@ -661,7 +646,7 @@ void Player::LeftMovement()
 	{
 		AdjustState_Angle_LEFT();
 	}
-	Player::SetMovement();
+	//Player::SetMovement();
 }
 
 void Player::RightMovement()
@@ -672,21 +657,21 @@ void Player::RightMovement()
 	{
 		AdjustState_Angle_RIGHT();
 	}
-	Player::SetMovement();
+	//Player::SetMovement();
 }
 
 bool Player::IsSkiddlingCondition()
 {
-	if (GET_SINGLE(InputManager)->GetButtonNone(KeyType::D) &&
-		GET_SINGLE(InputManager)->GetButtonNone(KeyType::A) &&
+	if ((GET_SINGLE(InputManager)->GetButtonNone(KeyType::D) &&
+		GET_SINGLE(InputManager)->GetButtonNone(KeyType::A)) &&
 		(_IsOnGround == true || _IsOnRWall == true || _IsOnLWall == true))
 		return true;
 	return false;
 }
 
 void Player::MovementCallBack
-   (bool(Player::* LoopFunc)(ePixelDirection), 
-	ePixelDirection _dir, 
+(bool(Player::* LoopFunc)(ePixelDirection),
+	ePixelDirection _dir,
 	void(Player::* SucceedFunc)(ePixelDirection),
 	void(Player::* FailedFunc)())
 {
@@ -722,8 +707,8 @@ bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
 	if (_onLoopCondition == true && ((_onLoopPlayerAngle._myDegree >= 360.f) ||
 		(_onLoopPlayerAngle._myDegree <= -360.f)))
 	{
-		_onLoopPlayerAngle = DIRECTION ? 360.f : -360.f; 
-		if ((_pos - _currLoopPos).Length() >= _radius + 1 )
+		_onLoopPlayerAngle = DIRECTION ? 360.f : -360.f;
+		if ((_pos - _currLoopPos).Length() >= _radius + 1)
 		{
 			_onLoopCondition = false;
 			_onLoopPlayerAngle = 0.f;
@@ -734,9 +719,9 @@ bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
 	{
 		for (LoopCollider* loopInfo : _loopInfo)
 		{
-			bool CheckPosX = DIRECTION ?  _pos.x >= _currLoopPos.x : _pos.x <= _currLoopPos.x;
+			bool CheckPosX = DIRECTION ? _pos.x >= _currLoopPos.x : _pos.x <= _currLoopPos.x;
 			bool LoopDirCheck;
-			if( DIRECTION ==false && loopInfo->GetDirection()==ePixelDirection::P_LEFT||
+			if (DIRECTION == false && loopInfo->GetDirection() == ePixelDirection::P_LEFT ||
 				DIRECTION == true && loopInfo->GetDirection() == ePixelDirection::P_RIGHT)
 			{
 				if (CheckPosX == true && (_pos - loopInfo->GetPos()).Length() <= _radius - 100 / 1.8 + 35
@@ -750,39 +735,52 @@ bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
 				}
 			}
 		}
-	} 
+	}
 	return _onLoopCondition;
 }
 
 void Player::LoopMovement(ePixelDirection _dir)
 {
 	bool DIRECTION = (bool)_dir;
-	// ∑Á«¡ ¡¬«• »Æ¿Œ 
+
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-	
+
 	short Weight = (DIRECTION) ? 1 : -1;
 
 	_physic->Speed.x = Weight * _radius * deltaTime * sin(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
 	_physic->Speed.y = Weight * _radius * deltaTime * cos(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
 
-	if (_onLoopPlayerAngle._myDegree == 360.f||_onLoopPlayerAngle._myDegree ==-360.f)
+	if (_onLoopPlayerAngle._myDegree == 360.f || _onLoopPlayerAngle._myDegree == -360.f)
 	{
 		_angle = 0.f;
 		_physic->Speed.x += 4 * Weight;
-		SetPos(_physic->Speed+ _pos);
+		SetPos(_physic->Speed + _pos);
 	}
-	else 
+	else
 	{
 		_physic->_gravity = false;
 
 		_pos.x = _currLoopPos.x + (_radius - (100 / 1.8) / 2) * cos(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
 		_pos.y = _currLoopPos.y + (_radius - (100 / 1.8) / 2) * sin(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
-		
+
+		// Í∞ÅÎèÑ Î≥¥Ï†ï 
+		if (abs(_onLoopPlayerAngle._myDegree) <= 180.f)
+		{
+			_angleSpeed -= 60 * deltaTime * Weight;
+		}
+		else if (abs(_onLoopPlayerAngle._myDegree) > 180.f)
+		{
+			_angleSpeed += 120 * deltaTime * Weight;
+		}
+		if (_angleSpeed <= 50.f)
+		{
+			_onLoopCondition = false;
+		}
 		_onLoopPlayerAngle += _angleSpeed * deltaTime * Weight;
-		
+
 	}
 	AdjustAllPixelCollider;
-	
+
 	if (_dir == ePixelDirection::P_LEFT)
 		AdjustState_Angle_LEFT();
 	else if (_dir == ePixelDirection::P_RIGHT)
@@ -864,7 +862,7 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 	PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
 	switch (pixelcollider->GetPixelColliderType())
 	{
-	case ePixelColliderType::CEILING : 
+	case ePixelColliderType::CEILING:
 		//
 		break;
 	case ePixelColliderType::GROUND:
@@ -889,11 +887,11 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 			_slopeType = _slopeType | SlopeType::RIGHT_WALL;
 		break;
 	}
-	case ePixelColliderType::PUSH : 
+	case ePixelColliderType::PUSH:
 
 		break;
 	case ePixelColliderType::CLIFF:
-		// cliff¥¬ «»ºø 4∞≥¿” 
+		// cliffÔøΩÔøΩ ÔøΩ»ºÔøΩ 4ÔøΩÔøΩÔøΩÔøΩ 
 		break;
 	}
 }
@@ -902,56 +900,56 @@ void Player::SetAngle(uint16 type)
 {
 	if (_onLoopCondition == true)
 	{
-		#pragma region ¡°«¡ ∞¢µµ ºº∆√ ¿ß«ÿº≠ ∞¢µµ∞™ ºˆ¡§«ÿæﬂ«‘ 
+#pragma region ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÿºÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ ÔøΩÔøΩÔøΩÔøΩÔøΩÿæÔøΩÔøΩÔøΩ 
 		{
 			_angle = Utils::DegreeToRadian(_onLoopPlayerAngle._myDegree);
 			return;
 		}
 	}
 	SlopeType currSlopeType = Player::InitAnglePixel();
-	if (_anglePixel[0]==nullptr&&_anglePixel[1]==nullptr)
+	if (_anglePixel[0] == nullptr && _anglePixel[1] == nullptr)
 	{
 		_angle = 0.f;
 		return;
 	}
-	if (currSlopeType ==SlopeType::GROUND|| currSlopeType ==SlopeType::CEILING)
+	if (currSlopeType == SlopeType::GROUND || currSlopeType == SlopeType::CEILING)
 	{
 		uint8 leftpixelIndex = (int)ePixelDirection::P_LEFT;
 		uint8 rightpixelIndex = (int)ePixelDirection::P_RIGHT;
-		if ((CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex],ColorRef::RED) == true) &&
+		if ((CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true) &&
 			CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
 		{
 			_angle = 0.f;
 			return;
 		}
 
-		//Left∞° ∞…∏∞ ∞ÊøÏ 
-		else if (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex],ColorRef::RED) == true)
+		//LeftÔøΩÔøΩ ÔøΩ…∏ÔøΩ ÔøΩÔøΩÔøΩ 
+		else if (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true)
 		{
-			while (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex],ColorRef::RED) == true)
+			while (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true)
 				_anglePixel[leftpixelIndex]->y -= 1;
 			while (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == false)
 			{
 				_anglePixel[rightpixelIndex]->y += 1;
 			}
 		}
-		// Right∞° ∞…∏∞ ∞ÊøÏ 
-		else if(CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
+		// RightÔøΩÔøΩ ÔøΩ…∏ÔøΩ ÔøΩÔøΩÔøΩ 
+		else if (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
 		{
-			while (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex],ColorRef::RED) == true)
+			while (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
 				_anglePixel[rightpixelIndex]->y -= 1;
 			while (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == false)
 				_anglePixel[leftpixelIndex]->y += 1;
 		}
-		
+
 		float Xval = (_anglePixel[rightpixelIndex]->x - _anglePixel[leftpixelIndex]->x);
 		float Yval = (-1) * (_anglePixel[rightpixelIndex]->y - _anglePixel[leftpixelIndex]->y);
 		if (abs(Yval) < 5)
 			_angle = 0;
-		else 
+		else
 			_angle = atan2(Yval, Xval);
 	}
-	else  
+	else
 	{
 
 		uint8 topPixelIndex = (uint8)ePixelDirection::P_TOP;
@@ -959,13 +957,13 @@ void Player::SetAngle(uint16 type)
 
 		if (currSlopeType == SlopeType::LEFT_WALL)
 		{
-			if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex],ColorRef::RED) == true &&
+			if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true &&
 				CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
 			{
 				_angle = 3 * M_PI / 4;
 				return;
 			}
-			// TOP ¿Ã ∞…∏∞ ∞ÊøÏ
+			// TOP ÔøΩÔøΩ ÔøΩ…∏ÔøΩ ÔøΩÔøΩÔøΩ
 			else if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
 			{
 				while (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
@@ -974,7 +972,7 @@ void Player::SetAngle(uint16 type)
 					_anglePixel[bottomPixelIndex]->x -= 1;
 			}
 
-			//BOTTOM¿Ã ∞…∏∞ ∞ÊøÏ 
+			//BOTTOMÔøΩÔøΩ ÔøΩ…∏ÔøΩ ÔøΩÔøΩÔøΩ 
 			else if (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
 			{
 				while (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
@@ -992,7 +990,7 @@ void Player::SetAngle(uint16 type)
 				_angle = M_PI / 4;
 				return;
 			}
-			// Top¿Ã ∞…∏∞ ∞ÊøÏ 
+			// TopÔøΩÔøΩ ÔøΩ…∏ÔøΩ ÔøΩÔøΩÔøΩ 
 			else if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
 			{
 				while (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
@@ -1001,7 +999,7 @@ void Player::SetAngle(uint16 type)
 					_anglePixel[bottomPixelIndex]->x += 1;
 			}
 
-			//BOTTOM¿Ã ∞…∏∞ ∞ÊøÏ 
+			//BOTTOMÔøΩÔøΩ ÔøΩ…∏ÔøΩ ÔøΩÔøΩÔøΩ 
 			else if (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
 			{
 				while (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
@@ -1024,7 +1022,7 @@ void Player::SetAngle(uint16 type)
 	}
 	else if (_angle > 2 * M_PI)
 	{
-		_angle = fmod(_angle, 2*M_PI);
+		_angle = fmod(_angle, 2 * M_PI);
 	}
 }
 
@@ -1109,15 +1107,15 @@ SlopeType Player::InitAnglePixel()
 	BoxCollider* box = dynamic_cast<BoxCollider*>(FindComponent(eComponentType::BOX_COLLIDER));
 	assert(box != nullptr);
 
-	uint8 switchCase = 0; 
+	uint8 switchCase = 0;
 	uint8 currBit = 1;
 
-	uint8 top		= (uint8)ePixelDirection::P_TOP;
-	uint8 bottom	= (uint8)ePixelDirection::P_BOTTOM;
-	uint8 left		= (uint8)ePixelDirection::P_LEFT;
-	uint8 right		= (uint8)ePixelDirection::P_RIGHT;
+	uint8 top = (uint8)ePixelDirection::P_TOP;
+	uint8 bottom = (uint8)ePixelDirection::P_BOTTOM;
+	uint8 left = (uint8)ePixelDirection::P_LEFT;
+	uint8 right = (uint8)ePixelDirection::P_RIGHT;
 
-	for (int i = 0; i < SLOPETYPE_SIZE; i++, currBit<<=1)
+	for (int i = 0; i < SLOPETYPE_SIZE; i++, currBit <<= 1)
 	{
 		switchCase = currBit & _slopeType;
 		switch (switchCase)
@@ -1199,7 +1197,6 @@ void Player::SkiddlingMovement()
 	}
 	if (_IsOnGround == true)
 		Player::AdjustGroundMovement();
-	
 }
 
 void Player::SetGravitationVec(GravitationVec vec)
@@ -1207,16 +1204,16 @@ void Player::SetGravitationVec(GravitationVec vec)
 	_rigidBody->GetPhysic()->SetGravity(true);
 	switch (vec)
 	{
-	case GravitationVec::GROUND : 
+	case GravitationVec::GROUND:
 		_rigidBody->GravitationOnGround();
 		break;
-	case GravitationVec::LEFT_WALL : 
+	case GravitationVec::LEFT_WALL:
 		_rigidBody->GravitationOnLeftWall();
 		break;
-	case GravitationVec::RIGHT_WALL :
+	case GravitationVec::RIGHT_WALL:
 		_rigidBody->GravitationOnRightWall();
 		break;
-	case GravitationVec::CEILING : 
+	case GravitationVec::CEILING:
 		_rigidBody->GravitationOnCeiling();
 
 	}
@@ -1226,7 +1223,7 @@ void Player::SetMovement()
 {
 	if (_onLoopCondition == true)
 		return;
-#pragma region ¿Ãµø ø¨ªÍ 
+#pragma region ÔøΩÃµÔøΩ ÔøΩÔøΩÔøΩÔøΩ 
 	{
 		SetPos(_pos + _physic->Speed);
 		Player::AdjustGroundMovement();
