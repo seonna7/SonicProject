@@ -21,6 +21,7 @@
 #include "CliffPixelCollider.h"
 #include "BackGroundCollider.h"
 #include "LoopCollider.h"
+#include "AccelObj.h"
 
 extern uint32 GWinSizeX;
 extern uint32 GWinSizeY;
@@ -44,7 +45,7 @@ void DevScene::Init()
 	//테스트용 
 	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest1", L"Sprite\\MAP\\maptest1.bmp");
 	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest2", L"Sprite\\MAP\\maptest2.bmp");
-
+	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest3", L"Sprite\\MAP\\maptest3.bmp");
 
 
 	GET_SINGLE(ResourceManager)->LoadTexture(L"Sonic_Standing", L"Sprite\\Player\\Sonic_Standing.bmp", RGB(0, 255, 0));
@@ -205,6 +206,7 @@ void DevScene::Init()
 	//	_backgrounds.push_back(background);
 	//}
 #if 1
+
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest1");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest1", tex, 0, 0, 0, 0);
 	{
@@ -220,7 +222,42 @@ void DevScene::Init()
 
 		_backgrounds.push_back(background);
 	}
-#else 
+
+	
+	{
+		Actor* test = new Actor();
+		test->SetPos(Pos(830, 300));
+		AccelObj* accObj = new AccelObj(Vector(1,0));
+		{
+			accObj->SetOwner(test);
+			accObj->SetSize(Vector(50, 50));
+			accObj->SetCollisionLayerType(CLT_GROUND);
+			uint32 flag = 0;
+
+			GET_SINGLE(CollisionManager)->AddCollider(accObj);
+			test->AddComponent(accObj);
+		}
+		AddActor(test);
+	}
+
+	{
+		Actor* test = new Actor();
+		test->SetPos(Pos(500, 500));
+		BoxCollider* boxCollider = new BoxCollider();
+		{
+			boxCollider->SetOwner(test);
+			boxCollider->SetSize(Vector(100, 100));
+			boxCollider->SetCollisionLayerType(CLT_GROUND);
+			uint32 flag = 0;
+
+			GET_SINGLE(CollisionManager)->AddCollider(boxCollider);
+			test->AddComponent(boxCollider);
+		}
+		AddActor(test);
+	}
+
+
+#elif 0
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest2");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest2", tex, 0, 0, 0, 0);
 	{
@@ -247,6 +284,49 @@ void DevScene::Init()
 		for (auto& loopInfo : _LoopColliders)
 			GET_SINGLE(CollisionManager)->AddCollider(loopInfo);
 	}
+
+#else 
+	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest3");
+	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest3", tex, 0, 0, 0, 0);
+	{
+		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(L"maptest3");
+		SpriteActor* background = new SpriteActor();
+
+		const Vector size = sprite->GetSize();
+
+		// 포지션 변경 
+		background->SetPos(Vector(size.x / 2, size.y / 2));
+
+		background->SetSprite(sprite);
+
+		_backgrounds.push_back(background);
+
+	}
+	vector<pair<Vector, Vector>> AccPos;
+	AccPos.push_back(make_pair(Vector(441, 272), Vector(1, 0)));
+	AccPos.push_back(make_pair(Vector(530, 302), Vector(1, -1)));
+	AccPos.push_back(make_pair(Vector(566, 366), Vector(0, -1)));
+	AccPos.push_back(make_pair(Vector(542, 482), Vector(0, -1)));
+	AccPos.push_back(make_pair(Vector(578, 614), Vector(1, -1)));
+	AccPos.push_back(make_pair(Vector(671, 668), Vector(1, 0)));
+	for (int i = 0; i < 6; i++)
+	{
+		Actor* test = new Actor();
+		test->SetPos(AccPos[i].first);
+		AccelObj* accObj = new AccelObj(AccPos[i].second);
+		{
+			accObj->SetOwner(test);
+			accObj->SetSize(Vector(50, 50));
+			accObj->SetCollisionLayerType(CLT_GROUND);
+			uint32 flag = 0;
+
+			GET_SINGLE(CollisionManager)->AddCollider(accObj);
+			test->AddComponent(accObj);
+		}
+		AddActor(test);
+	}
+
+
 #endif
 	{
 		Player* player = new Player();

@@ -13,6 +13,7 @@
 #include "RigidBody.h"
 #include "Texture.h"
 #include "DevScene.h"
+#include "AccelObj.h"
 
 #include "CeilingPixelCollider.h"
 #include "GroundPixelCollider.h"
@@ -21,6 +22,7 @@
 #include "CliffPixelCollider.h"
 #include "LoopCollider.h"
 #include "CollisionManager.h"
+
 #define ONAIR									\
 	_IsOnGround_Slip	= false					\
 	_IsOnLoop			= false					\
@@ -103,8 +105,8 @@ Player::~Player()
 			SAFE_DELETE(_anglePixel[i], "delete");
 		}
 	}
-
-	SAFE_DELETE(_currLoop, "delete");
+	if(_currLoop !=nullptr)
+		SAFE_DELETE(_currLoop, "delete");
 }
 
 void Player::BeginPlay()
@@ -131,23 +133,23 @@ void Player::Tick()
 		_slopeType = SlopeType::GROUND;
 	}
 
-	if (_onLoopCondition == false)
-	{
-
-	}
-
 	Player::JumpStateUpdate();
 
 	Player::SetAngle(_slopeType);
 
 	if (_IsOnGround == true && _physic->Speed == Vector{ 0,0 })
+	{
 		SetSonicState(SonicState::PAUSE);
-
-	GET_SINGLE(EventManager)->InputEventFunctionExecution();
-
-
-
-
+	}
+	
+	if (_ctrlLockTimer != 0)
+	{
+		
+	}
+	else
+	{
+		GET_SINGLE(EventManager)->InputEventFunctionExecution();
+	}
 
 	if (_currLoop != nullptr)
 	{
@@ -166,7 +168,9 @@ void Player::Tick()
 		LoopFailedProcess();
 	}
 
-	if (IsSkiddlingCondition())
+	//Player::SlideSlopeMovement();
+	
+	if (IsSkiddlingCondition() && _ctrlLockTimer == 0)
 	{
 		Player::SkiddlingMovement();
 	}
@@ -218,6 +222,10 @@ void Player::Render(HDC hdc)
 		{
 			wstring str = std::format(L"LoopJumped({0})", _onLoopJumped);
 			::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
+		}
+		{
+			wstring str = std::format(L"CtrlLockTimer({0})", _ctrlLockTimer);
+			::TextOut(hdc, 10, 290, str.c_str(), static_cast<int32>(str.size()));
 		}
 	}
 
@@ -326,38 +334,49 @@ void Player::FlipbookRender()
 
 void Player::OnComponentBeginOverlap(Collider* collider, Collider* other)
 {
-#pragma region BoxCollider�� ���� �浹 ó��
+	
+	BoxCollider* b1 = dynamic_cast<BoxCollider*>(collider);
+
+	BoxCollider* b2 = dynamic_cast<BoxCollider*>(other);
+
+	if (collider->GetComponentType() == eComponentType::BOX_COLLIDER &&
+		other->GetComponentType() == eComponentType::BOX_COLLIDER)
 	{
-		BoxCollider* b1 = dynamic_cast<BoxCollider*>(collider);
-
-		BoxCollider* b2 = dynamic_cast<BoxCollider*>(other);
-
-		if (collider->GetComponentType() == eComponentType::BOX_COLLIDER &&
-			other->GetComponentType() == eComponentType::BOX_COLLIDER)
-			AdjustCollisionPos(b1, b2);
-	}
-
-	PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
-	eComponentType otherComponentType = other->GetComponentType();
-	ePixelColliderType _pixelcollidertype = pixelcollider->GetPixelColliderType();
-	if (otherComponentType == eComponentType::BACKGROUND_COLLIDER)
-	{
-		switch (_pixelcollidertype)
+		AccelObj* accObj = dynamic_cast<AccelObj*>(b2);
+		if (accObj != nullptr)
 		{
-		case ePixelColliderType::GROUND:
-			//Player::OnComponentBeginOverlap_Ground_Pixel(collider);
-			//_IsOnGround = true;
-			break;
-		case ePixelColliderType::WALL:
-			break;
-		case ePixelColliderType::CLIFF:
-			break;
-		case ePixelColliderType::CEILING:
-			break;
-		case ePixelColliderType::PUSH:
-			break;
-		default:
-			break;
+			GetAccBuff(accObj->GetDir());
+		}
+		else 
+		{
+			AdjustCollisionPos(b1, b2);
+		}
+	}
+	
+	else 
+	{
+		PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
+		eComponentType otherComponentType = other->GetComponentType();
+		ePixelColliderType _pixelcollidertype = pixelcollider->GetPixelColliderType();
+		if (otherComponentType == eComponentType::BACKGROUND_COLLIDER)
+		{
+			switch (_pixelcollidertype)
+			{
+			case ePixelColliderType::GROUND:
+				//Player::OnComponentBeginOverlap_Ground_Pixel(collider);
+				//_IsOnGround = true;
+				break;
+			case ePixelColliderType::WALL:
+				break;
+			case ePixelColliderType::CLIFF:
+				break;
+			case ePixelColliderType::CEILING:
+				break;
+			case ePixelColliderType::PUSH:
+				break;
+			default:
+				break;
+			}
 		}
 	}
 }
@@ -535,23 +554,23 @@ void Player::OnDownPressed()
 
 void Player::AdjustGroundMovement()
 {
+	//if (_IsOnGround == false)
+	//	return; 
 	Vector& pixel = _groundPixelCollider->GetPixel();
 	bool CollisionDetect = 1;
 
 	bool RunLeft = (_physic->Speed.x < 0) && (_IsOnGround == true);
 	bool RunRight = (_physic->Speed.x > 0) && (_IsOnGround == true);
 
-	bool LeftHighSlope = (_angle > 3 * M_PI / 4 && _angle < 4 * M_PI / 4);
-	bool RightHighSlope = (_angle > 0 * M_PI / 4 && _angle < 1 * M_PI / 4);
 
-	if (RunLeft == true && LeftHighSlope)
-	{
-		CollisionDetect = 0;
-	}
-	else if (RunRight == true && RightHighSlope)
-	{
-		CollisionDetect = 0;
-	}
+	//if (RunLeft == true && LeftHighSlope)
+	//{
+	//	CollisionDetect = 0;
+	//}
+	//else if (RunRight == true && RightHighSlope)
+	//{
+	//	CollisionDetect = 0;
+	//}
 
 
 	int addVal = ((CollisionDetect) ? -1 : 1);
@@ -560,7 +579,19 @@ void Player::AdjustGroundMovement()
 		_pos.y += addVal;
 		AdjustAllPixelCollider;
 	}
-	_IsOnGround = true;
+
+	Vector& LPixel = _LwallPixelCollider->GetPixel();
+	while (CheckCollsion_ColorRef(LPixel, ColorRef::BLACK) == true)
+	{
+		_pos.x += 1;
+		AdjustAllPixelCollider;
+	}
+	Vector& RPixel = _RwallPixelCollider->GetPixel();
+	while (CheckCollsion_ColorRef(RPixel, ColorRef::BLACK) == true)
+	{
+		_pos.x -= 1;
+		AdjustAllPixelCollider;
+	}
 }
 
 void Player::ModifyWallMovement(ePixelDirection _dir)
@@ -679,8 +710,6 @@ void Player::MovementCallBack
 		(this->*SucceedFunc)(_dir);
 	else
 		(this->*FailedFunc)();
-
-	Player::SetMovement();
 }
 
 bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
@@ -855,6 +884,17 @@ void Player::LoopFailedProcess()
 		}
 	}
 
+}
+
+void Player::GetAccBuff(Vector dir)
+{
+	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
+	_physic->_groundSpeed = _physic->_maxSpeedX * deltaTime;
+
+	float angle = atan2(dir.y, dir.x);
+
+	_physic->Speed.x = _physic->_groundSpeed * cos(angle);
+	_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
 }
 
 void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
@@ -1199,6 +1239,45 @@ void Player::SkiddlingMovement()
 		Player::AdjustGroundMovement();
 }
 
+void Player::SlideSlopeMovement()
+{
+	if (this->_IsOnGround == true)
+	{
+		if (_ctrlLockTimer == 0)
+		{
+			float pi = float(M_PI);
+			double Right = M_PI / 8;
+			double Left = 15 * M_PI / 8;
+			if (abs(_rigidBody->GetPhysic()->_groundSpeed) < 3 &&
+				(Left>_angle&& Right<_angle))
+			{
+				_ctrlLockTimer = 30;
+
+				if (Left * 2 > _angle && Right * 28 / 15 < _angle)
+				{
+					// 각도에 따른 Skiddling으로 수정해야함 
+					if (_angle < M_PI / 2)//&&GET_SINGLE(InputManager)->GetButtonDown(KeyType::D))
+					{
+						_physic->_groundSpeed -= _physic->_frictionSpeed * 2;
+
+					}
+					else if (_angle > M_PI / 2)// && GET_SINGLE(InputManager)->GetButtonDown(KeyType::A))
+					{
+						_physic->_groundSpeed += _physic->_frictionSpeed * 2;
+
+					}
+
+					_physic->Speed.x = _physic->_groundSpeed;
+				}
+			}
+		}
+		else if (_ctrlLockTimer != 0)
+		{
+			_ctrlLockTimer -= 1;
+		}
+	}
+}
+
 void Player::SetGravitationVec(GravitationVec vec)
 {
 	_rigidBody->GetPhysic()->SetGravity(true);
@@ -1223,7 +1302,6 @@ void Player::SetMovement()
 {
 	if (_onLoopCondition == true)
 		return;
-#pragma region �̵� ���� 
 	{
 		SetPos(_pos + _physic->Speed);
 		Player::AdjustGroundMovement();

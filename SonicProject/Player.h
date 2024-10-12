@@ -117,7 +117,12 @@ private :
 	bool IsSkiddlingCondition();
 	void SkiddlingMovement();
 
+	void SlideSlopeMovement();
+
 	void SetGravitationVec(GravitationVec vec);
+private : 
+	uint8 _ctrlLockTimer = 0;
+
 
 private : 
 	//=======================================================
@@ -267,6 +272,10 @@ private  :
 	
 	MyDegree				_onLoopPlayerAngle = MyDegree(0);
 
-
-
-};	
+	//=======================================================
+	//					  LOOP Setting 
+	//=======================================================
+private :
+		 
+	void GetAccBuff(Vector dir);
+};

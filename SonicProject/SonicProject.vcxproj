@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AccelObj.h" />
     <ClInclude Include="Actor.h" />
     <ClInclude Include="BackGroundCollider.h" />
     <ClInclude Include="BoxCollider.h" />
@@ -195,6 +196,7 @@
     <ClInclude Include="WallPixelCollider.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AccelObj.cpp" />
     <ClCompile Include="Actor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>

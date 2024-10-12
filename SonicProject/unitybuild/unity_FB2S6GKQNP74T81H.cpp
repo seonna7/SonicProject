@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "C:\Workspace\SonicProject\SonicProject\SonicProject\SpriteActor.cpp"
+
+
 #include "C:\Workspace\SonicProject\SonicProject\SonicProject\Texture.cpp"
 
 

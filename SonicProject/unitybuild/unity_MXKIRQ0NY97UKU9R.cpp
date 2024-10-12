@@ -1,5 +1,8 @@
 #include "pch.h"
 
+#include "C:\Workspace\SonicProject\SonicProject\SonicProject\Scene.cpp"
+
+
 #include "C:\Workspace\SonicProject\SonicProject\SonicProject\SceneManager.cpp"
 
 
@@ -10,7 +13,4 @@
 
 
 #include "C:\Workspace\SonicProject\SonicProject\SonicProject\Sprite.cpp"
-
-
-#include "C:\Workspace\SonicProject\SonicProject\SonicProject\SpriteActor.cpp"
 
