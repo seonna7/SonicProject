@@ -77,10 +77,10 @@ enum COLLISION_LAYER_TYPE
 
 enum class ePixelDirection : uint8
 {
-	P_LEFT = 0,
-	P_RIGHT = 1,
-	P_BOTTOM = 0,
-	P_TOP = 1,
+	P_LEFT = 1,
+	P_RIGHT = 2,
+	P_BOTTOM = 4,
+	P_TOP = 8
 };
 
 namespace ColorRef

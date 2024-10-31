@@ -5,11 +5,7 @@ class Collider;
 class BoxCollider;
 class RigidBody;
 class Texture;
-class CeilingPixelCollider;
-class GroundPixelCollider;
-class PushPixelCollider;
-class WallPixelCollider;
-class CliffPixelCollider;
+class PixelCollider;
 class Physic;
 class LoopCollider;
 class InputManager;
@@ -210,35 +206,21 @@ public :
 	Texture*	_background		= nullptr;
 
 public :	
-	//=======================================================
-	//					  PixelCollider
-	//=======================================================
-	void SetCeilingPixelCollider(CeilingPixelCollider* collider) { _ceilingPixelCollider = collider; }
-	CeilingPixelCollider* GetCeilingPixelCollider() { return _ceilingPixelCollider; }
 
-	void SetGroundPixelCollider(GroundPixelCollider* collider) { _groundPixelCollider = collider; }
-	GroundPixelCollider* GetGroundPixelCollider() { return _groundPixelCollider; }
+	unordered_map<uint8, PixelCollider*> _pixels;
 
-	void SetPushPixelCollider(PushPixelCollider* collider) { _pushPixelCollider = collider; }
-	PushPixelCollider* GetPushPixelCollider() { return _pushPixelCollider; }
-
-	void SetRWallPixelCollider(WallPixelCollider* collider) { _RwallPixelCollider = collider; }
-	WallPixelCollider* GetRWallPixelCollider() { return _RwallPixelCollider; }
-
-	void SetLWallPixelCollider(WallPixelCollider* collider) { _LwallPixelCollider = collider; }
-	WallPixelCollider* GetLWallPixelCollider() { return _LwallPixelCollider; }
-
-
-	void SetCliffPixelCollider(CliffPixelCollider* collider) { _cliffPixelCollider = collider; }
-	CliffPixelCollider* GetCliffPixelCollider() { return _cliffPixelCollider; }
+	void RenewPixelLocation();
 
 private : 
-	CeilingPixelCollider*	_ceilingPixelCollider	= nullptr;
-	GroundPixelCollider*	_groundPixelCollider	= nullptr;
-	PushPixelCollider*		_pushPixelCollider		= nullptr;
-	WallPixelCollider*		_RwallPixelCollider		= nullptr;
-	WallPixelCollider*		_LwallPixelCollider		= nullptr;
-	CliffPixelCollider*		_cliffPixelCollider		= nullptr;
+	//GroundCheck
+	PixelCollider*	_Center_Bottom		= nullptr;
+	PixelCollider*	_Right_Bottom		= nullptr;
+	PixelCollider*	_Left_Bottom		= nullptr;
+
+	//WallCheck 
+	PixelCollider* _Left_Top			= nullptr;
+	PixelCollider* _Right_Top			= nullptr;
+
 
 private  :	
 	//=======================================================

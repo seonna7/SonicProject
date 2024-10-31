@@ -8,7 +8,7 @@ public:
 	Component();
 	Component(Actor* owner);
 	Component(eComponentType type);
-	virtual ~Component();
+	~Component();
 
 	virtual void BeginPlay()					abstract;
 	virtual void TickComponent()				abstract;

@@ -15,11 +15,7 @@
 #include "DevScene.h"
 #include "AccelObj.h"
 
-#include "CeilingPixelCollider.h"
-#include "GroundPixelCollider.h"
-#include "PushPixelCollider.h"
-#include "WallPixelCollider.h"
-#include "CliffPixelCollider.h"
+#include "PixelCollider.h"
 #include "LoopCollider.h"
 #include "CollisionManager.h"
 
@@ -32,14 +28,7 @@
 	_checkCeiling		= false					\		
 
 
-#define AdjustAllPixelCollider					\
-{												\
-	_ceilingPixelCollider->AdjustPixels();		\
-	_groundPixelCollider->AdjustPixels();		\
-	_pushPixelCollider->AdjustPixels();			\
-	_RwallPixelCollider->AdjustPixels();		\
-	_LwallPixelCollider->AdjustPixels();		\
-}
+
 
 
 Player::Player()
@@ -87,12 +76,27 @@ Player::Player()
 
 #pragma region pixelCollider �߰� 
 	{
-		_ceilingPixelCollider = new CeilingPixelCollider(this);
-		_groundPixelCollider = new GroundPixelCollider(this);
-		_pushPixelCollider = new PushPixelCollider(this);
-		_RwallPixelCollider = new WallPixelCollider(this, ePixelDirection::P_RIGHT);
-		_LwallPixelCollider = new WallPixelCollider(this, ePixelDirection::P_LEFT);
-		_cliffPixelCollider = new CliffPixelCollider(this);
+		uint8 left = static_cast<uint8>(ePixelDirection::P_LEFT);
+		uint8 right = static_cast<uint8>(ePixelDirection::P_RIGHT);
+		uint8 top = static_cast<uint8>(ePixelDirection::P_TOP);
+		uint8 bottom = static_cast<uint8>(ePixelDirection::P_BOTTOM);
+
+		Vector size = Vector(20, 20);
+
+		_Center_Bottom = new PixelCollider(this, ePixelColliderType::GROUND, bottom, size);
+		_pixels[bottom] = _Center_Bottom;
+
+		_Right_Bottom = new PixelCollider(this, ePixelColliderType::WALL, right | bottom,size);
+		_pixels[right | bottom] = _Right_Bottom;
+
+		_Left_Bottom = new PixelCollider(this, ePixelColliderType::WALL, left | bottom,size);
+		_pixels[left | bottom] = _Left_Bottom;
+
+		_Left_Top = new PixelCollider(this, ePixelColliderType::CEILING, left | top,size);
+		_pixels[left | top] = _Left_Top;
+
+		_Right_Top = new PixelCollider(this, ePixelColliderType::CEILING, right | top,size);
+		_pixels[right | top] = _Right_Top;
 	}
 }
 
@@ -132,9 +136,10 @@ void Player::Tick()
 		_rigidBody->GetPhysic()->RemoveSpeedY();
 		_slopeType = SlopeType::GROUND;
 	}
-
-	Player::JumpStateUpdate();
-
+	if (true)
+	{
+		Player::JumpStateUpdate();
+	}
 	Player::SetAngle(_slopeType);
 
 	if (_IsOnGround == true && _physic->Speed == Vector{ 0,0 })
@@ -170,7 +175,7 @@ void Player::Tick()
 
 	//Player::SlideSlopeMovement();
 	
-	if (IsSkiddlingCondition() && _ctrlLockTimer == 0)
+	if (IsSkiddlingCondition() && _ctrlLockTimer == 0&&IsLoopFailed()==false)
 	{
 		Player::SkiddlingMovement();
 	}
@@ -254,7 +259,7 @@ void Player::Render(HDC hdc)
 
 void Player::FinalRender(HDC hdc)
 {
-	AdjustAllPixelCollider;
+	RenewPixelLocation();
 	Player::FlipbookRender();
 }
 
@@ -481,7 +486,7 @@ void Player::AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2)
 
 void Player::CheckCollision_Ground()
 {
-	Vector Ground = _groundPixelCollider->GetPixel();
+	Vector Ground = _Center_Bottom->GetPos();
 	Ground.y += 3;
 	if (CheckCollsion_ColorRef(Ground, ColorRef::RED))
 		_IsOnGround = true;
@@ -556,57 +561,47 @@ void Player::AdjustGroundMovement()
 {
 	//if (_IsOnGround == false)
 	//	return; 
-	Vector& pixel = _groundPixelCollider->GetPixel();
+	Vector& pixel = _Center_Bottom->GetPos();
 	bool CollisionDetect = 1;
 
 	bool RunLeft = (_physic->Speed.x < 0) && (_IsOnGround == true);
 	bool RunRight = (_physic->Speed.x > 0) && (_IsOnGround == true);
 
 
-	//if (RunLeft == true && LeftHighSlope)
-	//{
-	//	CollisionDetect = 0;
-	//}
-	//else if (RunRight == true && RightHighSlope)
-	//{
-	//	CollisionDetect = 0;
-	//}
-
-
 	int addVal = ((CollisionDetect) ? -1 : 1);
 	while (CheckCollsion_ColorRef(pixel, ColorRef::RED) == CollisionDetect)
 	{
 		_pos.y += addVal;
-		AdjustAllPixelCollider;
+		RenewPixelLocation();
 	}
 
-	Vector& LPixel = _LwallPixelCollider->GetPixel();
-	while (CheckCollsion_ColorRef(LPixel, ColorRef::BLACK) == true)
-	{
-		_pos.x += 1;
-		AdjustAllPixelCollider;
-	}
-	Vector& RPixel = _RwallPixelCollider->GetPixel();
-	while (CheckCollsion_ColorRef(RPixel, ColorRef::BLACK) == true)
-	{
-		_pos.x -= 1;
-		AdjustAllPixelCollider;
-	}
+	//Vector& LPixel = _LwallPixelCollider->GetPos();
+	//while (CheckCollsion_ColorRef(LPixel, ColorRef::BLACK) == true)
+	//{
+	//	_pos.x += 1;
+	//	RenewPixelLocation();
+	//}
+	//Vector& RPixel = _RwallPixelCollider->GetPos();
+	//while (CheckCollsion_ColorRef(RPixel, ColorRef::BLACK) == true)
+	//{
+	//	_pos.x -= 1;
+	//	RenewPixelLocation();
+	//}
 }
 
 void Player::ModifyWallMovement(ePixelDirection _dir)
 {
 	Vector* pixel = nullptr;
 	if (_dir == ePixelDirection::P_RIGHT)
-		pixel = &_RwallPixelCollider->GetPixel();
+		pixel = &_Right_Bottom->GetPos();
 	else if (_dir == ePixelDirection::P_LEFT)
-		pixel = &_LwallPixelCollider->GetPixel();
+		pixel = &_Left_Bottom->GetPos();
 
 	while (CheckCollsion_ColorRef(*pixel, ColorRef::MANGENTA) == true ||
 		CheckCollsion_ColorRef(*pixel, ColorRef::CYAN) == true)
 	{
 		_pos.y += -1;
-		AdjustAllPixelCollider;
+		RenewPixelLocation();
 	}
 }
 
@@ -808,7 +803,7 @@ void Player::LoopMovement(ePixelDirection _dir)
 		_onLoopPlayerAngle += _angleSpeed * deltaTime * Weight;
 
 	}
-	AdjustAllPixelCollider;
+	RenewPixelLocation();
 
 	if (_dir == ePixelDirection::P_LEFT)
 		AdjustState_Angle_LEFT();
@@ -822,7 +817,7 @@ bool Player::IsLoopFailed()
 {
 	if (_currLoop != nullptr)
 	{
-		_IsOnRWall = (Player::CheckCollsion_ColorRef(_RwallPixelCollider->GetPixel(), ColorRef::MANGENTA) &&
+		_IsOnRWall = (Player::CheckCollsion_ColorRef(_Right_Bottom->GetPos(), ColorRef::MANGENTA) &&
 			_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_RIGHT);
 
 		if (_IsOnRWall == true)
@@ -830,7 +825,7 @@ bool Player::IsLoopFailed()
 			return true;
 		}
 
-		_IsOnLWall = (Player::CheckCollsion_ColorRef(_LwallPixelCollider->GetPixel(), ColorRef::CYAN) &&
+		_IsOnLWall = (Player::CheckCollsion_ColorRef(_Left_Bottom->GetPos(), ColorRef::CYAN) &&
 			_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_LEFT);
 
 		if (_IsOnLWall == true)
@@ -858,29 +853,29 @@ bool Player::IsOnLoopCircle()
 
 void Player::LoopFailedProcess()
 {
-	_IsOnRWall = (Player::CheckCollsion_ColorRef(_RwallPixelCollider->GetPixel(), ColorRef::MANGENTA) &&
+	_IsOnRWall = (Player::CheckCollsion_ColorRef(_Right_Bottom->GetPos(), ColorRef::MANGENTA) &&
 		_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_RIGHT);
 
 	if (_IsOnRWall == true)
 	{
-		Vector& Rpixel = _RwallPixelCollider->GetPixel();
+		Vector& Rpixel = _Right_Bottom->GetPos();
 		while (CheckCollsion_ColorRef(Rpixel, ColorRef::MANGENTA) == true)
 		{
 			_pos.x -= 1;
-			AdjustAllPixelCollider;
+			RenewPixelLocation();
 		}
 	}
 
-	_IsOnLWall = (Player::CheckCollsion_ColorRef(_LwallPixelCollider->GetPixel(), ColorRef::CYAN) &&
+	_IsOnLWall = (Player::CheckCollsion_ColorRef(_Left_Bottom->GetPos(), ColorRef::CYAN) &&
 		_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_LEFT);
 
 	if (_IsOnLWall == true)
 	{
-		Vector& Lpixel = _LwallPixelCollider->GetPixel();
+		Vector& Lpixel = _Left_Bottom->GetPos();
 		while (CheckCollsion_ColorRef(Lpixel, ColorRef::CYAN) == true)
 		{
 			_pos.x += 1;
-			AdjustAllPixelCollider;
+			RenewPixelLocation();
 		}
 	}
 
@@ -911,20 +906,9 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 		_physic->_gravity = false;
 		Player::AdjustGroundMovement();
 		Player::SlipMovement();
-		_slopeType = _slopeType | SlopeType::GROUND;
 		break;
 	case ePixelColliderType::WALL:
 	{
-		_physic->_gravity = false;
-
-		WallPixelCollider* pixel = dynamic_cast<WallPixelCollider*>(collider);
-		ePixelDirection _dir = pixel->GetPixelDirection();
-
-		Player::ModifyWallMovement(_dir);
-		if (_dir == ePixelDirection::P_LEFT)
-			_slopeType = _slopeType | SlopeType::LEFT_WALL;
-		else if (_dir == ePixelDirection::P_RIGHT)
-			_slopeType = _slopeType | SlopeType::RIGHT_WALL;
 		break;
 	}
 	case ePixelColliderType::PUSH:
@@ -954,8 +938,8 @@ void Player::SetAngle(uint16 type)
 	}
 	if (currSlopeType == SlopeType::GROUND || currSlopeType == SlopeType::CEILING)
 	{
-		uint8 leftpixelIndex = (int)ePixelDirection::P_LEFT;
-		uint8 rightpixelIndex = (int)ePixelDirection::P_RIGHT;
+		uint8 leftpixelIndex = 0;
+		uint8 rightpixelIndex = 1;
 		if ((CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true) &&
 			CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
 		{
@@ -992,8 +976,8 @@ void Player::SetAngle(uint16 type)
 	else
 	{
 
-		uint8 topPixelIndex = (uint8)ePixelDirection::P_TOP;
-		uint8 bottomPixelIndex = (uint8)ePixelDirection::P_BOTTOM;
+		uint8 topPixelIndex = 1;
+		uint8 bottomPixelIndex = 0;
 
 		if (currSlopeType == SlopeType::LEFT_WALL)
 		{
@@ -1150,10 +1134,11 @@ SlopeType Player::InitAnglePixel()
 	uint8 switchCase = 0;
 	uint8 currBit = 1;
 
-	uint8 top = (uint8)ePixelDirection::P_TOP;
-	uint8 bottom = (uint8)ePixelDirection::P_BOTTOM;
-	uint8 left = (uint8)ePixelDirection::P_LEFT;
-	uint8 right = (uint8)ePixelDirection::P_RIGHT;
+	// index 하드코딩 씹상타치 
+	uint8 top = 1;
+	uint8 bottom = 0;
+	uint8 left = 0;
+	uint8 right = 1;
 
 	for (int i = 0; i < SLOPETYPE_SIZE; i++, currBit <<= 1)
 	{
@@ -1165,20 +1150,20 @@ SlopeType Player::InitAnglePixel()
 			_anglePixel[1] = nullptr;
 			return SlopeType::AIR;
 		case SlopeType::GROUND:
-			_anglePixel[left] = new Vector(_pos + Vector(-10, box->GetSize().y / 2));
-			_anglePixel[right] = new Vector(_pos + Vector(10, box->GetSize().y / 2));
+			_anglePixel[left] = new Vector(_pos + Vector(-20, box->GetSize().y / 2));
+			_anglePixel[right] = new Vector(_pos + Vector(20, box->GetSize().y / 2));
 			return SlopeType::GROUND;
 		case SlopeType::LEFT_WALL:
-			_anglePixel[top] = new Vector(_pos + Vector(-box->GetSize().x / 2, -10));
-			_anglePixel[bottom] = new Vector(_pos + Vector(-box->GetSize().x / 2, 10));
+			_anglePixel[top] = new Vector(_pos + Vector(-box->GetSize().x / 2, -20));
+			_anglePixel[bottom] = new Vector(_pos + Vector(-box->GetSize().x / 2, 20));
 			return SlopeType::LEFT_WALL;
 		case SlopeType::RIGHT_WALL:
-			_anglePixel[top] = new Vector(_pos + Vector(box->GetSize().x / 2, -10));
-			_anglePixel[bottom] = new Vector(_pos + Vector(box->GetSize().x / 2, 10));
+			_anglePixel[top] = new Vector(_pos + Vector(box->GetSize().x / 2, -20));
+			_anglePixel[bottom] = new Vector(_pos + Vector(box->GetSize().x / 2, 20));
 			return SlopeType::RIGHT_WALL;
 		case SlopeType::CEILING:
-			_anglePixel[left] = new Vector(_pos + Vector(-10, -box->GetSize().y / 2));
-			_anglePixel[right] = new Vector(_pos + Vector(10, -box->GetSize().y / 2));
+			_anglePixel[left] = new Vector(_pos + Vector(-20, -box->GetSize().y / 2));
+			_anglePixel[right] = new Vector(_pos + Vector(20, -box->GetSize().y / 2));
 			return SlopeType::CEILING;
 		}
 	}
@@ -1305,6 +1290,14 @@ void Player::SetMovement()
 	{
 		SetPos(_pos + _physic->Speed);
 		Player::AdjustGroundMovement();
-		AdjustAllPixelCollider;
+		RenewPixelLocation();
+	}
+}
+
+void Player::RenewPixelLocation()
+{
+	for (auto& Pixel : _pixels)
+	{
+		Pixel.second->SetPos();
 	}
 }

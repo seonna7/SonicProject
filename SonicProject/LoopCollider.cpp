@@ -2,9 +2,7 @@
 #include "LoopCollider.h"
 #include "Player.h"
 #include "TimeManager.h"
-#include "GroundPixelCollider.h"
-#include "WallPixelCollider.h"
-#include "CeilingPixelCollider.h"
+
 #include "PixelCollider.h"
 
 LoopCollider::LoopCollider(Vector pos)

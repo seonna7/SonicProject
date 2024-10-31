@@ -7,7 +7,7 @@ class Collider : public Component
 public  :
 	Collider() {};
 	Collider(eColliderType type);
-	virtual ~Collider(); 
+	~Collider();
 	// Component을(를) 통해 상속됨
 	virtual void BeginPlay() override;
 	virtual void TickComponent() override;

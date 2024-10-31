@@ -53,6 +53,7 @@ void Game::Update()
 	GET_SINGLE(InputManager)->Update();
 	GET_SINGLE(SceneManager)->Update();
 	GET_SINGLE(EventManager)->Update();
+	
 }
 
 void Game::Render()

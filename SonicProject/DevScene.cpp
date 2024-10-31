@@ -14,11 +14,7 @@
 #include "Flipbook.h"
 #include "BoxCollider.h"
 #include "SphereCollider.h"
-#include "GroundPixelCollider.h"
-#include "CeilingPixelCollider.h"
-#include "WallPixelCollider.h"
-#include "PushPixelCollider.h"
-#include "CliffPixelCollider.h"
+#include "PixelCollider.h"
 #include "BackGroundCollider.h"
 #include "LoopCollider.h"
 #include "AccelObj.h"
@@ -380,7 +376,9 @@ void DevScene::Update()
 	GET_SINGLE(CollisionManager)->Update();
 	
 	for (Actor* actor : _actors)
-		actor->Tick();
+ 		actor->Tick();
+	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::SPACE))
+		exit(0);
 }
 
 void DevScene::Render(HDC hdc)

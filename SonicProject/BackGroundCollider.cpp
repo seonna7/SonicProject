@@ -1,10 +1,6 @@
 #include "pch.h"
 #include "BackGroundCollider.h"
-#include "PushPixelCollider.h"
-#include "GroundPixelCollider.h"
-#include "WallPixelCollider.h"
-#include "CeilingPixelCollider.h"
-#include "CliffPixelCollider.h"
+#include "PixelCollider.h"
 #include "TimeManager.h"
 #include "Player.h"
 BackGroundCollider::BackGroundCollider() : Collider(eColliderType::BACKGROUND)
@@ -45,7 +41,7 @@ bool BackGroundCollider::CheckCollision(Collider* other)
         return false;
     case ePixelColliderType::WALL :
     {
-        WallPixelCollider* pixel = dynamic_cast<WallPixelCollider*>(other);
+       // WallPixelCollider* pixel = dynamic_cast<WallPixelCollider*>(other);
         //if (pixel->GetPixelDirection() == ePixelDirection::P_LEFT)
         //    return player->CheckCollision_Wall(ePixelDirection::P_LEFT);
         //else if (pixel->GetPixelDirection() == ePixelDirection::P_RIGHT)
