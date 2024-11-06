@@ -20,12 +20,21 @@ public:
 
 	virtual bool CheckCollision(Collider* other);
 
-	void SetPos();
+	void SetPixelPos();
+	
+	void SetPos(Vector pos) { _pos = pos; }
 	Vector &GetPos() { return _pos; }
+
+	uint8 GetDir() { return _dir; }
 public:
 	ePixelColliderType	GetPixelColliderType() { return _ePixelColliderType; }
 	void				SetPixelColliderType(ePixelColliderType _type) { _ePixelColliderType = _type; }
 
+	void SetIsCollided(bool isCollided) { _isCollided = isCollided; }
+	bool GetIsCollided() { return _isCollided; }
+
+private : 
+	bool _isCollided = false;
 protected:
 	ePixelColliderType	_ePixelColliderType;
 

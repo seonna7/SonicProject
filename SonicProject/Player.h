@@ -12,7 +12,13 @@ class InputManager;
 
 
 using namespace ColorRef;
-enum GravitationVec 
+
+enum
+{
+	e_Pixel_Len = 20
+};
+
+enum e_SlopeType 
 {
 	AIR			= 1,
 	GROUND		= 2,
@@ -23,7 +29,8 @@ enum GravitationVec
 	//SlopeType
 	SLOPETYPE_SIZE		= 5
 };
-using SlopeType = GravitationVec;
+
+
 
 // 왼쪽 오른쪽에 대한 결정을 최상위 비트로 결정하기 어떰?
 enum class SonicState
@@ -84,15 +91,16 @@ public :
 	void AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2);
 	
 	// 얘는 y좌표땜에 냄겨두기 
-	void CheckCollision_Ground();
+	void CheckCollision(uint8 dir);
 
-	bool CheckCollsion_ColorRef(Vector& pos, COLORREF color);
+	bool CheckCollision_ColorRef(Vector& pos, COLORREF color);
 private : 
 	//=======================================================
 	//						Movement 
 	//=======================================================
 
 public : 
+	bool Gravity = true;
 
 	void OnUpPressed();
 	void OnLeftPressed();
@@ -100,22 +108,22 @@ public :
 	void OnDownPressed();
 
 private : 
-	void AdjustGroundMovement();
-	void ModifyWallMovement(ePixelDirection _dir);
+	bool AdjustMovement();
+	//void ModifyWallMovement(ePixelDirection _dir);
 	
 	void SlipMovement();
 	void JumpMovement();
 	void LeftMovement();
 	void RightMovement();
 
-	void SetMovement();
+	bool SetMovement();
 
 	bool IsSkiddlingCondition();
 	void SkiddlingMovement();
 
 	void SlideSlopeMovement();
 
-	void SetGravitationVec(GravitationVec vec);
+	void SetGravitationVec(e_SlopeType vec);
 private : 
 	uint8 _ctrlLockTimer = 0;
 
@@ -124,14 +132,20 @@ private :
 	//=======================================================
 	//					  Angle Setting
 	//=======================================================
-	Vector* _anglePixel[2] = { nullptr, nullptr };
 	float	_angle = 0.f;
 
-	void SetAngle(uint16 type);
+	void SetAngle();
+	bool AngleCalc(Vector pos1, Vector pos2, bool CollideFlag);
 	void AdjustState_Angle_LEFT();
 	void AdjustState_Angle_RIGHT();
-	SlopeType InitAnglePixel();
 
+	Vector* _A_Left_Top		= nullptr;
+	Vector* _A_Right_Top	= nullptr;
+	Vector* _A_Left_Bottom	= nullptr;
+	Vector* _A_Right_Bottom = nullptr;
+
+	void SetAnglePixel(Vector *v1, Vector *v2);
+	Vector* _A_Pixel[2]		= { nullptr,nullptr };
 public : 
 	float GetAngle() { return _angle; }
 
@@ -142,7 +156,10 @@ private :
 	//					  Player State
 	//=======================================================
 	SonicState		_state		= SonicState::NONE; 
-	uint16			_slopeType	= 0;
+	e_SlopeType		_slopeType = e_SlopeType::AIR;
+
+	bool			_pixelDoubleChecked	= false;
+	uint8			_currCheckedPixel	= 0; 
 
 	void			SetSonicState(SonicState state) { _state = state; }
 	void			SetSonicStateOnAir();
@@ -198,7 +215,6 @@ public :
 	void		SetRigidBody(RigidBody* rigidbody) { _rigidBody = rigidbody; }
 	RigidBody*	GetRigidBody() { return _rigidBody; }
 	
-	void		SetLoopInfo(vector<LoopCollider*> loopInfo) { _loopInfo = loopInfo; }
 
 
 	RigidBody*	_rigidBody		= nullptr;
@@ -207,13 +223,22 @@ public :
 
 public :	
 
-	unordered_map<uint8, PixelCollider*> _pixels;
 
-	void RenewPixelLocation();
 
 private : 
+	//=======================================================
+	//						Pixel
+	//=======================================================
+
+	unordered_map<uint8, PixelCollider*> _pixels;
+
+	void			RenewPixelLocation();
+
+	uint8 _left		= static_cast<uint8>(ePixelDirection::P_LEFT);
+	uint8 _right	= static_cast<uint8>(ePixelDirection::P_RIGHT);
+	uint8 _bottom	= static_cast<uint8>(ePixelDirection::P_BOTTOM);
+	uint8 _top		= static_cast<uint8>(ePixelDirection::P_TOP);
 	//GroundCheck
-	PixelCollider*	_Center_Bottom		= nullptr;
 	PixelCollider*	_Right_Bottom		= nullptr;
 	PixelCollider*	_Left_Bottom		= nullptr;
 
@@ -221,43 +246,9 @@ private :
 	PixelCollider* _Left_Top			= nullptr;
 	PixelCollider* _Right_Top			= nullptr;
 
+	uint8	_pixelDist = 0;
 
-private  :	
-	//=======================================================
-	//					  LOOP Setting 
-	//=======================================================
-
-	vector<LoopCollider*> _loopInfo;
-
-	LoopCollider*	_currLoop = nullptr;
-	Vector			_currLoopPos;
-	void MovementCallBack
-	   (bool(Player::* LoopFunc)(ePixelDirection),
-		ePixelDirection _dir,
-		void(Player::* SucceedFunc)(ePixelDirection),
-		void(Player::* FailedFunc)());
-
-	bool IsMeetingLoopPassCondition(ePixelDirection _dir);
-	void LoopMovement(ePixelDirection _dir);
-
-	bool IsLoopFailed();
-
-	void SetAngleSpeed();
-	bool IsOnLoopCircle();
-	void LoopFailedProcess();
-
-	bool	_onLoopCondition = false;
-	float	_radius = 147.f;
-	bool	_onLoopJumped = false; 
-
-	float _angleSpeed = 0.f; 
-	
-	MyDegree				_onLoopPlayerAngle = MyDegree(0);
-
-	//=======================================================
-	//					  LOOP Setting 
-	//=======================================================
 private :
-		 
 	void GetAccBuff(Vector dir);
+
 };

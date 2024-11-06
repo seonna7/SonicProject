@@ -45,11 +45,6 @@ void RigidBody::MoveLeft()
 	{
 		//_physic->_groundSpeed = -_physic->_maxSpeedX * deltaTime;
 	}
-	if (player->GetIsOnGround() == true)
-	{
-		_physic->Speed.x = _physic->_groundSpeed * cos(angle);
-		_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
-	}
 	else
 	{
 		_physic->Speed.x = _physic->_groundSpeed;
@@ -69,11 +64,6 @@ void RigidBody::MoveRight()
 		//_physic->_groundSpeed = _physic->_maxSpeedX * deltaTime;
 	}
 
-	if (player->GetIsOnGround() == true)
-	{
-		_physic->Speed.x = _physic->_groundSpeed * cos(angle);
-		_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
-	}
 	else
 	{
 		_physic->Speed.x = _physic->_groundSpeed;

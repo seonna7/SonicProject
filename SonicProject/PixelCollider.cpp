@@ -30,7 +30,7 @@ void PixelCollider::BeginPlay()
 void PixelCollider::TickComponent()
 {
 	Super::TickComponent();
-	PixelCollider::SetPos();
+	PixelCollider::SetPixelPos();
 }
 
 void PixelCollider::Render(HDC hdc)
@@ -42,11 +42,11 @@ void PixelCollider::Render(HDC hdc)
 
 	Vector cameraPos = GET_SINGLE(SceneManager)->GetCameraPos();
 
-	Vector pixel = _pos;
+	Vector pixel = this->_pos;
 
 	{
-		pixel.x -= (cameraPos.x - GWinSizeX / 2);
-		pixel.y -= (cameraPos.y - GWinSizeY / 2);
+		pixel.x -= (cameraPos.x - (GWinSizeX / 2));
+		pixel.y -= (cameraPos.y - (GWinSizeY / 2));
 		Utils::DrawCircle(hdc, pixel, PixelSize);
 	}
 }
@@ -84,11 +84,12 @@ bool PixelCollider::CheckCollision(Collider* other)
 	return false;
 }
 
-void PixelCollider::SetPos()
+void PixelCollider::SetPixelPos()
 {
 	float x = _dirVector.x * _dist.x;
 	float y = _dirVector.y * _dist.y;
 
+	this;
 	Actor* owner = GetOwner();
 	_pos = Vector(owner->GetPos().x + x, owner->GetPos().y + y);
 }

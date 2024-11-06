@@ -14,7 +14,7 @@
 #include "Types.h"
 #include "Defines.h"
 #include "Enums.h"
-
+#include "Global.h"
 #include <format>
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -30,5 +30,5 @@ using namespace std;
 #define new new(_NORMAL_BLOCK,__FILE__,__LINE__)
 #endif
 
-#define M_PI 3.14159265
+
 

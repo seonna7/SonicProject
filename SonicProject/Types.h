@@ -27,6 +27,7 @@ struct Stat
 struct Vector
 {
 	Vector() {}
+	Vector(float len) : x(len), y(len) {}
 	Vector(float x, float y) : x(x), y(y) {}
 	Vector(POINT p) : x((float)p.x), y((float)p.y) {}
 

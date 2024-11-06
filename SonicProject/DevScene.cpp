@@ -42,7 +42,7 @@ void DevScene::Init()
 	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest1", L"Sprite\\MAP\\maptest1.bmp");
 	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest2", L"Sprite\\MAP\\maptest2.bmp");
 	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest3", L"Sprite\\MAP\\maptest3.bmp");
-
+	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest4", L"Sprite\\MAP\\maptest4.bmp");
 
 	GET_SINGLE(ResourceManager)->LoadTexture(L"Sonic_Standing", L"Sprite\\Player\\Sonic_Standing.bmp", RGB(0, 255, 0));
 	
@@ -203,10 +203,10 @@ void DevScene::Init()
 	//}
 #if 1
 
-	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest1");
-	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest1", tex, 0, 0, 0, 0);
+	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest4");
+	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest4", tex, 0, 0, 0, 0);
 	{
-		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(L"maptest1");
+		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(L"maptest4");
 		SpriteActor* background = new SpriteActor();
 
 		const Vector size = sprite->GetSize();
@@ -219,7 +219,7 @@ void DevScene::Init()
 		_backgrounds.push_back(background);
 	}
 
-	
+	if(false)
 	{
 		Actor* test = new Actor();
 		test->SetPos(Pos(830, 300));
@@ -259,7 +259,7 @@ void DevScene::Init()
 	{
 		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(L"maptest2");
 		SpriteActor* background = new SpriteActor();
-
+		
 		const Vector size = sprite->GetSize();
 
 		background->SetPos(Vector(size.x / 2, size.y / 2));
@@ -344,7 +344,6 @@ void DevScene::Init()
 
 			player->SetBackGround(tex);
 
-			player->SetLoopInfo(_LoopColliders);
 
 		}		
 		AddActor(player);

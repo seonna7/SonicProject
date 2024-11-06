@@ -19,47 +19,37 @@
 #include "LoopCollider.h"
 #include "CollisionManager.h"
 
-#define ONAIR									\
-	_IsOnGround_Slip	= false					\
-	_IsOnLoop			= false					\
-	_IsOnGround			= false					\
-	_IsOnLWall			= false					\
-	_IsOnRWall			= false					\
-	_checkCeiling		= false					\		
-
-
-
-
 
 Player::Player()
 {
 #pragma region FlipBook �������� 
 	{
-		_flipbook_Pause = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Standing");
+		_flipbook_Pause				= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Standing");
 
-		_flipbookSkiddling_Left = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Skiddling_Left");
-		_flipbookSkiddling_Right = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Skiddling_Right");
+		_flipbookSkiddling_Left		= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Skiddling_Left");
+		_flipbookSkiddling_Right	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Skiddling_Right");
 
-		_flipbook_RunningLeft_0 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_0");
-		_flipbook_RunningLeft_45 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_45");
-		_flipbook_RunningLeft_90 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_90");
-		_flipbook_RunningLeft_135 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_135");
-		_flipbook_RunningLeft_180 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_180");
-		_flipbook_RunningLeft_225 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_225");
-		_flipbook_RunningLeft_270 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_270");
-		_flipbook_RunningLeft_315 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_315");
+		_flipbook_Rolling			= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Rolling");
+		_flipbook_Sitting			= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Sitting");
+		
+		_flipbook_RunningLeft_0		= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_0");
+		_flipbook_RunningLeft_45	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_45");
+		_flipbook_RunningLeft_90	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_90");
+		_flipbook_RunningLeft_135	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_135");
+		_flipbook_RunningLeft_180	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_180");
+		_flipbook_RunningLeft_225	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_225");
+		_flipbook_RunningLeft_270	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_270");
+		_flipbook_RunningLeft_315	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Left_315");
 
-		_flipbook_RunningRight_0 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_0");
-		_flipbook_RunningRight_45 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_45");
-		_flipbook_RunningRight_90 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_90");
-		_flipbook_RunningRight_135 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_135");
-		_flipbook_RunningRight_180 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_180");
-		_flipbook_RunningRight_225 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_225");
-		_flipbook_RunningRight_270 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_270");
-		_flipbook_RunningRight_315 = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_315");
+		_flipbook_RunningRight_0	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_0");
+		_flipbook_RunningRight_45	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_45");
+		_flipbook_RunningRight_90	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_90");
+		_flipbook_RunningRight_135	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_135");
+		_flipbook_RunningRight_180	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_180");
+		_flipbook_RunningRight_225	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_225");
+		_flipbook_RunningRight_270	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_270");
+		_flipbook_RunningRight_315	= GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Running_Right_315");
 
-		_flipbook_Rolling = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Rolling");
-		_flipbook_Sitting = GET_SINGLE(ResourceManager)->GetFlipbook(L"FB_Sitting");
 	}
 
 #pragma region ī�޶� �߰�
@@ -76,46 +66,37 @@ Player::Player()
 
 #pragma region pixelCollider �߰� 
 	{
-		uint8 left = static_cast<uint8>(ePixelDirection::P_LEFT);
-		uint8 right = static_cast<uint8>(ePixelDirection::P_RIGHT);
-		uint8 top = static_cast<uint8>(ePixelDirection::P_TOP);
-		uint8 bottom = static_cast<uint8>(ePixelDirection::P_BOTTOM);
+		Vector size = Vector(e_Pixel_Len);
 
-		Vector size = Vector(20, 20);
+		_pixelDist = e_Pixel_Len * 2;
 
-		_Center_Bottom = new PixelCollider(this, ePixelColliderType::GROUND, bottom, size);
-		_pixels[bottom] = _Center_Bottom;
+		_Right_Bottom = new PixelCollider(this, ePixelColliderType::WALL, _right | _bottom,size);
+		_pixels[_right | _bottom] = _Right_Bottom;
 
-		_Right_Bottom = new PixelCollider(this, ePixelColliderType::WALL, right | bottom,size);
-		_pixels[right | bottom] = _Right_Bottom;
+		_Left_Bottom = new PixelCollider(this, ePixelColliderType::WALL, _left | _bottom,size);
+		_pixels[_left | _bottom] = _Left_Bottom;
 
-		_Left_Bottom = new PixelCollider(this, ePixelColliderType::WALL, left | bottom,size);
-		_pixels[left | bottom] = _Left_Bottom;
+		_Left_Top = new PixelCollider(this, ePixelColliderType::CEILING, _left | _top,size);
+		_pixels[_left | _top] = _Left_Top;
 
-		_Left_Top = new PixelCollider(this, ePixelColliderType::CEILING, left | top,size);
-		_pixels[left | top] = _Left_Top;
-
-		_Right_Top = new PixelCollider(this, ePixelColliderType::CEILING, right | top,size);
-		_pixels[right | top] = _Right_Top;
+		_Right_Top = new PixelCollider(this, ePixelColliderType::CEILING, _right | _top,size);
+		_pixels[_right | _top] = _Right_Top;
 	}
 }
 
 Player::~Player()
 {
-	for (int i = 0; i < 2; i++)
 	{
-		if (_anglePixel[i] != nullptr)
-		{
-			SAFE_DELETE(_anglePixel[i], "delete");
-		}
+		_pixels.erase(_right | _top);
+		_pixels.erase(_right | _bottom);
+		_pixels.erase(_left | _top);
+		_pixels.erase(_left | _bottom);
 	}
-	if(_currLoop !=nullptr)
-		SAFE_DELETE(_currLoop, "delete");
 }
 
 void Player::BeginPlay()
 {
-	SetPos(Vector(100, 100));
+	SetPos(Vector(300, 300));
 	Super::BeginPlay();
 	setFlipbook(_flipbook_Pause);
 }
@@ -125,22 +106,44 @@ void Player::Tick()
 	Super::Tick();
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
 
- 	Player::CheckCollision_Ground();
+	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::Q))
+	{
+		Gravity = !Gravity;
+	}
 
-	if (_IsOnGround == false)
 	{
-		Player::SetGravitationVec(GravitationVec::GROUND);
+
+		Player::SetAngle();
+
+		if (_angle >= -M_PI / 4 && _angle < M_PI / 4)
+		{
+			Player::CheckCollision((uint8)e_SlopeType::GROUND);
+		}
+		else if (_angle >= M_PI / 4 && _angle < 3 * M_PI / 4)
+		{
+			Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL);
+		}
+		else if (_angle >= 3 * M_PI / 4 || _angle < -3 * M_PI / 4)
+		{
+			Player::CheckCollision((uint8)e_SlopeType::CEILING);
+		}
+		else if (_angle > -3 * M_PI / 4 && _angle <=  -M_PI / 4)
+		{
+			Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL);
+		}
 	}
-	else if (_IsOnGround == true)
+
+	if (Gravity==true)//_IsOnGround == false)
 	{
-		_rigidBody->GetPhysic()->RemoveSpeedY();
-		_slopeType = SlopeType::GROUND;
+		Player::SetGravitationVec(e_SlopeType::GROUND);
 	}
+
+	
 	if (true)
 	{
 		Player::JumpStateUpdate();
 	}
-	Player::SetAngle(_slopeType);
+
 
 	if (_IsOnGround == true && _physic->Speed == Vector{ 0,0 })
 	{
@@ -153,34 +156,22 @@ void Player::Tick()
 	}
 	else
 	{
-		GET_SINGLE(EventManager)->InputEventFunctionExecution();
+		void OnUpPressed();
+		void OnLeftPressed();
+		void OnRightPressed();
+		void OnDownPressed();
 	}
-
-	if (_currLoop != nullptr)
-	{
-	}
-
-	if ((_onLoopCondition == true) &&
-		(GET_SINGLE(InputManager)->GetButtonUp(KeyType::D) ||
-			GET_SINGLE(InputManager)->GetButtonUp(KeyType::A)))
-	{
-		_onLoopCondition = false;
-		_currLoop->SetIsLoopCoursePassed(false);
-	}
-
-	if (IsLoopFailed())
-	{
-		LoopFailedProcess();
-	}
-
-	//Player::SlideSlopeMovement();
 	
-	if (IsSkiddlingCondition() && _ctrlLockTimer == 0&&IsLoopFailed()==false)
+	if(_IsOnGround==true)
 	{
-		Player::SkiddlingMovement();
+		_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
+		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
 	}
 
-	Player::SetMovement();
+	if (Player::SetMovement() == false)
+	{
+		return;
+	}
 }
 
 void Player::Render(HDC hdc)
@@ -217,16 +208,16 @@ void Player::Render(HDC hdc)
 			::TextOut(hdc, 10, 210, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"onLoop({0})", _onLoopCondition);
-			::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
+			//wstring str = std::format(L"onLoop({0})", _onLoopCondition);
+			//::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
 			wstring str = std::format(L"Jumped({0})", _IsJumped);
 			::TextOut(hdc, 10, 250, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"LoopJumped({0})", _onLoopJumped);
-			::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
+			//wstring str = std::format(L"LoopJumped({0})", _onLoopJumped);
+			//::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
 			wstring str = std::format(L"CtrlLockTimer({0})", _ctrlLockTimer);
@@ -235,22 +226,17 @@ void Player::Render(HDC hdc)
 	}
 
 #pragma region AnglePixel ��� 
+	if(_A_Pixel[0]!=nullptr)
 	{
 		Vector cameraPos = GET_SINGLE(SceneManager)->GetCameraPos();
-		if (_anglePixel[0] != nullptr && _anglePixel[1] != nullptr)
+		Vector Apixel[2];
+		Apixel[0] = *_A_Pixel[0];
+		Apixel[1] = *_A_Pixel[1];
+		for(int i = 0; i<2; i++)
 		{
-			{
-				Vector pixel0 = *_anglePixel[0];
-				pixel0.x -= (cameraPos.x - GWinSizeX / 2);
-				pixel0.y -= (cameraPos.y - GWinSizeY / 2);
-				Utils::DrawCircle(hdc, pixel0, PixelSize);
-			}
-			{
-				Vector pixel1 = *_anglePixel[1];
-				pixel1.x -= (cameraPos.x - GWinSizeX / 2);
-				pixel1.y -= (cameraPos.y - GWinSizeY / 2);
-				Utils::DrawCircle(hdc, pixel1, PixelSize);
-			}
+			Apixel[i].x -= (cameraPos.x - (GWinSizeX / 2));
+			Apixel[i].y -= (cameraPos.y - (GWinSizeY / 2));
+			Utils::DrawCircle(hdc, Apixel[i], PixelSize);
 		}
 	}
 
@@ -405,30 +391,11 @@ void Player::OnComponentEndOverlap(Collider* collider, Collider* other)
 		{
 		case eComponentType::LOOP:
 		{
-			LoopCollider* loopcollider = dynamic_cast<LoopCollider*>(other);
-			if (loopcollider->GetIsLoopCoursePassed() == true)
-			{
-				int a = 1;
-			}
-			else
-			{
-				if (_onLoopCondition == true)
-				{
-					if (loopcollider->GetDirection() == ePixelDirection::P_LEFT)
-					{
-						loopcollider->SetDirection(ePixelDirection::P_RIGHT);
-					}
-					else if (loopcollider->GetDirection() == ePixelDirection::P_RIGHT)
-					{
-						loopcollider->SetDirection(ePixelDirection::P_LEFT);
-					}
-				}
-			}
+			break;
 		}
 		case eComponentType::BACKGROUND_COLLIDER:
 			_IsOnGround = false;
 			_physic->_gravity = true;
-			_slopeType = SlopeType::AIR;
 			break;
 
 		}
@@ -484,19 +451,233 @@ void Player::AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2)
 	SetPos(pos);
 }
 
-void Player::CheckCollision_Ground()
+void Player::CheckCollision(uint8 dir)
 {
-	Vector Ground = _Center_Bottom->GetPos();
-	Ground.y += 3;
-	if (CheckCollsion_ColorRef(Ground, ColorRef::RED))
-		_IsOnGround = true;
+	switch (dir)
+	{
+	case (uint8)e_SlopeType::GROUND : 
+	{
+		Vector LBottom = _Left_Bottom->GetPos() + Vector(0, 5);
+		Vector RBottom = _Right_Bottom->GetPos() + Vector(0, 5);
 
-	else 
-		_IsOnGround = false;
+
+		if (CheckCollision_ColorRef(LBottom, ColorRef::RED) &&
+			CheckCollision_ColorRef(RBottom, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			if (_physic->Speed.x > 0)
+			{
+				_currCheckedPixel = _Right_Bottom->GetDir();
+			}
+			else if (_physic->Speed.x < 0)
+			{
+				_currCheckedPixel = _Left_Bottom->GetDir();
+			}
+			_Left_Bottom->SetIsCollided(true);
+			_Right_Bottom->SetIsCollided(true);
+			_pixelDoubleChecked = true;
+			_slopeType = e_SlopeType::GROUND;
+		}
+
+		else if (CheckCollision_ColorRef(LBottom, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Left_Bottom->SetIsCollided(true);
+			_Right_Bottom->SetIsCollided(false);
+			_currCheckedPixel = _Left_Bottom->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::GROUND;
+		}
+
+		else if (CheckCollision_ColorRef(RBottom, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Left_Bottom->SetIsCollided(false);
+			_Right_Bottom->SetIsCollided(true);
+			_currCheckedPixel = _Right_Bottom->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::GROUND;
+		}
+		else
+		{
+			_IsOnGround = false;
+			_Left_Bottom->SetIsCollided(false);
+			_Right_Bottom->SetIsCollided(false);
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::AIR;
+		}
+		break;
+	}
+	case (uint8)e_SlopeType::LEFT_WALL : 
+	{
+		Vector LBottom = _Left_Bottom->GetPos() + Vector(-5, 0);
+		Vector LTop = _Left_Top->GetPos() + Vector(-5, 0);
+
+
+		if (CheckCollision_ColorRef(LBottom, ColorRef::RED) &&
+			CheckCollision_ColorRef(LTop, ColorRef::RED))
+		{
+
+			if (_physic->Speed.y > 0)
+			{
+				_currCheckedPixel = _Left_Bottom->GetDir();
+			}
+			else if (_physic->Speed.y < 0)
+			{
+				_currCheckedPixel = _Left_Top->GetDir();
+			}
+			_IsOnGround = true;
+			_Left_Bottom->SetIsCollided(true);
+			_Left_Top->SetIsCollided(true);
+			_pixelDoubleChecked = true;
+			_slopeType = e_SlopeType::LEFT_WALL;
+		}
+
+
+		else if (CheckCollision_ColorRef(LBottom, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Left_Bottom->SetIsCollided(true);
+			_Left_Top->SetIsCollided(false);
+			_currCheckedPixel = _Left_Bottom->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::LEFT_WALL;
+		}
+
+		else if (CheckCollision_ColorRef(LTop, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Left_Bottom->SetIsCollided(false);
+			_Left_Top->SetIsCollided(true);
+			_currCheckedPixel = _Left_Top->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::LEFT_WALL;
+		}
+		else
+		{
+			_IsOnGround = false;
+			_Left_Bottom->SetIsCollided(false);
+			_Left_Top->SetIsCollided(false);
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::AIR;
+		}
+		break;
+	}
+
+	case (uint8)e_SlopeType::CEILING:
+	{
+		Vector RTop = _Right_Top->GetPos() + Vector(0, -5);
+		Vector LTop = _Left_Top->GetPos() + Vector(0, -5);
+
+
+		if (CheckCollision_ColorRef(RTop, ColorRef::RED) &&
+			CheckCollision_ColorRef(LTop, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			if (_physic->Speed.x > 0)
+			{
+				_currCheckedPixel = _Right_Top->GetDir();
+			}
+			else if (_physic->Speed.x < 0)
+			{
+				_currCheckedPixel = _Left_Top->GetDir();
+			}
+			_Right_Top->SetIsCollided(true);
+			_Left_Top->SetIsCollided(true);
+			_pixelDoubleChecked = true;
+			_slopeType = e_SlopeType::CEILING;
+		}
+
+
+		else if (CheckCollision_ColorRef(RTop, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Right_Top->SetIsCollided(true);
+			_Left_Top->SetIsCollided(false);
+			_currCheckedPixel = _Right_Top->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::CEILING;
+		}
+
+		else if (CheckCollision_ColorRef(LTop, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Right_Top->SetIsCollided(false);
+			_Left_Top->SetIsCollided(true);
+			_currCheckedPixel = _Left_Top->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::CEILING;
+		}
+		else
+		{
+			_IsOnGround = false;
+			_Right_Top->SetIsCollided(false);
+			_Left_Top->SetIsCollided(false);
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::AIR;
+		}
+		break;
+	}
+	case (uint8)e_SlopeType::RIGHT_WALL:
+	{
+		Vector RBottom = _Right_Bottom->GetPos() + Vector(5, 0);
+		Vector RTop = _Right_Top->GetPos() + Vector(5, 0);
+
+
+		if (CheckCollision_ColorRef(RBottom, ColorRef::RED) &&
+			CheckCollision_ColorRef(RTop, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			if (_physic->Speed.y > 0)
+			{
+				_currCheckedPixel = _Right_Bottom->GetDir();
+			}
+			else if (_physic->Speed.y < 0)
+			{
+				_currCheckedPixel = _Right_Top->GetDir();
+			}
+			_Right_Bottom->SetIsCollided(true);
+			_Right_Top->SetIsCollided(true);
+			_pixelDoubleChecked = true;
+			_slopeType = e_SlopeType::RIGHT_WALL;
+		}
+
+
+		else if (CheckCollision_ColorRef(RBottom, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Right_Bottom->SetIsCollided(true);
+			_Right_Top->SetIsCollided(false);
+			_currCheckedPixel = _Right_Bottom->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::RIGHT_WALL;
+		}
+
+		else if (CheckCollision_ColorRef(RTop, ColorRef::RED))
+		{
+			_IsOnGround = true;
+			_Right_Bottom->SetIsCollided(false);
+			_Right_Top->SetIsCollided(true);
+			_currCheckedPixel = _Right_Top->GetDir();
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::RIGHT_WALL;
+		}
+		else
+		{
+			_IsOnGround = false;
+			_Right_Bottom->SetIsCollided(false);
+			_Right_Top->SetIsCollided(false);
+			_pixelDoubleChecked = false;
+			_slopeType = e_SlopeType::AIR;
+		}
+		break;
+	}
+
+	}
 }
 
 
-bool Player::CheckCollsion_ColorRef(Vector& pos, COLORREF color)
+bool Player::CheckCollision_ColorRef(Vector& pos, COLORREF color)
 {
 	if (_background->GetPixel(pos.x, pos.y) == color)
 		return true;
@@ -513,41 +694,33 @@ void Player::OnUpPressed()
 
 void Player::OnLeftPressed()
 {
-	if (_onLoopJumped == true || _IsJumped == true)
+	if (_IsJumped == true)
 	{
 		int a = 1;
 	}
 
 	else if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::A))
 	{
-		Player::MovementCallBack
-		(&Player::IsMeetingLoopPassCondition,
-			ePixelDirection::P_LEFT,
-			&Player::LoopMovement,
-			&Player::LeftMovement);
+		LeftMovement();
 	}
 }
 
 void Player::OnRightPressed()
 {
-	if (_onLoopJumped == true || _IsJumped == true)
+	if (_IsJumped == true)
 	{
 		int a = 1;
 	}
 
 	else if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::D))
 	{
-		Player::MovementCallBack
-		(&Player::IsMeetingLoopPassCondition,
-			ePixelDirection::P_RIGHT,
-			&Player::LoopMovement,
-			&Player::RightMovement);
+		RightMovement();
 	}
 }
 
 void Player::OnDownPressed()
 {
-	if (_onLoopJumped == true || _IsJumped == true)
+	if (_IsJumped == true)
 	{
 		int a = 1;
 	}
@@ -557,79 +730,53 @@ void Player::OnDownPressed()
 	}
 }
 
-void Player::AdjustGroundMovement()
+bool Player::AdjustMovement()
 {
-	//if (_IsOnGround == false)
-	//	return; 
-	Vector& pixel = _Center_Bottom->GetPos();
-	bool CollisionDetect = 1;
-
-	bool RunLeft = (_physic->Speed.x < 0) && (_IsOnGround == true);
-	bool RunRight = (_physic->Speed.x > 0) && (_IsOnGround == true);
-
-
-	int addVal = ((CollisionDetect) ? -1 : 1);
-	while (CheckCollsion_ColorRef(pixel, ColorRef::RED) == CollisionDetect)
+	if (_angle >= 3.14)
 	{
-		_pos.y += addVal;
-		RenewPixelLocation();
+		int a = 1;
 	}
-
-	//Vector& LPixel = _LwallPixelCollider->GetPos();
-	//while (CheckCollsion_ColorRef(LPixel, ColorRef::BLACK) == true)
-	//{
-	//	_pos.x += 1;
-	//	RenewPixelLocation();
-	//}
-	//Vector& RPixel = _RwallPixelCollider->GetPos();
-	//while (CheckCollsion_ColorRef(RPixel, ColorRef::BLACK) == true)
-	//{
-	//	_pos.x -= 1;
-	//	RenewPixelLocation();
-	//}
+	if (_slopeType == e_SlopeType::AIR)
+	{
+		return false;
+	}
+	if (_currCheckedPixel == 0)
+	{
+		return false;
+	}
+	
+	Vector* pixel = &_pixels[_currCheckedPixel]->GetPos();
+	
+	if (_pixelDoubleChecked)
+	{
+		
+	}
+	while (CheckCollision_ColorRef(*pixel, ColorRef::RED))
+	{
+		_pos.x -= sin(_angle);
+		_pos.y -= cos(_angle);
+		Player::RenewPixelLocation();
+	}
+	return true;
 }
+//
+//void Player::ModifyWallMovement(ePixelDirection _dir)
+//{
+//	Vector* pixel = nullptr;
+//	if (_dir == ePixelDirection::P_RIGHT)
+//		pixel = &_Right_Bottom->GetPos();
+//	else if (_dir == ePixelDirection::P_LEFT)
+//		pixel = &_Left_Bottom->GetPos();
+//
+//	while (CheckCollision_ColorRef(*pixel, ColorRef::MANGENTA) == true ||
+//		CheckCollision_ColorRef(*pixel, ColorRef::CYAN) == true)
+//	{
+//		_pos.y += -1;
+//		RenewPixelLocation();
+//	}
+//}
 
-void Player::ModifyWallMovement(ePixelDirection _dir)
-{
-	Vector* pixel = nullptr;
-	if (_dir == ePixelDirection::P_RIGHT)
-		pixel = &_Right_Bottom->GetPos();
-	else if (_dir == ePixelDirection::P_LEFT)
-		pixel = &_Left_Bottom->GetPos();
 
-	while (CheckCollsion_ColorRef(*pixel, ColorRef::MANGENTA) == true ||
-		CheckCollsion_ColorRef(*pixel, ColorRef::CYAN) == true)
-	{
-		_pos.y += -1;
-		RenewPixelLocation();
-	}
-}
-
-void Player::SlipMovement()
-{
-	if (abs(_angle) <= 0.f)
-		return;
-
-	if (IsOnLoopCircle() == false)
-		return;
-
-	// MAGENTA ver
-	if (_pos.x >= _currLoopPos.x &&
-		(_angle >= 0 * M_PI / 4 && _angle <= 1 * M_PI / 4))
-	{
-		_physic->Speed.x = -3;
-		SetPos(_pos + _physic->Speed);
-		//CorrectingMovementOnGround(ePixelDirection::P_RIGHT);
-	}
-	else if (_pos.x < _currLoopPos.x &&
-		(_angle >= 3 * M_PI / 4 && _angle >= 4 * M_PI / 4))
-	{
-		_physic->Speed.x = 3;
-		SetPos(_pos + _physic->Speed);
-		//CorrectingMovementOnGround(ePixelDirection::P_LEFT);
-	}
-	_state = SonicState::ROLLING;
-}
 
 void Player::JumpMovement()
 {
@@ -644,13 +791,6 @@ void Player::JumpMovement()
 
 	_physic->RemoveSpeedY();
 
-	if (_onLoopCondition == true)
-	{
-		_onLoopCondition = false;
-		_onLoopPlayerAngle._myDegree = 0;
-		_onLoopJumped = false;
-	}
-
 	_IsJumped = true;
 
 	_physic->_gravity = true;
@@ -660,7 +800,7 @@ void Player::JumpMovement()
 	_rigidBody->Jump();
 
 	SetSonicState(SonicState::JUMPING);
-	Player::AdjustGroundMovement();
+	Player::AdjustMovement();
 	return;
 }
 
@@ -695,192 +835,6 @@ bool Player::IsSkiddlingCondition()
 	return false;
 }
 
-void Player::MovementCallBack
-(bool(Player::* LoopFunc)(ePixelDirection),
-	ePixelDirection _dir,
-	void(Player::* SucceedFunc)(ePixelDirection),
-	void(Player::* FailedFunc)())
-{
-	if ((this->*LoopFunc)(_dir))
-		(this->*SucceedFunc)(_dir);
-	else
-		(this->*FailedFunc)();
-}
-
-bool Player::IsMeetingLoopPassCondition(ePixelDirection _dir)
-{
-	bool DIRECTION = (bool)_dir;
-
-	if (_state == SonicState::JUMPING)
-		return false;
-
-	if (_loopInfo.size() == 0)
-		return false;
-
-	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-
-	if (abs(_onLoopPlayerAngle._myDegree) >= 340.f)
-	{
-		_currLoop->SetIsLoopCoursePassed(true);
-		if (_currLoop->GetDirection() == ePixelDirection::P_RIGHT)
-			_currLoop->SetDirection(ePixelDirection::P_RIGHT);
-		else
-			_currLoop->SetDirection(ePixelDirection::P_LEFT);
-	}
-
-	if (_onLoopCondition == true && ((_onLoopPlayerAngle._myDegree >= 360.f) ||
-		(_onLoopPlayerAngle._myDegree <= -360.f)))
-	{
-		_onLoopPlayerAngle = DIRECTION ? 360.f : -360.f;
-		if ((_pos - _currLoopPos).Length() >= _radius + 1)
-		{
-			_onLoopCondition = false;
-			_onLoopPlayerAngle = 0.f;
-			_currLoop->SetIsLoopCoursePassed(false);
-		}
-	}
-	else if (_onLoopCondition == false)
-	{
-		for (LoopCollider* loopInfo : _loopInfo)
-		{
-			bool CheckPosX = DIRECTION ? _pos.x >= _currLoopPos.x : _pos.x <= _currLoopPos.x;
-			bool LoopDirCheck;
-			if (DIRECTION == false && loopInfo->GetDirection() == ePixelDirection::P_LEFT ||
-				DIRECTION == true && loopInfo->GetDirection() == ePixelDirection::P_RIGHT)
-			{
-				if (CheckPosX == true && (_pos - loopInfo->GetPos()).Length() <= _radius - 100 / 1.8 + 35
-					&& ((_state == SonicState::RUNRIGHT_0) || (_state == SonicState::RUNLEFT_180)))
-				{
-					Player::SetAngleSpeed();
-					_onLoopCondition = true;
-					_onLoopPlayerAngle = 0.f;
-					_currLoop = loopInfo;
-					_currLoopPos = loopInfo->GetPos();
-				}
-			}
-		}
-	}
-	return _onLoopCondition;
-}
-
-void Player::LoopMovement(ePixelDirection _dir)
-{
-	bool DIRECTION = (bool)_dir;
-
-	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-
-	short Weight = (DIRECTION) ? 1 : -1;
-
-	_physic->Speed.x = Weight * _radius * deltaTime * sin(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
-	_physic->Speed.y = Weight * _radius * deltaTime * cos(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
-
-	if (_onLoopPlayerAngle._myDegree == 360.f || _onLoopPlayerAngle._myDegree == -360.f)
-	{
-		_angle = 0.f;
-		_physic->Speed.x += 4 * Weight;
-		SetPos(_physic->Speed + _pos);
-	}
-	else
-	{
-		_physic->_gravity = false;
-
-		_pos.x = _currLoopPos.x + (_radius - (100 / 1.8) / 2) * cos(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
-		_pos.y = _currLoopPos.y + (_radius - (100 / 1.8) / 2) * sin(Utils::DegreeToRadian(_onLoopPlayerAngle._WindowDegree));
-
-		// 각도 보정 
-		if (abs(_onLoopPlayerAngle._myDegree) <= 180.f)
-		{
-			_angleSpeed -= 60 * deltaTime * Weight;
-		}
-		else if (abs(_onLoopPlayerAngle._myDegree) > 180.f)
-		{
-			_angleSpeed += 120 * deltaTime * Weight;
-		}
-		if (_angleSpeed <= 50.f)
-		{
-			_onLoopCondition = false;
-		}
-		_onLoopPlayerAngle += _angleSpeed * deltaTime * Weight;
-
-	}
-	RenewPixelLocation();
-
-	if (_dir == ePixelDirection::P_LEFT)
-		AdjustState_Angle_LEFT();
-	else if (_dir == ePixelDirection::P_RIGHT)
-		AdjustState_Angle_RIGHT();
-	return;
-
-}
-
-bool Player::IsLoopFailed()
-{
-	if (_currLoop != nullptr)
-	{
-		_IsOnRWall = (Player::CheckCollsion_ColorRef(_Right_Bottom->GetPos(), ColorRef::MANGENTA) &&
-			_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_RIGHT);
-
-		if (_IsOnRWall == true)
-		{
-			return true;
-		}
-
-		_IsOnLWall = (Player::CheckCollsion_ColorRef(_Left_Bottom->GetPos(), ColorRef::CYAN) &&
-			_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_LEFT);
-
-		if (_IsOnLWall == true)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-
-void Player::SetAngleSpeed()
-{
-	float SpeedVal = abs(_physic->Speed.x);
-	if (SpeedVal > 2.3)
-		_angleSpeed = 200.f;
-	else
-		_angleSpeed = 200.f;
-}
-
-bool Player::IsOnLoopCircle()
-{
-	return (_pos - _currLoopPos).Length() <= _radius;
-}
-
-void Player::LoopFailedProcess()
-{
-	_IsOnRWall = (Player::CheckCollsion_ColorRef(_Right_Bottom->GetPos(), ColorRef::MANGENTA) &&
-		_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_RIGHT);
-
-	if (_IsOnRWall == true)
-	{
-		Vector& Rpixel = _Right_Bottom->GetPos();
-		while (CheckCollsion_ColorRef(Rpixel, ColorRef::MANGENTA) == true)
-		{
-			_pos.x -= 1;
-			RenewPixelLocation();
-		}
-	}
-
-	_IsOnLWall = (Player::CheckCollsion_ColorRef(_Left_Bottom->GetPos(), ColorRef::CYAN) &&
-		_currLoop->GetIsLoopCoursePassed() == false && _currLoop->GetDirection() == ePixelDirection::P_LEFT);
-
-	if (_IsOnLWall == true)
-	{
-		Vector& Lpixel = _Left_Bottom->GetPos();
-		while (CheckCollsion_ColorRef(Lpixel, ColorRef::CYAN) == true)
-		{
-			_pos.x += 1;
-			RenewPixelLocation();
-		}
-	}
-
-}
-
 void Player::GetAccBuff(Vector dir)
 {
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
@@ -901,11 +855,10 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 		//
 		break;
 	case ePixelColliderType::GROUND:
-		Player::SetGravitationVec(GravitationVec::GROUND);
+		Player::SetGravitationVec(e_SlopeType::GROUND);
 		_physic->RemoveSpeedY();
 		_physic->_gravity = false;
-		Player::AdjustGroundMovement();
-		Player::SlipMovement();
+		Player::AdjustMovement();
 		break;
 	case ePixelColliderType::WALL:
 	{
@@ -920,142 +873,274 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 	}
 }
 
-void Player::SetAngle(uint16 type)
+void Player::SetAngle()
 {
-	if (_onLoopCondition == true)
+	bool LParamCollideCheck = false;
+	bool RParamCollideCheck = true;
+	if (_currCheckedPixel == _Left_Bottom->GetDir())
 	{
-#pragma region ���� ���� ���� ���ؼ� ������ �����ؾ��� 
 		{
-			_angle = Utils::DegreeToRadian(_onLoopPlayerAngle._myDegree);
-			return;
-		}
-	}
-	SlopeType currSlopeType = Player::InitAnglePixel();
-	if (_anglePixel[0] == nullptr && _anglePixel[1] == nullptr)
-	{
-		_angle = 0.f;
-		return;
-	}
-	if (currSlopeType == SlopeType::GROUND || currSlopeType == SlopeType::CEILING)
-	{
-		uint8 leftpixelIndex = 0;
-		uint8 rightpixelIndex = 1;
-		if ((CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true) &&
-			CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
-		{
-			_angle = 0.f;
-			return;
-		}
-
-		//Left�� �ɸ� ��� 
-		else if (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true)
-		{
-			while (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == true)
-				_anglePixel[leftpixelIndex]->y -= 1;
-			while (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == false)
+			if (AngleCalc(_Left_Bottom->GetPos(), _Right_Bottom->GetPos(),LParamCollideCheck)==true)
 			{
-				_anglePixel[rightpixelIndex]->y += 1;
-			}
-		}
-		// Right�� �ɸ� ��� 
-		else if (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
-		{
-			while (CheckCollsion_ColorRef(*_anglePixel[rightpixelIndex], ColorRef::RED) == true)
-				_anglePixel[rightpixelIndex]->y -= 1;
-			while (CheckCollsion_ColorRef(*_anglePixel[leftpixelIndex], ColorRef::RED) == false)
-				_anglePixel[leftpixelIndex]->y += 1;
-		}
-
-		float Xval = (_anglePixel[rightpixelIndex]->x - _anglePixel[leftpixelIndex]->x);
-		float Yval = (-1) * (_anglePixel[rightpixelIndex]->y - _anglePixel[leftpixelIndex]->y);
-		if (abs(Yval) < 5)
-			_angle = 0;
-		else
-			_angle = atan2(Yval, Xval);
-	}
-	else
-	{
-
-		uint8 topPixelIndex = 1;
-		uint8 bottomPixelIndex = 0;
-
-		if (currSlopeType == SlopeType::LEFT_WALL)
-		{
-			if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true &&
-				CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
-			{
-				_angle = 3 * M_PI / 4;
+				SetAnglePixel(_A_Left_Bottom, _A_Right_Bottom);
 				return;
 			}
-			// TOP �� �ɸ� ���
-			else if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
+			else if (AngleCalc(_Left_Top->GetPos(), _Left_Bottom->GetPos(),RParamCollideCheck) == true)
 			{
-				while (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
-					_anglePixel[topPixelIndex]->x += 1;
-				while (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == false)
-					_anglePixel[bottomPixelIndex]->x -= 1;
-			}
-
-			//BOTTOM�� �ɸ� ��� 
-			else if (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
-			{
-				while (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
-					_anglePixel[bottomPixelIndex]->x += 1;
-				while (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == false)
-					_anglePixel[topPixelIndex]->x -= 1;
-
-			}
-		}
-		else if (currSlopeType == SlopeType::RIGHT_WALL)
-		{
-			if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true &&
-				CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
-			{
-				_angle = M_PI / 4;
+				SetAnglePixel(_A_Left_Top, _A_Left_Bottom);
 				return;
 			}
-			// Top�� �ɸ� ��� 
-			else if (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
+		}
+	}
+	else if (_currCheckedPixel == _Right_Bottom->GetDir())
+	{
+		{
+			if (AngleCalc(_Left_Bottom->GetPos(), _Right_Bottom->GetPos(), RParamCollideCheck) == true)
 			{
-				while (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == true)
-					_anglePixel[topPixelIndex]->x -= 1;
-				while (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == false)
-					_anglePixel[bottomPixelIndex]->x += 1;
+				SetAnglePixel(_A_Left_Bottom, _A_Right_Bottom);
+				return;
 			}
-
-			//BOTTOM�� �ɸ� ��� 
-			else if (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
+			else if (AngleCalc(_Right_Bottom->GetPos(), _Right_Top->GetPos(),LParamCollideCheck) == true)
 			{
-				while (CheckCollsion_ColorRef(*_anglePixel[bottomPixelIndex], ColorRef::RED) == true)
-					_anglePixel[bottomPixelIndex]->x -= 1;
-				while (CheckCollsion_ColorRef(*_anglePixel[topPixelIndex], ColorRef::RED) == false)
-					_anglePixel[topPixelIndex]->x += 1;
+				SetAnglePixel(_A_Right_Bottom, _A_Right_Top);
+				return;
 			}
 		}
+	}
+	else if (_currCheckedPixel == _Right_Top->GetDir())
+	{
+		{
+			if (AngleCalc(_Right_Bottom->GetPos(), _Right_Top->GetPos(), RParamCollideCheck) == true)
+			{
+				SetAnglePixel(_A_Right_Bottom, _A_Right_Top);
+				return;
+			}
+			else if (AngleCalc(_Right_Top->GetPos(), _Left_Top->GetPos(),LParamCollideCheck) == true)
+			{
+				SetAnglePixel(_A_Right_Top, _A_Left_Top);
+				return;
+			}
+		}
+	}
+	else if (_currCheckedPixel == _Left_Top->GetDir())
+	{
+		{
+			if (AngleCalc(_Right_Top->GetPos(), _Left_Top->GetPos(), RParamCollideCheck) == true)
+			{
+				SetAnglePixel(_A_Right_Top, _A_Left_Top);
+				return;
+			}
+			else if (AngleCalc(_Left_Top->GetPos(), _Left_Bottom->GetPos(), LParamCollideCheck) == true)
+			{
+				SetAnglePixel(_A_Left_Top, _A_Left_Bottom);
+				return;
+			}
+		}
+	}
+}
 
-		float Xval = (_anglePixel[topPixelIndex]->x - _anglePixel[bottomPixelIndex]->x);
-		float Yval = (-1) * (_anglePixel[topPixelIndex]->y - _anglePixel[bottomPixelIndex]->y);
-		if (abs(Yval) < 5)
-			_angle = 0;
-		else
-			_angle = atan2(Yval, Xval);
-	}
-	if (_angle < 0)
+bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
+{
+	if (pos1.y == pos2.y)
 	{
-		_angle = 2 * M_PI + _angle;
+		if (pos1.y < _pos.y)
+		{
+			// RightTop, LeftTop
+			Vector *RightTop	= new Vector(pos1);
+ 			Vector *LeftTop		= new Vector(pos2);
+
+			uint8 AddVal = 0;
+
+			if (CollideFlag == false)
+			{
+				while (CheckCollision_ColorRef(*LeftTop, ColorRef::RED) ==false)
+				{
+					if (AddVal > _pixelDist)
+					{		
+						//SAFE_DELETE(_A_Left_Top, "LeftTop pixel");
+						return false;
+					}
+					LeftTop->y -= 1;
+					AddVal += 1;
+				}
+			}
+			else if (CollideFlag == true)
+			{
+				while (CheckCollision_ColorRef(*RightTop, ColorRef::RED) ==false)
+				{
+					if (AddVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Right_Top,"RightTop pixel");
+						return false;
+					}
+					RightTop->y -= 1;
+					AddVal += 1;
+				}
+			}
+			_A_Left_Top = LeftTop;
+			_A_Right_Top = RightTop;
+
+
+			//SAFE_DELETE(_A_Left_Bottom, "LeftBottom pixel");
+			//SAFE_DELETE(_A_Right_Bottom, "RightBottom pixel");
+
+			float YVal = _A_Right_Top->y - _A_Left_Top->y;
+			float XVal = _A_Left_Top->x - _A_Right_Top->x;
+			_angle = atan2(YVal, XVal);
+			return true;
+		}
+		else if (pos1.y > _pos.y)
+		{
+			//LeftBottom, RightBottom
+			Vector* LeftBottom		= new Vector(pos1);
+			Vector* RightBottom		= new Vector(pos2);
+
+			uint8 addVal = 0; 
+
+			if (CollideFlag == false)
+			{
+				while (CheckCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
+				{
+					if (addVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Right_Bottom, "RightBottom pixel");
+						return false;
+					}
+					RightBottom->y += 1;
+					addVal += 1;
+				}
+			}
+			else if (CollideFlag == true)
+			{
+				while (CheckCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
+				{
+					if (addVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Left_Bottom, "RightBottom pixel");
+						return false;
+					}
+					LeftBottom->y += 1;
+					addVal += 1;
+				}
+			}
+			_A_Left_Bottom	= LeftBottom;
+			_A_Right_Bottom	= RightBottom;
+
+			//SAFE_DELETE(_A_Left_Top, "LeftTop pixel");
+			//SAFE_DELETE(_A_Right_Top, "RightTop pixel");
+
+			float YVal = _A_Left_Bottom->y - _A_Right_Bottom->y;
+			float XVal = _A_Right_Bottom->x - _A_Left_Bottom->x;
+
+			_angle = atan2(YVal, XVal);
+			return true;
+		}
 	}
-	else if (_angle > 2 * M_PI)
+	else if (pos1.x == pos2.x)
 	{
-		_angle = fmod(_angle, 2 * M_PI);
+		if (pos1.x < _pos.x)
+		{
+			// LeftTop LeftBottom
+
+			Vector* LeftTop		= new Vector(pos1);
+			Vector* LeftBottom	= new Vector(pos2);
+
+			uint8 addVal = 0;
+
+			if (CollideFlag == false)
+			{
+				while (CheckCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
+				{
+					if (addVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Left_Bottom, "LeftBottom pixel");
+						return false;
+					}
+					LeftBottom->x -= 1;
+					addVal += 1;
+				}
+			}
+			else if (CollideFlag == true)
+			{
+				while (CheckCollision_ColorRef(*LeftTop, ColorRef::RED) == false)
+				{
+					if (addVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Left_Top, "LeftTop pixel");
+						return false;
+					}
+					LeftTop->x -= 1;
+					addVal += 1;
+				}
+			}
+			_A_Left_Top = LeftTop;
+			_A_Left_Bottom = LeftBottom;
+
+			//SAFE_DELETE(_A_Right_Top, "RightTop pixel");
+			//SAFE_DELETE(_A_Right_Bottom, "RightBottom pixel")
+
+			float YVal = _A_Left_Top->y - _A_Left_Bottom->y;
+			float XVal = _A_Left_Bottom->x - _A_Left_Top->x;
+			_angle = atan2(YVal, XVal);
+			return true;
+		}
+
+		else if (pos1.x > _pos.x)
+		{
+			// RightBottom, RightTop
+			Vector* RightBottom	= new Vector(pos1);
+			Vector* RightTop	= new Vector(pos2);
+
+			uint8 addVal = 0;
+
+			if (CollideFlag == false)
+			{
+				while (CheckCollision_ColorRef(*RightTop, ColorRef::RED) == false)
+				{
+					if (addVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Right_Top, "RightTop pixel");
+						return false;
+					}
+					RightTop->x += 1;
+					addVal += 1;
+				}
+			}
+			else if (CollideFlag == true)
+			{
+				while (CheckCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
+				{
+					if (addVal > _pixelDist)
+					{
+						//SAFE_DELETE(_A_Right_Bottom, "RightBottom pixel");
+						return false;
+					}
+					RightBottom->x += 1;
+					addVal += 1;
+				}
+			}
+			_A_Right_Bottom		= RightBottom;
+			_A_Right_Top		= RightTop;
+
+			//SAFE_DELETE(_A_Left_Top, "LeftTop pixel");
+			//SAFE_DELETE(_A_Left_Bottom, "LeftBottom pixel");
+
+			float YVal = _A_Right_Bottom->y - _A_Right_Top->y;
+			float XVal = _A_Right_Top->x - _A_Right_Bottom->x;
+			_angle = atan2(YVal, XVal);
+
+			return true;
+		}
 	}
+	return false;
 }
 
 void Player::AdjustState_Angle_LEFT()
 {
-	if (_angle < 0)
-	{
-		_angle = 2 * M_PI + _angle;
-	}
+	//if (_angle < 0)
+	//{
+	//	_angle = 2 * M_PI + _angle;
+	//}
 	int StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
 
 	switch (StandardAngle)
@@ -1090,10 +1175,10 @@ void Player::AdjustState_Angle_LEFT()
 void Player::AdjustState_Angle_RIGHT()
 {
 	int StandardAngle;
-	if (_angle < 0)
-	{
-		_angle = 2 * M_PI + _angle;
-	}
+	//if (_angle < 0)
+	//{
+	//	_angle = 2 * M_PI + _angle;
+	//}
 
 	StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
 
@@ -1126,49 +1211,12 @@ void Player::AdjustState_Angle_RIGHT()
 	}
 }
 
-SlopeType Player::InitAnglePixel()
+void Player::SetAnglePixel(Vector* v1, Vector* v2)
 {
-	BoxCollider* box = dynamic_cast<BoxCollider*>(FindComponent(eComponentType::BOX_COLLIDER));
-	assert(box != nullptr);
-
-	uint8 switchCase = 0;
-	uint8 currBit = 1;
-
-	// index 하드코딩 씹상타치 
-	uint8 top = 1;
-	uint8 bottom = 0;
-	uint8 left = 0;
-	uint8 right = 1;
-
-	for (int i = 0; i < SLOPETYPE_SIZE; i++, currBit <<= 1)
-	{
-		switchCase = currBit & _slopeType;
-		switch (switchCase)
-		{
-		case SlopeType::AIR:
-			_anglePixel[0] = nullptr;
-			_anglePixel[1] = nullptr;
-			return SlopeType::AIR;
-		case SlopeType::GROUND:
-			_anglePixel[left] = new Vector(_pos + Vector(-20, box->GetSize().y / 2));
-			_anglePixel[right] = new Vector(_pos + Vector(20, box->GetSize().y / 2));
-			return SlopeType::GROUND;
-		case SlopeType::LEFT_WALL:
-			_anglePixel[top] = new Vector(_pos + Vector(-box->GetSize().x / 2, -20));
-			_anglePixel[bottom] = new Vector(_pos + Vector(-box->GetSize().x / 2, 20));
-			return SlopeType::LEFT_WALL;
-		case SlopeType::RIGHT_WALL:
-			_anglePixel[top] = new Vector(_pos + Vector(box->GetSize().x / 2, -20));
-			_anglePixel[bottom] = new Vector(_pos + Vector(box->GetSize().x / 2, 20));
-			return SlopeType::RIGHT_WALL;
-		case SlopeType::CEILING:
-			_anglePixel[left] = new Vector(_pos + Vector(-20, -box->GetSize().y / 2));
-			_anglePixel[right] = new Vector(_pos + Vector(20, -box->GetSize().y / 2));
-			return SlopeType::CEILING;
-		}
-	}
-	return SlopeType::AIR;
+	_A_Pixel[0] = v1;
+	_A_Pixel[1] = v2;
 }
+
 
 void Player::SetSonicStateOnAir()
 {
@@ -1191,7 +1239,7 @@ void Player::JumpStateUpdate()
 {
 	if ((_IsOnGround || _IsOnRWall || _IsOnLWall))
 	{
-		_onLoopJumped = false;
+
 		_IsJumped = false;
 	}
 }
@@ -1221,7 +1269,7 @@ void Player::SkiddlingMovement()
 		else _state = SonicState::SKIDDLING_LEFT;
 	}
 	if (_IsOnGround == true)
-		Player::AdjustGroundMovement();
+		Player::AdjustMovement();
 }
 
 void Player::SlideSlopeMovement()
@@ -1263,41 +1311,41 @@ void Player::SlideSlopeMovement()
 	}
 }
 
-void Player::SetGravitationVec(GravitationVec vec)
+void Player::SetGravitationVec(e_SlopeType vec)
 {
 	_rigidBody->GetPhysic()->SetGravity(true);
 	switch (vec)
 	{
-	case GravitationVec::GROUND:
+	case e_SlopeType::GROUND:
 		_rigidBody->GravitationOnGround();
 		break;
-	case GravitationVec::LEFT_WALL:
+	case e_SlopeType::LEFT_WALL:
 		_rigidBody->GravitationOnLeftWall();
 		break;
-	case GravitationVec::RIGHT_WALL:
+	case e_SlopeType::RIGHT_WALL:
 		_rigidBody->GravitationOnRightWall();
 		break;
-	case GravitationVec::CEILING:
+	case e_SlopeType::CEILING:
 		_rigidBody->GravitationOnCeiling();
 
 	}
 }
 
-void Player::SetMovement()
+bool Player::SetMovement()
 {
-	if (_onLoopCondition == true)
-		return;
-	{
-		SetPos(_pos + _physic->Speed);
-		Player::AdjustGroundMovement();
-		RenewPixelLocation();
-	}
+	SetPos(_pos + _physic->Speed);
+	
+	Player::AdjustMovement();
+
+	Player::RenewPixelLocation();
+
+	return true;
 }
 
 void Player::RenewPixelLocation()
 {
-	for (auto& Pixel : _pixels)
+	for (auto& i : _pixels)
 	{
-		Pixel.second->SetPos();
+		i.second->SetPixelPos();
 	}
 }

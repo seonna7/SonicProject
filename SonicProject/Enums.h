@@ -85,6 +85,7 @@ enum class ePixelDirection : uint8
 
 namespace ColorRef
 {
+	static COLORREF WHITE		= RGB(255, 255, 255);
 	static COLORREF RED			= RGB(255, 0, 0);
 	static COLORREF GREEN		= RGB(0, 255, 0);
 	static COLORREF BLUE		= RGB(0, 0, 255);
