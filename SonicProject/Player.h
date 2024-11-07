@@ -102,6 +102,8 @@ private :
 public : 
 	bool Gravity = true;
 
+	bool Skiddle = true;
+
 	void OnUpPressed();
 	void OnLeftPressed();
 	void OnRightPressed();
@@ -109,9 +111,7 @@ public :
 
 private : 
 	bool AdjustMovement();
-	//void ModifyWallMovement(ePixelDirection _dir);
 	
-	void SlipMovement();
 	void JumpMovement();
 	void LeftMovement();
 	void RightMovement();
@@ -121,7 +121,6 @@ private :
 	bool IsSkiddlingCondition();
 	void SkiddlingMovement();
 
-	void SlideSlopeMovement();
 
 	void SetGravitationVec(e_SlopeType vec);
 private : 
@@ -134,11 +133,9 @@ private :
 	//=======================================================
 	float	_angle = 0.f;
 
-	void SetAngle();
+	void AngleFunction();
 	bool AngleCalc(Vector pos1, Vector pos2, bool CollideFlag);
-	void AdjustState_Angle_LEFT();
-	void AdjustState_Angle_RIGHT();
-
+	void SonicFlipBookAngleMatch(uint8 dir);
 	Vector* _A_Left_Top		= nullptr;
 	Vector* _A_Right_Top	= nullptr;
 	Vector* _A_Left_Bottom	= nullptr;
@@ -150,6 +147,8 @@ public :
 	float GetAngle() { return _angle; }
 
 	bool GetIsOnGround() { return _IsOnGround; }
+
+	bool SetAngle(float &ref, float Yval, float Xval);
 
 private : 
 	//=======================================================
@@ -164,7 +163,7 @@ private :
 	void			SetSonicState(SonicState state) { _state = state; }
 	void			SetSonicStateOnAir();
 	void			SetSonicStateSitting();
-	void			JumpStateUpdate();
+	void			UpdateJumpState();
 
 
 	bool	_IsOnGround			= false;

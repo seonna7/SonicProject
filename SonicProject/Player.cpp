@@ -110,27 +110,37 @@ void Player::Tick()
 	{
 		Gravity = !Gravity;
 	}
-
+	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::E))
 	{
-
-		Player::SetAngle();
-
-		if (_angle >= -M_PI / 4 && _angle < M_PI / 4)
+		Skiddle = !Skiddle;
+	}
+	{
+		
+		Player::AngleFunction();
+		if(_IsJumped==false)
+		{
+			if (_angle >= -M_PI / 4 && _angle < M_PI / 4)
+			{
+				Player::CheckCollision((uint8)e_SlopeType::GROUND);
+			}
+			else if (_angle >= M_PI / 4 && _angle < 3 * M_PI / 4)
+			{
+				Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL);
+			}
+			else if (_angle >= 3 * M_PI / 4 || _angle < -3 * M_PI / 4)
+			{
+				Player::CheckCollision((uint8)e_SlopeType::CEILING);
+			}
+			else if (_angle > -3 * M_PI / 4 && _angle <= -M_PI / 4)
+			{
+				Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL);
+			}
+		}
+		else if (_IsJumped == true)
 		{
 			Player::CheckCollision((uint8)e_SlopeType::GROUND);
 		}
-		else if (_angle >= M_PI / 4 && _angle < 3 * M_PI / 4)
-		{
-			Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL);
-		}
-		else if (_angle >= 3 * M_PI / 4 || _angle < -3 * M_PI / 4)
-		{
-			Player::CheckCollision((uint8)e_SlopeType::CEILING);
-		}
-		else if (_angle > -3 * M_PI / 4 && _angle <=  -M_PI / 4)
-		{
-			Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL);
-		}
+
 	}
 
 	if (Gravity==true)//_IsOnGround == false)
@@ -141,11 +151,11 @@ void Player::Tick()
 	
 	if (true)
 	{
-		Player::JumpStateUpdate();
+		Player::UpdateJumpState();
 	}
 
 
-	if (_IsOnGround == true && _physic->Speed == Vector{ 0,0 })
+	if (_IsOnGround == true && _physic->_groundSpeed < 0.5)
 	{
 		SetSonicState(SonicState::PAUSE);
 	}
@@ -167,8 +177,12 @@ void Player::Tick()
 		_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
 		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
 	}
+	if (IsSkiddlingCondition())
+	{
+		Player::SkiddlingMovement();
+	}
 
-	if (Player::SetMovement() == false)
+	if (!Player::SetMovement())
 	{
 		return;
 	}
@@ -184,7 +198,7 @@ void Player::Render(HDC hdc)
 			::TextOut(hdc, 10, 90, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Player Angle({0})", _angle);
+			wstring str = std::format(L"Player Angle({0})", (_angle * 180 / M_PI));
 			::TextOut(hdc, 10, 110, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
@@ -208,16 +222,16 @@ void Player::Render(HDC hdc)
 			::TextOut(hdc, 10, 210, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			//wstring str = std::format(L"onLoop({0})", _onLoopCondition);
-			//::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
+			wstring str = std::format(L"Gravity : Q  ({0})", Gravity);
+			::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Jumped({0})", _IsJumped);
+			wstring str = std::format(L"Skiddle : E ({0})", Skiddle);
 			::TextOut(hdc, 10, 250, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			//wstring str = std::format(L"LoopJumped({0})", _onLoopJumped);
-			//::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
+			wstring str = std::format(L"Jumped({0})", _IsJumped);
+			::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
 			wstring str = std::format(L"CtrlLockTimer({0})", _ctrlLockTimer);
@@ -453,12 +467,15 @@ void Player::AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2)
 
 void Player::CheckCollision(uint8 dir)
 {
+	// 픽셀 감지 상한선 
+	uint8 Size = 3; 
+
 	switch (dir)
 	{
 	case (uint8)e_SlopeType::GROUND : 
 	{
-		Vector LBottom = _Left_Bottom->GetPos() + Vector(0, 5);
-		Vector RBottom = _Right_Bottom->GetPos() + Vector(0, 5);
+		Vector LBottom = _Left_Bottom->GetPos() + Vector(0, Size);
+		Vector RBottom = _Right_Bottom->GetPos() + Vector(0, Size);
 
 
 		if (CheckCollision_ColorRef(LBottom, ColorRef::RED) &&
@@ -510,8 +527,8 @@ void Player::CheckCollision(uint8 dir)
 	}
 	case (uint8)e_SlopeType::LEFT_WALL : 
 	{
-		Vector LBottom = _Left_Bottom->GetPos() + Vector(-5, 0);
-		Vector LTop = _Left_Top->GetPos() + Vector(-5, 0);
+		Vector LBottom = _Left_Bottom->GetPos() + Vector(-Size, 0);
+		Vector LTop = _Left_Top->GetPos() + Vector(-Size, 0);
 
 
 		if (CheckCollision_ColorRef(LBottom, ColorRef::RED) &&
@@ -566,8 +583,8 @@ void Player::CheckCollision(uint8 dir)
 
 	case (uint8)e_SlopeType::CEILING:
 	{
-		Vector RTop = _Right_Top->GetPos() + Vector(0, -5);
-		Vector LTop = _Left_Top->GetPos() + Vector(0, -5);
+		Vector RTop = _Right_Top->GetPos() + Vector(0, -Size);
+		Vector LTop = _Left_Top->GetPos() + Vector(0, -Size);
 
 
 		if (CheckCollision_ColorRef(RTop, ColorRef::RED) &&
@@ -620,8 +637,8 @@ void Player::CheckCollision(uint8 dir)
 	}
 	case (uint8)e_SlopeType::RIGHT_WALL:
 	{
-		Vector RBottom = _Right_Bottom->GetPos() + Vector(5, 0);
-		Vector RTop = _Right_Top->GetPos() + Vector(5, 0);
+		Vector RBottom = _Right_Bottom->GetPos() + Vector(Size, 0);
+		Vector RTop = _Right_Top->GetPos() + Vector(Size, 0);
 
 
 		if (CheckCollision_ColorRef(RBottom, ColorRef::RED) &&
@@ -732,10 +749,6 @@ void Player::OnDownPressed()
 
 bool Player::AdjustMovement()
 {
-	if (_angle >= 3.14)
-	{
-		int a = 1;
-	}
 	if (_slopeType == e_SlopeType::AIR)
 	{
 		return false;
@@ -759,22 +772,6 @@ bool Player::AdjustMovement()
 	}
 	return true;
 }
-//
-//void Player::ModifyWallMovement(ePixelDirection _dir)
-//{
-//	Vector* pixel = nullptr;
-//	if (_dir == ePixelDirection::P_RIGHT)
-//		pixel = &_Right_Bottom->GetPos();
-//	else if (_dir == ePixelDirection::P_LEFT)
-//		pixel = &_Left_Bottom->GetPos();
-//
-//	while (CheckCollision_ColorRef(*pixel, ColorRef::MANGENTA) == true ||
-//		CheckCollision_ColorRef(*pixel, ColorRef::CYAN) == true)
-//	{
-//		_pos.y += -1;
-//		RenewPixelLocation();
-//	}
-//}
 
 
 
@@ -810,9 +807,8 @@ void Player::LeftMovement()
 
 	if (_IsOnGround == true)
 	{
-		AdjustState_Angle_LEFT();
+		SonicFlipBookAngleMatch(_left);
 	}
-	//Player::SetMovement();
 }
 
 void Player::RightMovement()
@@ -821,13 +817,16 @@ void Player::RightMovement()
 
 	if (_IsOnGround == true)
 	{
-		AdjustState_Angle_RIGHT();
+		SonicFlipBookAngleMatch(_right);
 	}
-	//Player::SetMovement();
 }
 
 bool Player::IsSkiddlingCondition()
 {
+	if (Skiddle == false)
+	{
+		return false;
+	}
 	if ((GET_SINGLE(InputManager)->GetButtonNone(KeyType::D) &&
 		GET_SINGLE(InputManager)->GetButtonNone(KeyType::A)) &&
 		(_IsOnGround == true || _IsOnRWall == true || _IsOnLWall == true))
@@ -873,7 +872,7 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 	}
 }
 
-void Player::SetAngle()
+void Player::AngleFunction()
 {
 	bool LParamCollideCheck = false;
 	bool RParamCollideCheck = true;
@@ -986,7 +985,11 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			float YVal = _A_Right_Top->y - _A_Left_Top->y;
 			float XVal = _A_Left_Top->x - _A_Right_Top->x;
-			_angle = atan2(YVal, XVal);
+			
+			if (!SetAngle(_angle, YVal, XVal))
+			{
+				return false;
+			}
 			return true;
 		}
 		else if (pos1.y > _pos.y)
@@ -1032,7 +1035,10 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			float YVal = _A_Left_Bottom->y - _A_Right_Bottom->y;
 			float XVal = _A_Right_Bottom->x - _A_Left_Bottom->x;
 
-			_angle = atan2(YVal, XVal);
+			if (!SetAngle(_angle, YVal, XVal))
+			{
+				return false;
+			}
 			return true;
 		}
 	}
@@ -1081,7 +1087,11 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			float YVal = _A_Left_Top->y - _A_Left_Bottom->y;
 			float XVal = _A_Left_Bottom->x - _A_Left_Top->x;
-			_angle = atan2(YVal, XVal);
+
+			if (!SetAngle(_angle, YVal, XVal))
+			{
+				return false;
+			}
 			return true;
 		}
 
@@ -1127,94 +1137,125 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			float YVal = _A_Right_Bottom->y - _A_Right_Top->y;
 			float XVal = _A_Right_Top->x - _A_Right_Bottom->x;
-			_angle = atan2(YVal, XVal);
 
+			if (!SetAngle(_angle, YVal, XVal))
+			{
+				return false;
+			}
 			return true;
 		}
 	}
 	return false;
 }
 
-void Player::AdjustState_Angle_LEFT()
+void Player::SonicFlipBookAngleMatch(uint8 dir)
 {
-	//if (_angle < 0)
-	//{
-	//	_angle = 2 * M_PI + _angle;
-	//}
-	int StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
-
-	switch (StandardAngle)
+	float MyAngle = _angle;
+	if (MyAngle < 0.f)
 	{
-	case 0:
-		SetSonicState(SonicState::RUNLEFT_180);
-		break;
-	case 1:
-		SetSonicState(SonicState::RUNLEFT_225);
-		break;
-	case 2:
-		SetSonicState(SonicState::RUNLEFT_270);
-		break;
-	case 3:
-		SetSonicState(SonicState::RUNLEFT_315);
-		break;
-	case 4:
-		SetSonicState(SonicState::RUNLEFT_0);
-		break;
-	case 5:
-		SetSonicState(SonicState::RUNLEFT_45);
-		break;
-	case 6:
-		SetSonicState(SonicState::RUNLEFT_90);
-		break;
-	case 7:
-		SetSonicState(SonicState::RUNLEFT_135);
-		break;
+		MyAngle += 2 * M_PI + 1;
+	}
+
+	int StandardAngle = (MyAngle) / (M_PI / 4);
+
+
+	if(dir == _left)
+	{
+		switch (StandardAngle)
+		{
+		case 0:
+			SetSonicState(SonicState::RUNLEFT_180);
+			break;
+		case 1:
+			SetSonicState(SonicState::RUNLEFT_225);
+			break;
+		case 2:
+			SetSonicState(SonicState::RUNLEFT_270);
+			break;
+		case 3:
+			SetSonicState(SonicState::RUNLEFT_315);
+			break;
+		case 4:
+			SetSonicState(SonicState::RUNLEFT_0);
+			break;
+		case 5:
+			SetSonicState(SonicState::RUNLEFT_45);
+			break;
+		case 6:
+			SetSonicState(SonicState::RUNLEFT_90);
+			break;
+		case 7:
+			SetSonicState(SonicState::RUNLEFT_135);
+			break;
+		}
+	}
+	else if (dir == _right)
+	{
+		switch (StandardAngle)
+		{
+		case 0:
+			SetSonicState(SonicState::RUNRIGHT_0);
+			break;
+		case 1:
+			SetSonicState(SonicState::RUNRIGHT_45);
+			break;
+		case 2:
+			SetSonicState(SonicState::RUNRIGHT_90);
+			break;
+		case 3:
+			SetSonicState(SonicState::RUNRIGHT_135);
+			break;
+		case 4:
+			SetSonicState(SonicState::RUNRIGHT_180);
+			break;
+		case 5:
+			SetSonicState(SonicState::RUNRIGHT_225);
+			break;
+		case 6:
+			SetSonicState(SonicState::RUNRIGHT_270);
+			break;
+		case 7:
+			SetSonicState(SonicState::RUNRIGHT_315);
+			break;
+		}
+
 	}
 }
 
-void Player::AdjustState_Angle_RIGHT()
-{
-	int StandardAngle;
-	//if (_angle < 0)
-	//{
-	//	_angle = 2 * M_PI + _angle;
-	//}
 
-	StandardAngle = (_angle - fmod(_angle, M_PI / 4)) / (M_PI / 4);
-
-	switch (StandardAngle)
-	{
-	case 0:
-		SetSonicState(SonicState::RUNRIGHT_0);
-		break;
-	case 1:
-		SetSonicState(SonicState::RUNRIGHT_45);
-		break;
-	case 2:
-		SetSonicState(SonicState::RUNRIGHT_90);
-		break;
-	case 3:
-		SetSonicState(SonicState::RUNRIGHT_135);
-		break;
-	case 4:
-		SetSonicState(SonicState::RUNRIGHT_180);
-		break;
-	case 5:
-		SetSonicState(SonicState::RUNRIGHT_225);
-		break;
-	case 6:
-		SetSonicState(SonicState::RUNRIGHT_270);
-		break;
-	case 7:
-		SetSonicState(SonicState::RUNRIGHT_315);
-		break;
-	}
-}
 
 void Player::SetAnglePixel(Vector* v1, Vector* v2)
 {
 	_A_Pixel[0] = v1;
 	_A_Pixel[1] = v2;
+}
+
+bool Player::SetAngle(float& ref, float Yval, float Xval)
+{
+	if (Yval == 0.f && Xval == 0.f)
+	{
+		return false;
+	}
+	ref = atan2(Yval, Xval);
+
+	float DegreeRef = ref * 180 / M_PI;
+
+	if (DegreeRef > -5.f && DegreeRef < 5.f)
+	{
+		ref = 0.f;
+	}
+	else if (DegreeRef > 87 && DegreeRef < 93)
+	{
+		ref = M_PI / 2;
+	}
+
+	else if (DegreeRef > -93 && DegreeRef < -87)
+	{
+		ref = -M_PI / 2;
+	}
+
+	
+	return true;
 }
 
 
@@ -1235,11 +1276,10 @@ void Player::SetSonicStateSitting()
 		_state = SonicState::ROLLING;
 }
 
-void Player::JumpStateUpdate()
+void Player::UpdateJumpState()
 {
 	if ((_IsOnGround || _IsOnRWall || _IsOnLWall))
 	{
-
 		_IsJumped = false;
 	}
 }
@@ -1270,45 +1310,6 @@ void Player::SkiddlingMovement()
 	}
 	if (_IsOnGround == true)
 		Player::AdjustMovement();
-}
-
-void Player::SlideSlopeMovement()
-{
-	if (this->_IsOnGround == true)
-	{
-		if (_ctrlLockTimer == 0)
-		{
-			float pi = float(M_PI);
-			double Right = M_PI / 8;
-			double Left = 15 * M_PI / 8;
-			if (abs(_rigidBody->GetPhysic()->_groundSpeed) < 3 &&
-				(Left>_angle&& Right<_angle))
-			{
-				_ctrlLockTimer = 30;
-
-				if (Left * 2 > _angle && Right * 28 / 15 < _angle)
-				{
-					// 각도에 따른 Skiddling으로 수정해야함 
-					if (_angle < M_PI / 2)//&&GET_SINGLE(InputManager)->GetButtonDown(KeyType::D))
-					{
-						_physic->_groundSpeed -= _physic->_frictionSpeed * 2;
-
-					}
-					else if (_angle > M_PI / 2)// && GET_SINGLE(InputManager)->GetButtonDown(KeyType::A))
-					{
-						_physic->_groundSpeed += _physic->_frictionSpeed * 2;
-
-					}
-
-					_physic->Speed.x = _physic->_groundSpeed;
-				}
-			}
-		}
-		else if (_ctrlLockTimer != 0)
-		{
-			_ctrlLockTimer -= 1;
-		}
-	}
 }
 
 void Player::SetGravitationVec(e_SlopeType vec)
