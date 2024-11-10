@@ -115,25 +115,37 @@ void Player::Tick()
 		Skiddle = !Skiddle;
 	}
 	{
-		
 		Player::AngleFunction();
+
 		if(_IsJumped==false)
 		{
 			if (_angle >= -M_PI / 4 && _angle < M_PI / 4)
 			{
-				Player::CheckCollision((uint8)e_SlopeType::GROUND);
+				if (Player::CheckCollision((uint8)e_SlopeType::GROUND)==false)
+				{
+					_angle = 0.f;
+				}
 			}
 			else if (_angle >= M_PI / 4 && _angle < 3 * M_PI / 4)
 			{
-				Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL);
+				if (Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == false)
+				{
+					_angle = 0.f;
+				}
 			}
 			else if (_angle >= 3 * M_PI / 4 || _angle < -3 * M_PI / 4)
 			{
-				Player::CheckCollision((uint8)e_SlopeType::CEILING);
+				if (Player::CheckCollision((uint8)e_SlopeType::CEILING) == false)
+				{
+					_angle = 0.f;
+				}
 			}
 			else if (_angle > -3 * M_PI / 4 && _angle <= -M_PI / 4)
 			{
-				Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL);
+				if (Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == false)
+				{
+					_angle = 0.f;
+				}
 			}
 		}
 		else if (_IsJumped == true)
@@ -147,7 +159,6 @@ void Player::Tick()
 	{
 		Player::SetGravitationVec(e_SlopeType::GROUND);
 	}
-
 	
 	if (true)
 	{
@@ -160,11 +171,7 @@ void Player::Tick()
 		SetSonicState(SonicState::PAUSE);
 	}
 	
-	if (_ctrlLockTimer != 0)
-	{
-		
-	}
-	else
+
 	{
 		void OnUpPressed();
 		void OnLeftPressed();
@@ -177,6 +184,7 @@ void Player::Tick()
 		_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
 		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
 	}
+
 	if (IsSkiddlingCondition())
 	{
 		Player::SkiddlingMovement();
@@ -465,7 +473,7 @@ void Player::AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2)
 	SetPos(pos);
 }
 
-void Player::CheckCollision(uint8 dir)
+bool Player::CheckCollision(uint8 dir)
 {
 	// 픽셀 감지 상한선 
 	uint8 Size = 3; 
@@ -494,6 +502,7 @@ void Player::CheckCollision(uint8 dir)
 			_Right_Bottom->SetIsCollided(true);
 			_pixelDoubleChecked = true;
 			_slopeType = e_SlopeType::GROUND;
+			return true;
 		}
 
 		else if (CheckCollision_ColorRef(LBottom, ColorRef::RED))
@@ -504,6 +513,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Left_Bottom->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::GROUND;
+			return true;
 		}
 
 		else if (CheckCollision_ColorRef(RBottom, ColorRef::RED))
@@ -514,6 +524,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Right_Bottom->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::GROUND;
+			return true;
 		}
 		else
 		{
@@ -522,6 +533,7 @@ void Player::CheckCollision(uint8 dir)
 			_Right_Bottom->SetIsCollided(false);
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::AIR;
+			return false;
 		}
 		break;
 	}
@@ -548,6 +560,7 @@ void Player::CheckCollision(uint8 dir)
 			_Left_Top->SetIsCollided(true);
 			_pixelDoubleChecked = true;
 			_slopeType = e_SlopeType::LEFT_WALL;
+			return true;
 		}
 
 
@@ -559,6 +572,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Left_Bottom->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::LEFT_WALL;
+			return true;
 		}
 
 		else if (CheckCollision_ColorRef(LTop, ColorRef::RED))
@@ -569,6 +583,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Left_Top->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::LEFT_WALL;
+			return true;
 		}
 		else
 		{
@@ -577,6 +592,7 @@ void Player::CheckCollision(uint8 dir)
 			_Left_Top->SetIsCollided(false);
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::AIR;
+			return false;
 		}
 		break;
 	}
@@ -603,6 +619,7 @@ void Player::CheckCollision(uint8 dir)
 			_Left_Top->SetIsCollided(true);
 			_pixelDoubleChecked = true;
 			_slopeType = e_SlopeType::CEILING;
+			return true;
 		}
 
 
@@ -614,6 +631,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Right_Top->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::CEILING;
+			return true;
 		}
 
 		else if (CheckCollision_ColorRef(LTop, ColorRef::RED))
@@ -624,6 +642,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Left_Top->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::CEILING;
+			return true;
 		}
 		else
 		{
@@ -632,6 +651,7 @@ void Player::CheckCollision(uint8 dir)
 			_Left_Top->SetIsCollided(false);
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::AIR;
+			return false;
 		}
 		break;
 	}
@@ -657,6 +677,7 @@ void Player::CheckCollision(uint8 dir)
 			_Right_Top->SetIsCollided(true);
 			_pixelDoubleChecked = true;
 			_slopeType = e_SlopeType::RIGHT_WALL;
+			return true;
 		}
 
 
@@ -668,6 +689,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Right_Bottom->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::RIGHT_WALL;
+			return true;
 		}
 
 		else if (CheckCollision_ColorRef(RTop, ColorRef::RED))
@@ -678,6 +700,7 @@ void Player::CheckCollision(uint8 dir)
 			_currCheckedPixel = _Right_Top->GetDir();
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::RIGHT_WALL;
+			return true;
 		}
 		else
 		{
@@ -686,11 +709,13 @@ void Player::CheckCollision(uint8 dir)
 			_Right_Top->SetIsCollided(false);
 			_pixelDoubleChecked = false;
 			_slopeType = e_SlopeType::AIR;
+			return false;
 		}
 		break;
 	}
 
 	}
+	return false;
 }
 
 
@@ -706,6 +731,7 @@ void Player::OnUpPressed()
 	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::W) && _IsJumped == false)
 	{
 		Player::JumpMovement();
+		SetSonicState(SonicState::JUMPING);
 	}
 }
 
@@ -719,6 +745,11 @@ void Player::OnLeftPressed()
 	else if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::A))
 	{
 		LeftMovement();
+
+		if (_IsOnGround == true)
+		{
+			SonicFlipBookAngleMatch(_left);
+		}
 	}
 }
 
@@ -732,6 +763,11 @@ void Player::OnRightPressed()
 	else if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::D))
 	{
 		RightMovement();
+
+		if (_IsOnGround == true)
+		{
+			SonicFlipBookAngleMatch(_right);
+		}
 	}
 }
 
@@ -796,7 +832,7 @@ void Player::JumpMovement()
 
 	_rigidBody->Jump();
 
-	SetSonicState(SonicState::JUMPING);
+
 	Player::AdjustMovement();
 	return;
 }
@@ -804,21 +840,11 @@ void Player::JumpMovement()
 void Player::LeftMovement()
 {
 	_rigidBody->MoveLeft();
-
-	if (_IsOnGround == true)
-	{
-		SonicFlipBookAngleMatch(_left);
-	}
 }
 
 void Player::RightMovement()
 {
 	_rigidBody->MoveRight();
-
-	if (_IsOnGround == true)
-	{
-		SonicFlipBookAngleMatch(_right);
-	}
 }
 
 bool Player::IsSkiddlingCondition()
@@ -1153,7 +1179,7 @@ void Player::SonicFlipBookAngleMatch(uint8 dir)
 	float MyAngle = _angle;
 	if (MyAngle < 0.f)
 	{
-		MyAngle += 2 * M_PI + 1;
+		MyAngle += 2 * M_PI;
 	}
 
 	int StandardAngle = (MyAngle) / (M_PI / 4);

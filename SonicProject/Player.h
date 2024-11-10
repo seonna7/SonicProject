@@ -91,7 +91,7 @@ public :
 	void AdjustCollisionPos(BoxCollider* b1, BoxCollider* b2);
 	
 	// ¾ê´Â yÁÂÇ¥¶«¿¡ ³¿°ÜµÎ±â 
-	void CheckCollision(uint8 dir);
+	bool CheckCollision(uint8 dir);
 
 	bool CheckCollision_ColorRef(Vector& pos, COLORREF color);
 private : 
