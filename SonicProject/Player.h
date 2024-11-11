@@ -93,7 +93,7 @@ public :
 	// ¾ê´Â yÁÂÇ¥¶«¿¡ ³¿°ÜµÎ±â 
 	bool CheckCollision(uint8 dir);
 
-	bool CheckCollision_ColorRef(Vector& pos, COLORREF color);
+	bool DetectCollision_ColorRef(Vector& pos, COLORREF color);
 private : 
 	//=======================================================
 	//						Movement 

@@ -114,6 +114,14 @@ void Player::Tick()
 	{
 		Skiddle = !Skiddle;
 	}
+
+	bool LoopCollide = false;
+	_currLoop = Player:: DetectLoopCollide();
+	if (_currLoop ==nullptr)
+	{
+		LoopCollide = true;
+	}
+
 	{
 		Player::AngleFunction();
 
@@ -155,7 +163,7 @@ void Player::Tick()
 
 	}
 
-	if (Gravity==true)//_IsOnGround == false)
+	if (Gravity == true)
 	{
 		Player::SetGravitationVec(e_SlopeType::GROUND);
 	}
@@ -171,7 +179,6 @@ void Player::Tick()
 		SetSonicState(SonicState::PAUSE);
 	}
 	
-
 	{
 		void OnUpPressed();
 		void OnLeftPressed();
@@ -185,12 +192,12 @@ void Player::Tick()
 		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
 	}
 
-	if (IsSkiddlingCondition())
+	if (IsSkiddlingCondition() == true)
 	{
 		Player::SkiddlingMovement();
 	}
 
-	if (!Player::SetMovement())
+	if (Player::SetMovement() == false)
 	{
 		return;
 	}
@@ -486,8 +493,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector RBottom = _Right_Bottom->GetPos() + Vector(0, Size);
 
 
-		if (CheckCollision_ColorRef(LBottom, ColorRef::RED) &&
-			CheckCollision_ColorRef(RBottom, ColorRef::RED))
+		if (DetectCollision_ColorRef(LBottom, ColorRef::RED) &&
+			DetectCollision_ColorRef(RBottom, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			if (_physic->Speed.x > 0)
@@ -505,7 +512,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (CheckCollision_ColorRef(LBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LBottom, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(true);
@@ -516,7 +523,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (CheckCollision_ColorRef(RBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RBottom, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(false);
@@ -543,8 +550,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector LTop = _Left_Top->GetPos() + Vector(-Size, 0);
 
 
-		if (CheckCollision_ColorRef(LBottom, ColorRef::RED) &&
-			CheckCollision_ColorRef(LTop, ColorRef::RED))
+		if (DetectCollision_ColorRef(LBottom, ColorRef::RED) &&
+			DetectCollision_ColorRef(LTop, ColorRef::RED))
 		{
 
 			if (_physic->Speed.y > 0)
@@ -564,7 +571,7 @@ bool Player::CheckCollision(uint8 dir)
 		}
 
 
-		else if (CheckCollision_ColorRef(LBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LBottom, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(true);
@@ -575,7 +582,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (CheckCollision_ColorRef(LTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LTop, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(false);
@@ -603,8 +610,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector LTop = _Left_Top->GetPos() + Vector(0, -Size);
 
 
-		if (CheckCollision_ColorRef(RTop, ColorRef::RED) &&
-			CheckCollision_ColorRef(LTop, ColorRef::RED))
+		if (DetectCollision_ColorRef(RTop, ColorRef::RED) &&
+			DetectCollision_ColorRef(LTop, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			if (_physic->Speed.x > 0)
@@ -623,7 +630,7 @@ bool Player::CheckCollision(uint8 dir)
 		}
 
 
-		else if (CheckCollision_ColorRef(RTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RTop, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Right_Top->SetIsCollided(true);
@@ -634,7 +641,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (CheckCollision_ColorRef(LTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LTop, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Right_Top->SetIsCollided(false);
@@ -661,8 +668,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector RTop = _Right_Top->GetPos() + Vector(Size, 0);
 
 
-		if (CheckCollision_ColorRef(RBottom, ColorRef::RED) &&
-			CheckCollision_ColorRef(RTop, ColorRef::RED))
+		if (DetectCollision_ColorRef(RBottom, ColorRef::RED) &&
+			DetectCollision_ColorRef(RTop, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			if (_physic->Speed.y > 0)
@@ -681,7 +688,7 @@ bool Player::CheckCollision(uint8 dir)
 		}
 
 
-		else if (CheckCollision_ColorRef(RBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RBottom, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Right_Bottom->SetIsCollided(true);
@@ -692,7 +699,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (CheckCollision_ColorRef(RTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RTop, ColorRef::RED))
 		{
 			_IsOnGround = true;
 			_Right_Bottom->SetIsCollided(false);
@@ -719,7 +726,7 @@ bool Player::CheckCollision(uint8 dir)
 }
 
 
-bool Player::CheckCollision_ColorRef(Vector& pos, COLORREF color)
+bool Player::DetectCollision_ColorRef(Vector& pos, COLORREF color)
 {
 	if (_background->GetPixel(pos.x, pos.y) == color)
 		return true;
@@ -800,7 +807,7 @@ bool Player::AdjustMovement()
 	{
 		
 	}
-	while (CheckCollision_ColorRef(*pixel, ColorRef::RED))
+	while (DetectCollision_ColorRef(*pixel, ColorRef::RED))
 	{
 		_pos.x -= sin(_angle);
 		_pos.y -= cos(_angle);
@@ -869,6 +876,12 @@ void Player::GetAccBuff(Vector dir)
 
 	_physic->Speed.x = _physic->_groundSpeed * cos(angle);
 	_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
+}
+
+LoopCollider* Player::DetectLoopCollide()
+{
+
+	return nullptr;
 }
 
 void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
@@ -978,7 +991,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (CheckCollision_ColorRef(*LeftTop, ColorRef::RED) ==false)
+				while (DetectCollision_ColorRef(*LeftTop, ColorRef::RED) ==false)
 				{
 					if (AddVal > _pixelDist)
 					{		
@@ -991,7 +1004,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (CheckCollision_ColorRef(*RightTop, ColorRef::RED) ==false)
+				while (DetectCollision_ColorRef(*RightTop, ColorRef::RED) ==false)
 				{
 					if (AddVal > _pixelDist)
 					{
@@ -1028,7 +1041,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (CheckCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1041,7 +1054,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (CheckCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1081,7 +1094,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (CheckCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1094,7 +1107,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (CheckCollision_ColorRef(*LeftTop, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*LeftTop, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1131,7 +1144,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (CheckCollision_ColorRef(*RightTop, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*RightTop, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1144,7 +1157,7 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (CheckCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
