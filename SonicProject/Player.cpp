@@ -106,6 +106,7 @@ void Player::BeginPlay()
 void Player::Tick()
 {
 	Super::Tick();
+
 	for (auto& pixel : _pixels)
 	{
 		pixel.second->TickComponent();
@@ -121,22 +122,41 @@ void Player::Tick()
 		Skiddle = !Skiddle;
 	}
 
+	//if (_course->IsCoursePassed() == true)
+	//{
+	//	_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
+	//	_course->SetCoursePassed(true);
+	//}
+	//else if (IsCourseContacted() == true)
+	//{
+	//	CourseMeetingFunction();
+	//}
 	
-	if (IsCourseContacted() == true)
+	if (GET_SINGLE(CourseManager)->GetCourseEntered() == true)
 	{
-		CourseMeetingFunction();
+		_course = GET_SINGLE(CourseManager)->GetContactedCourse();
+		if (_course->GetCourseInfo() == eCourse::LOOP)
+		{
+			_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
+		}
+		else
+		{
+			_courseColorRef = ColorRef::RED;
+		}
+
+	}
+	else if (GET_SINGLE(CourseManager)->GetCoursePassed() == true)
+	{
+
 	}
 
-
-
 	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
-		Player::CheckCollision((uint8)e_SlopeType::CEILING) == true||
-		Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true||
+		Player::CheckCollision((uint8)e_SlopeType::CEILING) == true ||
+		Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true ||
 		Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true)
 	{
 		Player::AngleFunction();
 	}
-
 
 	if (Gravity == true)
 	{
@@ -213,6 +233,10 @@ void Player::Render(HDC hdc)
 		{
 			wstring str = std::format(L"CtrlLockTimer({0})", _ctrlLockTimer);
 			::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
+		}
+		{
+			wstring str = std::format(L"courseColorRef({0})", _courseColorRef);
+			::TextOut(hdc, 10, 250, str.c_str(), static_cast<int32>(str.size()));
 		}
 	}
 
@@ -337,29 +361,6 @@ void Player::OnComponentBeginOverlap(Collider* collider, Collider* other)
 	
 	else 
 	{
-		PixelCollider* pixelcollider = dynamic_cast<PixelCollider*>(collider);
-		eComponentType otherComponentType = other->GetComponentType();
-		ePixelColliderType _pixelcollidertype = pixelcollider->GetPixelColliderType();
-		if (otherComponentType == eComponentType::BACKGROUND_COLLIDER)
-		{
-			switch (_pixelcollidertype)
-			{
-			case ePixelColliderType::GROUND:
-				//Player::OnComponentBeginOverlap_Ground_Pixel(collider);
-				//_IsOnGround = true;
-				break;
-			case ePixelColliderType::WALL:
-				break;
-			case ePixelColliderType::CLIFF:
-				break;
-			case ePixelColliderType::CEILING:
-				break;
-			case ePixelColliderType::PUSH:
-				break;
-			default:
-				break;
-			}
-		}
 	}
 }
 
@@ -388,7 +389,6 @@ void Player::OnComponentEndOverlap(Collider* collider, Collider* other)
 			_IsOnGround = false;
 			_physic->_gravity = true;
 			break;
-
 		}
 
 		break;
@@ -455,8 +455,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector RBottom = _Right_Bottom->GetPos() + Vector(0, Size);
 
 
-		if (DetectCollision_ColorRef(LBottom, ColorRef::RED) &&
-			DetectCollision_ColorRef(RBottom, ColorRef::RED))
+		if ((DetectCollision_ColorRef(LBottom, ColorRef::RED) && DetectCollision_ColorRef(RBottom, ColorRef::RED)) ||
+			(DetectCollision_ColorRef(LBottom, _courseColorRef) && DetectCollision_ColorRef(RBottom, _courseColorRef)))
 		{
 			_IsOnGround = true;
 			if (_physic->Speed.x > 0)
@@ -474,7 +474,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (DetectCollision_ColorRef(LBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LBottom, ColorRef::RED)|| DetectCollision_ColorRef(LBottom, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(true);
@@ -485,7 +485,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (DetectCollision_ColorRef(RBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RBottom, ColorRef::RED)|| DetectCollision_ColorRef(RBottom,_courseColorRef))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(false);
@@ -512,8 +512,9 @@ bool Player::CheckCollision(uint8 dir)
 		Vector LTop = _Left_Top->GetPos() + Vector(-Size, 0);
 
 
-		if (DetectCollision_ColorRef(LBottom, ColorRef::RED) &&
-			DetectCollision_ColorRef(LTop, ColorRef::RED))
+		if ((DetectCollision_ColorRef(LBottom, ColorRef::RED) && DetectCollision_ColorRef(LTop, ColorRef::RED)) ||
+			(DetectCollision_ColorRef(LBottom, _courseColorRef) && DetectCollision_ColorRef(LTop, _courseColorRef)))
+
 		{
 
 			if (_physic->Speed.y > 0)
@@ -533,7 +534,7 @@ bool Player::CheckCollision(uint8 dir)
 		}
 
 
-		else if (DetectCollision_ColorRef(LBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LBottom, ColorRef::RED) || DetectCollision_ColorRef(LBottom, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(true);
@@ -544,7 +545,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (DetectCollision_ColorRef(LTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LTop, ColorRef::RED)|| DetectCollision_ColorRef(LTop, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Left_Bottom->SetIsCollided(false);
@@ -572,8 +573,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector LTop = _Left_Top->GetPos() + Vector(0, -Size);
 
 
-		if (DetectCollision_ColorRef(RTop, ColorRef::RED) &&
-			DetectCollision_ColorRef(LTop, ColorRef::RED))
+		if ((DetectCollision_ColorRef(RTop, ColorRef::RED) && DetectCollision_ColorRef(LTop, ColorRef::RED)) ||
+			(DetectCollision_ColorRef(RTop, _courseColorRef) && DetectCollision_ColorRef(LTop, _courseColorRef)))
 		{
 			_IsOnGround = true;
 			if (_physic->Speed.x > 0)
@@ -592,7 +593,7 @@ bool Player::CheckCollision(uint8 dir)
 		}
 
 
-		else if (DetectCollision_ColorRef(RTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RTop, ColorRef::RED)|| DetectCollision_ColorRef(RTop, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Right_Top->SetIsCollided(true);
@@ -603,7 +604,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (DetectCollision_ColorRef(LTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(LTop, ColorRef::RED)|| DetectCollision_ColorRef(LTop, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Right_Top->SetIsCollided(false);
@@ -630,8 +631,8 @@ bool Player::CheckCollision(uint8 dir)
 		Vector RTop = _Right_Top->GetPos() + Vector(Size, 0);
 
 
-		if (DetectCollision_ColorRef(RBottom, ColorRef::RED) &&
-			DetectCollision_ColorRef(RTop, ColorRef::RED))
+		if ((DetectCollision_ColorRef(RBottom, ColorRef::RED) && DetectCollision_ColorRef(RTop, ColorRef::RED)) ||
+			(DetectCollision_ColorRef(RBottom, _courseColorRef) && DetectCollision_ColorRef(RTop, _courseColorRef)))
 		{
 			_IsOnGround = true;
 			if (_physic->Speed.y > 0)
@@ -650,7 +651,7 @@ bool Player::CheckCollision(uint8 dir)
 		}
 
 
-		else if (DetectCollision_ColorRef(RBottom, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RBottom, ColorRef::RED)|| DetectCollision_ColorRef(RBottom, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Right_Bottom->SetIsCollided(true);
@@ -661,7 +662,7 @@ bool Player::CheckCollision(uint8 dir)
 			return true;
 		}
 
-		else if (DetectCollision_ColorRef(RTop, ColorRef::RED))
+		else if (DetectCollision_ColorRef(RTop, ColorRef::RED)|| DetectCollision_ColorRef(RTop, _courseColorRef))
 		{
 			_IsOnGround = true;
 			_Right_Bottom->SetIsCollided(false);
@@ -769,7 +770,8 @@ bool Player::AdjustMovement()
 	{
 		
 	}
-	while (DetectCollision_ColorRef(*pixel, ColorRef::RED))
+	while (DetectCollision_ColorRef(*pixel, ColorRef::RED) ||
+		DetectCollision_ColorRef(*pixel, _courseColorRef))
 	{
 		_pos.x -= sin(_angle);
 		_pos.y -= cos(_angle);
@@ -840,10 +842,12 @@ void Player::GetAccBuff(Vector dir)
 	_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
 }
 
-bool Player::IsCourseContacted()
+bool Player::IsCourseContacted(Course* myCourse)
 {
-	if (GET_SINGLE(CourseManager)->GetContactedCourse() != nullptr)
+	Course* course = GET_SINGLE(CourseManager)->GetContactedCourse();
+	if (course!= nullptr)
 	{
+		myCourse = course;
 		return true;
 	}
 	return false;
@@ -852,11 +856,12 @@ bool Player::IsCourseContacted()
 bool Player::CourseMeetingFunction()
 {
 	eCourse info = _course->GetCourseInfo();
+	COLORREF temp = ColorRef::MANGENTA;
 
 	switch (info)
 	{
 	case eCourse::LOOP:
-		_loopColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
+		_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
 		return true;
 	case eCourse::TUNNEL:
 		return true;
@@ -972,7 +977,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (DetectCollision_ColorRef(*LeftTop, ColorRef::RED) ==false)
+				while (DetectCollision_ColorRef(*LeftTop, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*LeftTop, ColorRef::RED) ==false)
 				{
 					if (AddVal > _pixelDist)
 					{		
@@ -985,7 +991,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (DetectCollision_ColorRef(*RightTop, ColorRef::RED) ==false)
+				while (DetectCollision_ColorRef(*RightTop, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*RightTop, ColorRef::RED) ==false)
 				{
 					if (AddVal > _pixelDist)
 					{
@@ -1022,7 +1029,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (DetectCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*RightBottom, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1035,8 +1043,11 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*LeftBottom, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
 				{
+					bool first = DetectCollision_ColorRef(*LeftBottom, _courseColorRef) == false;
+					bool second = DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false;
 					if (addVal > _pixelDist)
 					{
 						//SAFE_DELETE(_A_Left_Bottom, "RightBottom pixel");
@@ -1075,7 +1086,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*LeftBottom, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*LeftBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1088,7 +1100,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (DetectCollision_ColorRef(*LeftTop, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*LeftTop, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*LeftTop, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1125,7 +1138,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 
 			if (CollideFlag == false)
 			{
-				while (DetectCollision_ColorRef(*RightTop, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*RightTop, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*RightTop, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{
@@ -1138,7 +1152,8 @@ bool Player::AngleCalc(Vector pos1, Vector pos2, bool CollideFlag)
 			}
 			else if (CollideFlag == true)
 			{
-				while (DetectCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
+				while (DetectCollision_ColorRef(*RightBottom, _courseColorRef) == false &&
+					DetectCollision_ColorRef(*RightBottom, ColorRef::RED) == false)
 				{
 					if (addVal > _pixelDist)
 					{

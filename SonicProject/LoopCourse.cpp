@@ -2,6 +2,7 @@
 #include "LoopCourse.h"
 #include "Course.h"
 #include "Actor.h"
+#include "CourseManager.h"
 
 LoopCourse::LoopCourse(Vector pos, Vector size, Actor* runner) :
 	Course(pos,size,runner)
@@ -20,16 +21,24 @@ void LoopCourse::Init()
 {
 }
 
-void LoopCourse::Update()
+bool LoopCourse::Update(bool& entered, bool& passed)
 {
 	if (IsCourseEntered() == true)
 	{
 		LoopCourse::CourseMeetingFunction();
+
+		entered = true;
 	}
-	else if (IsCourseEntered() == false)
+	else if (IsCoursePassed() == true)
 	{
-		return;
+		passed = true;
 	}
+	else
+	{
+		entered = false;
+		passed = false;
+	}
+	return false;
 }
 
 bool LoopCourse::IsCourseEntered()
@@ -38,66 +47,76 @@ bool LoopCourse::IsCourseEntered()
 
 	if (runnerPos.x >= _beginLine && runnerPos.x < _midLine)
 	{
-		if (_flag == false && _workIn == false)
+		if (_flag == false && _courseEntered == false)
 		{
 			return false; // 루프 시작 전임  
 		}
-		else if (_flag == true && _workIn == false)
+		else if (_flag == true && _courseEntered == false)
 		{
-			_workIn = true; // 루프 코스 시작 
+			_courseEntered = true; // 루프 코스 시작 
 		}
-		else if (_flag == true && _workIn == true)
+		else if (_flag == true && _courseEntered == true)
 		{
 			return true; // 루프 진행중임
 		}
-		else if (_flag == false && _workIn == true)
+		else if (_flag == false && _courseEntered == true)
 		{
 			if (_coursePassed == false)
 			{
-				_coursePassed = true;
 				_flag = true; // 루프 플래그 변경 
-			}
-			else
-			{
-				_coursePassed = false;
+				_coursePassed = true;
 			}
 		}
 	}
 	else if (runnerPos.x >= _midLine && runnerPos.x < _endLine)
 	{
-		if (_flag == false && _workIn ==false)
+		if (_flag == false && _courseEntered ==false)
 		{
-			_workIn = true; // 루프 코스 시작 
+			_courseEntered = true; // 루프 코스 시작 
 		}
-		else if (_flag == true && _workIn == false)
+		else if (_flag == true && _courseEntered == false)
 		{
 			return false; // 루프 시작 전임 
 		}
-		else if (_flag == false && _workIn == true)
+		else if (_flag == false && _courseEntered == true)
 		{
 			return true; // 루프 진행중임
 		}
-		else if (_flag == true && _workIn == true)
+		else if (_flag == true && _courseEntered == true)
 		{
 			if (_coursePassed == false)
 			{
 				_coursePassed = true;
 				_flag = false; // 루프 플래그 변경 
 			}
-			else
-			{
-				_coursePassed = false;
-			}
 		}
 	}
 
-	return _workIn;
+	return _courseEntered == true;
+}
 
+bool LoopCourse::IsCoursePassed()
+{
+	if (_flag == true && _coursePassed == true)
+	{
+		if (_runner->GetPos().x > _pos.x)
+		{
+			return _coursePassed != true;
+		}
+	}
+	else if (_flag == false && _coursePassed == true)
+	{
+		if (_runner->GetPos().x < _pos.x)
+		{
+			return _coursePassed != true;
+		}
+	}
+	return _coursePassed = false;
 }
 
 bool LoopCourse::CourseMeetingFunction()
 {
-	if (SetColorRef(_workIn) == true)
+	if (SetColorRef(_courseEntered) == true)
 	{
 		return true;
 	}

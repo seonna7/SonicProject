@@ -11,6 +11,9 @@ public :
 
 	void AddCourse(Course* course);
 	
+	bool GetCourseEntered() { return _courseEntered; }
+	bool GetCoursePassed()	{ return _coursePassed; }
+
 	Course* GetContactedCourse();
 
 	template <typename T>
@@ -20,8 +23,9 @@ public :
 		return currCourse;
 	}
 
-
 private : 
+	bool	_courseEntered = false;
+	bool	_coursePassed = false;
 	Course* _currContactedCourse = nullptr;
 	vector<Course*> _courses;
 };

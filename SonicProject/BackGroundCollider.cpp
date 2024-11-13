@@ -41,12 +41,6 @@ bool BackGroundCollider::CheckCollision(Collider* other)
         return false;
     case ePixelColliderType::WALL :
     {
-       // WallPixelCollider* pixel = dynamic_cast<WallPixelCollider*>(other);
-        //if (pixel->GetPixelDirection() == ePixelDirection::P_LEFT)
-        //    return player->CheckCollision_Wall(ePixelDirection::P_LEFT);
-        //else if (pixel->GetPixelDirection() == ePixelDirection::P_RIGHT)
-        //    return player->CheckCollision_Wall(ePixelDirection::P_RIGHT);
-        //else
         return false;
         }
     case ePixelColliderType::CEILING:

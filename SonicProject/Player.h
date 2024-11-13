@@ -252,10 +252,10 @@ public :
 	//=======================================================
 	//						Course
 	//=======================================================
-	bool IsCourseContacted();
+	bool IsCourseContacted(Course* myCourse);
 	bool CourseMeetingFunction();
 
 	Course* _course = nullptr;
 
-	COLORREF _loopColorRef = ColorRef::RED;
+	COLORREF _courseColorRef = ColorRef::RED;
 };

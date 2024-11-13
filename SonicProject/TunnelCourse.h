@@ -6,10 +6,8 @@ class TunnelCourse : public Course
 	~TunnelCourse();
 
 public:
-	void Init()				override;
-	void Update()			override;
-
-	bool IsCourseEntered()	override;
+	void Init()									override;
+	bool Update(bool& entered, bool& passed)	override;
 
 };
 

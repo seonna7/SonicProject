@@ -2,7 +2,6 @@
 #include "Scene.h"
 class Actor;
 class GameObject;
-class LoopCollider;
 
 struct BackGroundInfo
 {
@@ -27,5 +26,5 @@ public:
 protected : 
 	vector<Actor*> _actors;
 	vector<Actor*> _backgrounds;
-	vector<LoopCollider*> _LoopColliders; 
+	
 };

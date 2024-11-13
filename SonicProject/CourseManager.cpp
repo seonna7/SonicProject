@@ -11,13 +11,13 @@ void CourseManager::Update()
 {
 	for (auto& course : _courses)
 	{
-		course->Update();
+		course->Update(_courseEntered, _coursePassed);
 	}
 }
 
 void CourseManager::AddCourse(Course* course)
 {
-	if (find(_courses.begin(), _courses.end(), course) == _courses.end())
+	if (find(_courses.begin(), _courses.end(), course) != _courses.end())
 	{
 		return;
 	}
@@ -40,3 +40,6 @@ Course* CourseManager::GetContactedCourse()
 
 	return _currContactedCourse = nullptr;
 }
+
+
+

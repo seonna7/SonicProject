@@ -15,11 +15,8 @@ void TunnelCourse::Init()
 {
 }
 
-void TunnelCourse::Update()
-{
-}
-
-bool TunnelCourse::IsCourseEntered()
+bool TunnelCourse::Update(bool& entered, bool& passed)
 {
 	return false;
 }
+

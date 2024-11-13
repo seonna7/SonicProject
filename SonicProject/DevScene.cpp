@@ -18,13 +18,14 @@
 #include "BackGroundCollider.h"
 #include "AccelObj.h"
 #include "CourseManager.h"
+#include "LoopCourse.h"
+#include "TunnelCourse.h"
 
 extern uint32 GWinSizeX;
 extern uint32 GWinSizeY;
 
 DevScene::DevScene()
 {
-	_LoopColliders.resize(0);
 }
 
 DevScene::~DevScene()
@@ -253,6 +254,7 @@ void DevScene::Init()
 	}
 
 
+
 #elif 0
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest2");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest2", tex, 0, 0, 0, 0);
@@ -348,6 +350,10 @@ void DevScene::Init()
 		}		
 		AddActor(player);
 		player->BeginPlay();
+
+		LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
+		GET_SINGLE(CourseManager)->AddCourse(loopCourse);
+
 	}
 
 	//{
