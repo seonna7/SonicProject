@@ -6,6 +6,7 @@
 LoopCourse::LoopCourse(Vector pos, Vector size, Actor* runner) :
 	Course(pos,size,runner)
 {
+	_courseInfo = eCourse::LOOP;
 	_endLine = pos.x + size.x / 2;
 	_beginLine = pos.x - size.x / 2;
 	_midLine = pos.x;
@@ -21,9 +22,13 @@ void LoopCourse::Init()
 
 void LoopCourse::Update()
 {
-	if (IsCourseEntered() == false)
+	if (IsCourseEntered() == true)
 	{
-		return; 
+		LoopCourse::CourseMeetingFunction();
+	}
+	else if (IsCourseEntered() == false)
+	{
+		return;
 	}
 }
 
@@ -47,7 +52,15 @@ bool LoopCourse::IsCourseEntered()
 		}
 		else if (_flag == false && _workIn == true)
 		{
-			_flag = true; // 루프 플래그 변경 
+			if (_coursePassed == false)
+			{
+				_coursePassed = true;
+				_flag = true; // 루프 플래그 변경 
+			}
+			else
+			{
+				_coursePassed = false;
+			}
 		}
 	}
 	else if (runnerPos.x >= _midLine && runnerPos.x < _endLine)
@@ -66,12 +79,31 @@ bool LoopCourse::IsCourseEntered()
 		}
 		else if (_flag == true && _workIn == true)
 		{
-			_flag = false; // 루프 플래그 변경 
+			if (_coursePassed == false)
+			{
+				_coursePassed = true;
+				_flag = false; // 루프 플래그 변경 
+			}
+			else
+			{
+				_coursePassed = false;
+			}
 		}
 	}
+
+	return _workIn;
+
+}
+
+bool LoopCourse::CourseMeetingFunction()
+{
 	if (SetColorRef(_workIn) == true)
 	{
 		return true;
+	}
+	else 
+	{
+		return false;
 	}
 }
 

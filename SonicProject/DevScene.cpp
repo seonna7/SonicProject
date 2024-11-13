@@ -16,8 +16,8 @@
 #include "SphereCollider.h"
 #include "PixelCollider.h"
 #include "BackGroundCollider.h"
-#include "LoopCollider.h"
 #include "AccelObj.h"
+#include "CourseManager.h"
 
 extern uint32 GWinSizeX;
 extern uint32 GWinSizeY;
@@ -201,7 +201,7 @@ void DevScene::Init()
 	//
 	//	_backgrounds.push_back(background);
 	//}
-#if 0
+#if 1
 
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest4");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest4", tex, 0, 0, 0, 0);
@@ -378,6 +378,8 @@ void DevScene::Update()
  		actor->Tick();
 	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::SPACE))
 		exit(0);
+
+	GET_SINGLE(CourseManager)->Update();
 }
 
 void DevScene::Render(HDC hdc)

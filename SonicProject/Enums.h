@@ -93,3 +93,10 @@ namespace ColorRef
 	static COLORREF CYAN		= RGB(0, 255, 255);
 	static COLORREF BLACK		= RGB(0, 0, 0);
 };
+
+
+enum class eCourse
+{
+	LOOP = 0,
+	TUNNEL,
+};

@@ -12,7 +12,10 @@ public  :
 
 	bool IsCourseEntered()	override;
 
-	bool SetRunnerCollideColor(bool Entered);
+	bool CourseMeetingFunction()	override;
+
+	bool SetColorRef(bool Entered);
+	COLORREF GetColorRef() { return _colorRef; }
 private : 
 	bool _workIn = false;
 	bool _flag = false; // false = MAG, true = CYAN
@@ -20,6 +23,8 @@ private :
 	float _endLine = 0.f;
 	float _beginLine = 0.f;
 	float _midLine = 0.f;
+
+	bool _coursePassed = false;
 
 	COLORREF	_colorRef = ColorRef::RED;
 };

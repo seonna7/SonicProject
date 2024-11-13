@@ -1,8 +1,5 @@
 #include "pch.h"
 
-#include "C:\Workspace\SonicProject\SonicProject\SonicProject\CameraComponent.cpp"
-
-
 #include "C:\Workspace\SonicProject\SonicProject\SonicProject\Collider.cpp"
 
 
@@ -13,4 +10,7 @@
 
 
 #include "C:\Workspace\SonicProject\SonicProject\SonicProject\DevScene.cpp"
+
+
+#include "C:\Workspace\SonicProject\SonicProject\SonicProject\EditScene.cpp"
 

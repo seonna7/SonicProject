@@ -4,6 +4,7 @@
 #include "InputManager.h"
 #include "EventManager.h"
 #include "SceneManager.h"
+#include "CourseManager.h"
 #include "Utils.h"
 #include "ResourceManager.h"
 #include "Flipbook.h"
@@ -14,10 +15,11 @@
 #include "Texture.h"
 #include "DevScene.h"
 #include "AccelObj.h"
-
 #include "PixelCollider.h"
-#include "LoopCollider.h"
 #include "CollisionManager.h"
+#include "LoopCourse.h"
+#include "TunnelCourse.h"
+
 
 
 Player::Player()
@@ -104,6 +106,10 @@ void Player::BeginPlay()
 void Player::Tick()
 {
 	Super::Tick();
+	for (auto& pixel : _pixels)
+	{
+		pixel.second->TickComponent();
+	}
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
 
 	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::Q))
@@ -115,53 +121,22 @@ void Player::Tick()
 		Skiddle = !Skiddle;
 	}
 
-	bool LoopCollide = false;
-	_currLoop = Player:: DetectLoopCollide();
-	if (_currLoop ==nullptr)
+	
+	if (IsCourseContacted() == true)
 	{
-		LoopCollide = true;
+		CourseMeetingFunction();
 	}
 
+
+
+	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
+		Player::CheckCollision((uint8)e_SlopeType::CEILING) == true||
+		Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true||
+		Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true)
 	{
 		Player::AngleFunction();
-
-		if(_IsJumped==false)
-		{
-			if (_angle >= -M_PI / 4 && _angle < M_PI / 4)
-			{
-				if (Player::CheckCollision((uint8)e_SlopeType::GROUND)==false)
-				{
-					_angle = 0.f;
-				}
-			}
-			else if (_angle >= M_PI / 4 && _angle < 3 * M_PI / 4)
-			{
-				if (Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == false)
-				{
-					_angle = 0.f;
-				}
-			}
-			else if (_angle >= 3 * M_PI / 4 || _angle < -3 * M_PI / 4)
-			{
-				if (Player::CheckCollision((uint8)e_SlopeType::CEILING) == false)
-				{
-					_angle = 0.f;
-				}
-			}
-			else if (_angle > -3 * M_PI / 4 && _angle <= -M_PI / 4)
-			{
-				if (Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == false)
-				{
-					_angle = 0.f;
-				}
-			}
-		}
-		else if (_IsJumped == true)
-		{
-			Player::CheckCollision((uint8)e_SlopeType::GROUND);
-		}
-
 	}
+
 
 	if (Gravity == true)
 	{
@@ -172,7 +147,6 @@ void Player::Tick()
 	{
 		Player::UpdateJumpState();
 	}
-
 
 	if (_IsOnGround == true && _physic->_groundSpeed < 0.5)
 	{
@@ -221,36 +195,24 @@ void Player::Render(HDC hdc)
 			::TextOut(hdc, 10, 130, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Player onLeftWall({0})", _IsOnLWall);
+			wstring str = std::format(L"Speed Vector({0}, {1})", _physic->Speed.x, _physic->Speed.y);
 			::TextOut(hdc, 10, 150, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Player onRightWall({0})", _IsOnRWall);
+			wstring str = std::format(L"Gravity : Q  ({0})", Gravity);
 			::TextOut(hdc, 10, 170, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Player onCeiling({0})", _IsOnCeiling);
+			wstring str = std::format(L"Skiddle : E ({0})", Skiddle);
 			::TextOut(hdc, 10, 190, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Speed Vector({0}, {1})", _physic->Speed.x, _physic->Speed.y);
+			wstring str = std::format(L"Jumped({0})", _IsJumped);
 			::TextOut(hdc, 10, 210, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Gravity : Q  ({0})", Gravity);
-			::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
-		}
-		{
-			wstring str = std::format(L"Skiddle : E ({0})", Skiddle);
-			::TextOut(hdc, 10, 250, str.c_str(), static_cast<int32>(str.size()));
-		}
-		{
-			wstring str = std::format(L"Jumped({0})", _IsJumped);
-			::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
-		}
-		{
 			wstring str = std::format(L"CtrlLockTimer({0})", _ctrlLockTimer);
-			::TextOut(hdc, 10, 290, str.c_str(), static_cast<int32>(str.size()));
+			::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
 		}
 	}
 
@@ -835,7 +797,7 @@ void Player::JumpMovement()
 
 	_physic->_gravity = true;
 
-	Player::SetPlayerStateOnAir();
+	_IsOnGround = false;
 
 	_rigidBody->Jump();
 
@@ -862,7 +824,7 @@ bool Player::IsSkiddlingCondition()
 	}
 	if ((GET_SINGLE(InputManager)->GetButtonNone(KeyType::D) &&
 		GET_SINGLE(InputManager)->GetButtonNone(KeyType::A)) &&
-		(_IsOnGround == true || _IsOnRWall == true || _IsOnLWall == true))
+		(_IsOnGround == true))
 		return true;
 	return false;
 }
@@ -878,11 +840,30 @@ void Player::GetAccBuff(Vector dir)
 	_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
 }
 
-LoopCollider* Player::DetectLoopCollide()
+bool Player::IsCourseContacted()
 {
-
-	return nullptr;
+	if (GET_SINGLE(CourseManager)->GetContactedCourse() != nullptr)
+	{
+		return true;
+	}
+	return false;
 }
+
+bool Player::CourseMeetingFunction()
+{
+	eCourse info = _course->GetCourseInfo();
+
+	switch (info)
+	{
+	case eCourse::LOOP:
+		_loopColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
+		return true;
+	case eCourse::TUNNEL:
+		return true;
+	}
+	return false;
+}
+
 
 void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 {
@@ -1317,20 +1298,10 @@ void Player::SetSonicStateSitting()
 
 void Player::UpdateJumpState()
 {
-	if ((_IsOnGround || _IsOnRWall || _IsOnLWall))
+	if (_IsOnGround == true)
 	{
 		_IsJumped = false;
 	}
-}
-
-void Player::SetPlayerStateOnAir()
-{
-	bool	_IsOnGround_Slip = false;
-	bool	_IsOnLoop = false;
-	bool	_IsOnGround = false;
-	bool	_IsOnLWall = false;
-	bool	_IsOnRWall = false;
-	bool	_IsOnCeiling = false;
 }
 
 void Player::SkiddlingMovement()

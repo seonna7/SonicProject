@@ -9,6 +9,7 @@ class PixelCollider;
 class Physic;
 class LoopCollider;
 class InputManager;
+class Course;
 
 
 using namespace ColorRef;
@@ -167,12 +168,8 @@ private :
 
 
 	bool	_IsOnGround			= false;
-	bool	_IsOnRWall			= false;
-	bool	_IsOnLWall			= false;
-	bool	_IsOnCeiling		= false;
 	bool	_IsJumped			= false;
 
-	void	SetPlayerStateOnAir();
 private : 
 	//=======================================================
 	//					  FlipBook Info
@@ -250,4 +247,15 @@ private :
 private :
 	void GetAccBuff(Vector dir);
 
+
+public : 
+	//=======================================================
+	//						Course
+	//=======================================================
+	bool IsCourseContacted();
+	bool CourseMeetingFunction();
+
+	Course* _course = nullptr;
+
+	COLORREF _loopColorRef = ColorRef::RED;
 };
