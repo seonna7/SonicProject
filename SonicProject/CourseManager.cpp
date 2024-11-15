@@ -2,7 +2,7 @@
 #include "CourseManager.h"
 #include "Course.h"
 #include "LoopCourse.h"
-#include "TunnelCourse.h"
+#include "PipeCourse.h"
 void CourseManager::Init()
 {
 }
@@ -12,6 +12,10 @@ void CourseManager::Update()
 	for (auto& course : _courses)
 	{
 		course->Update(_courseEntered, _coursePassed);
+		if (_courseEntered == true)
+		{
+			_currContactedCourse = course;
+		}
 	}
 }
 
@@ -29,16 +33,7 @@ void CourseManager::AddCourse(Course* course)
 
 Course* CourseManager::GetContactedCourse()
 {
-	for (auto& course : _courses)
-	{
-		if (course->IsCourseEntered() == true)
-		{
-			_currContactedCourse = course;
-			return _currContactedCourse;
-		}
-	}
-
-	return _currContactedCourse = nullptr;
+	return _currContactedCourse;
 }
 
 

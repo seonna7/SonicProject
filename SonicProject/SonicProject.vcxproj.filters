@@ -150,7 +150,7 @@
     <ClInclude Include="Course.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="TunnelCourse.h">
+    <ClInclude Include="PipeCourse.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -272,7 +272,7 @@
     <ClCompile Include="Course.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="TunnelCourse.cpp">
+    <ClCompile Include="PipeCourse.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

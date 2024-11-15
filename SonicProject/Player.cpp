@@ -18,7 +18,7 @@
 #include "PixelCollider.h"
 #include "CollisionManager.h"
 #include "LoopCourse.h"
-#include "TunnelCourse.h"
+#include "PipeCourse.h"
 
 
 
@@ -121,16 +121,6 @@ void Player::Tick()
 	{
 		Skiddle = !Skiddle;
 	}
-
-	//if (_course->IsCoursePassed() == true)
-	//{
-	//	_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
-	//	_course->SetCoursePassed(true);
-	//}
-	//else if (IsCourseContacted() == true)
-	//{
-	//	CourseMeetingFunction();
-	//}
 	
 	if (GET_SINGLE(CourseManager)->GetCourseEntered() == true)
 	{
@@ -139,15 +129,10 @@ void Player::Tick()
 		{
 			_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
 		}
-		else
+		else if (_course->GetCourseInfo() == eCourse::PIPE)
 		{
 			_courseColorRef = ColorRef::RED;
 		}
-
-	}
-	else if (GET_SINGLE(CourseManager)->GetCoursePassed() == true)
-	{
-
 	}
 
 	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
@@ -863,7 +848,7 @@ bool Player::CourseMeetingFunction()
 	case eCourse::LOOP:
 		_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
 		return true;
-	case eCourse::TUNNEL:
+	case eCourse::PIPE:
 		return true;
 	}
 	return false;

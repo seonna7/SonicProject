@@ -14,11 +14,6 @@ class Course;
 
 using namespace ColorRef;
 
-enum
-{
-	e_Pixel_Len = 20
-};
-
 enum e_SlopeType 
 {
 	AIR			= 1,

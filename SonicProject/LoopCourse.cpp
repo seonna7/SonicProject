@@ -19,29 +19,19 @@ LoopCourse::~LoopCourse()
 
 void LoopCourse::Init()
 {
+	Super::Init();
 }
 
 bool LoopCourse::Update(bool& entered, bool& passed)
 {
-	if (IsCourseEntered() == true)
+	if (Super::Update(entered, passed) == true)
 	{
-		LoopCourse::CourseMeetingFunction();
-
-		entered = true;
-	}
-	else if (IsCoursePassed() == true)
-	{
-		passed = true;
-	}
-	else
-	{
-		entered = false;
-		passed = false;
+		return true;
 	}
 	return false;
 }
 
-bool LoopCourse::IsCourseEntered()
+bool LoopCourse::EnteringCourse()
 {
 	Vector runnerPos = _runner->GetPos();
 
@@ -53,7 +43,7 @@ bool LoopCourse::IsCourseEntered()
 		}
 		else if (_flag == true && _courseEntered == false)
 		{
-			_courseEntered = true; // 루프 코스 시작 
+			return _courseEntered = true; // 루프 코스 시작 
 		}
 		else if (_flag == true && _courseEntered == true)
 		{
@@ -61,9 +51,9 @@ bool LoopCourse::IsCourseEntered()
 		}
 		else if (_flag == false && _courseEntered == true)
 		{
-			if (_coursePassed == false)
+			if (runnerPos.y < _pos.y)
 			{
-				_flag = true; // 루프 플래그 변경 
+				_flag = !_flag;
 				_coursePassed = true;
 			}
 		}
@@ -72,7 +62,7 @@ bool LoopCourse::IsCourseEntered()
 	{
 		if (_flag == false && _courseEntered ==false)
 		{
-			_courseEntered = true; // 루프 코스 시작 
+			return _courseEntered = true; // 루프 코스 시작 
 		}
 		else if (_flag == true && _courseEntered == false)
 		{
@@ -84,55 +74,47 @@ bool LoopCourse::IsCourseEntered()
 		}
 		else if (_flag == true && _courseEntered == true)
 		{
-			if (_coursePassed == false)
+			if (runnerPos.y < _pos.y)
 			{
+				_flag = !_flag;
 				_coursePassed = true;
-				_flag = false; // 루프 플래그 변경 
 			}
 		}
 	}
-
-	return _courseEntered == true;
+	return _coursePassed = false;
 }
 
-bool LoopCourse::IsCoursePassed()
+bool LoopCourse::PassingCourse()
 {
 	if (_flag == true && _coursePassed == true)
 	{
 		if (_runner->GetPos().x > _pos.x)
 		{
-			return _coursePassed != true;
+			return  true;
 		}
 	}
 	else if (_flag == false && _coursePassed == true)
 	{
 		if (_runner->GetPos().x < _pos.x)
 		{
-			return _coursePassed != true;
+			return true;
 		}
 	}
-	return _coursePassed = false;
+	return false;
 }
 
 bool LoopCourse::CourseMeetingFunction()
 {
-	if (SetColorRef(_courseEntered) == true)
-	{
-		return true;
-	}
-	else 
+	if (_coursePassed == true)
 	{
 		return false;
 	}
+	LoopCourse::SetColorRef();
+	return true;
 }
 
-bool LoopCourse::SetColorRef(bool Entered)
+bool LoopCourse::SetColorRef()
 {
-	if (Entered == false)
-	{
-		return false;
-	}
-
 	if (_flag == false)
 	{
 		_colorRef = ColorRef::MANGENTA;

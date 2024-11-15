@@ -19,7 +19,7 @@
 #include "AccelObj.h"
 #include "CourseManager.h"
 #include "LoopCourse.h"
-#include "TunnelCourse.h"
+#include "PipeCourse.h"
 
 extern uint32 GWinSizeX;
 extern uint32 GWinSizeY;
