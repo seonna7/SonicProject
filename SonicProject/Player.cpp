@@ -122,35 +122,7 @@ void Player::Tick()
 		Skiddle = !Skiddle;
 	}
 	
-	if (GET_SINGLE(CourseManager)->GetCourseEntered() == true)
-	{
-		_course = GET_SINGLE(CourseManager)->GetContactedCourse();
-
-		if (_course->GetCourseInfo() == eCourse::LOOP)
-		{
-			Gravity = false;
-			_courseColorRef = _course->GetColorRef();
-		}
-		else if (_course->GetCourseInfo() == eCourse::PIPE)
-		{
-			_courseColorRef = _course->GetColorRef();
-			if (_courseColorRef == ColorRef::MAGENTA)
-			{
-				Gravity = false;
-				// 픽셀 조건부 충돌 확인 && 중력 해제 
-			}
-			else if (_courseColorRef == ColorRef::CYAN)
-			{
-				Gravity = false;
-				// 픽셀 조건부 충돌 확인 && 중력 해제 
-
-			}
-		}
-	}
-	else if(GET_SINGLE(CourseManager)->GetCourseEntered() == false)
-	{
-		Gravity = true;
-	}
+	Player::CourseMeetingFunction();
 
 	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
 		Player::CheckCollision((uint8)e_SlopeType::CEILING) == true ||
@@ -184,8 +156,17 @@ void Player::Tick()
 	
 	if(_IsOnGround==true)
 	{
-		_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
-		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
+		if(_courseMovementFlag == true)
+		{
+			_physic->Speed.x = _physic->_groundSpeed * -cos(_angle);
+			_physic->Speed.y = _physic->_groundSpeed * sin(_angle);
+		}
+		
+		else
+		{
+			_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
+			_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
+		}
 	}
 
 	if (IsSkiddlingCondition() == true)
@@ -239,6 +220,10 @@ void Player::Render(HDC hdc)
 		{
 			wstring str = std::format(L"courseColorRef({0})", _courseColorRef);
 			::TextOut(hdc, 10, 250, str.c_str(), static_cast<int32>(str.size()));
+		}
+		{
+			wstring str = std::format(L"courseMovementFlag({0})", _courseMovementFlag);
+			::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
 		}
 	}
 
@@ -757,7 +742,7 @@ void Player::OnDownPressed()
 
 bool Player::AdjustMovement()
 {
-	if (_slopeType == e_SlopeType::AIR)
+	if (_slopeType == e_SlopeType::AIR && _isCourseMovementAdjustNeeded == false)
 	{
 		return false;
 	}
@@ -772,6 +757,7 @@ bool Player::AdjustMovement()
 	{
 		
 	}
+	
 	while (DetectCollision_ColorRef(*pixel, ColorRef::RED) ||
 		DetectCollision_ColorRef(*pixel, _courseColorRef))
 	{
@@ -844,12 +830,11 @@ void Player::GetAccBuff(Vector dir)
 	_physic->Speed.y = _physic->_groundSpeed * -sin(angle);
 }
 
-bool Player::IsCourseContacted(Course* myCourse)
+bool Player::IsCourseContacted()
 {
 	Course* course = GET_SINGLE(CourseManager)->GetContactedCourse();
 	if (course!= nullptr)
 	{
-		myCourse = course;
 		return true;
 	}
 	return false;
@@ -857,18 +842,42 @@ bool Player::IsCourseContacted(Course* myCourse)
 
 bool Player::CourseMeetingFunction()
 {
-	eCourse info = _course->GetCourseInfo();
-	COLORREF temp = ColorRef::MAGENTA;
-
-	switch (info)
+	if (GET_SINGLE(CourseManager)->GetCourseEntered() == false)
 	{
-	case eCourse::LOOP:
-		_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
-		return true;
-	case eCourse::PIPE:
-		return true;
+		Gravity = true;
+		return false;
 	}
-	return false;
+	
+	_course = GET_SINGLE(CourseManager)->GetContactedCourse();
+	
+	if (_course== nullptr)
+	{
+		Gravity = true;
+		return false;
+	}
+
+	eCourse info = _course->GetCourseInfo();
+
+	_courseColorRef = _course->GetColorRef();
+
+	if (info == eCourse::PIPE)
+	{
+		if(_courseColorRef == ColorRef::MAGENTA)
+		{
+			Vector pixel = _pixels[_currCheckedPixel]->GetPos();
+			if (DetectCollision_ColorRef(pixel, ColorRef::MAGENTA))
+			{
+				_courseMovementFlag = true;
+			}
+		}
+		_isCourseMovementAdjustNeeded = true;
+	}
+	else
+	{
+		_courseMovementFlag = false;
+		_isCourseMovementAdjustNeeded = false;
+	}
+	Gravity = false;
 }
 
 

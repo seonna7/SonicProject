@@ -3,6 +3,7 @@ class Actor;
 class Course
 {
 public : 
+	Course();
 	Course(Vector pos, Vector size, Actor* runner);
 	virtual ~Course();
 
@@ -10,9 +11,9 @@ public :
 	bool Update();
 	bool CourseMeetingFunction();
 
-	virtual bool IsState_CourseEscaped()								abstract;
-	virtual bool UpdateRunnerState(bool& entered, bool& passed)			abstract;
-	virtual bool SetColorRef()											abstract;
+	virtual bool IsState_CourseEscaped() { return false; }
+	virtual bool UpdateRunnerState(bool& entered, bool& passed) { return false; }
+	virtual bool SetColorRef() { return false; }
 public : 
 
 	eCourse GetCourseInfo() { return _courseInfo; }

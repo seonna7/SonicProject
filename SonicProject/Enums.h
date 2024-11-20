@@ -32,7 +32,7 @@ enum class KeyType
 
 enum
 {
-	e_Pixel_Len = 10
+	e_Pixel_Len = 18	
 };
 
 enum class eSceneType
@@ -102,6 +102,7 @@ namespace ColorRef
 
 enum class eCourse
 {
-	LOOP = 0,
+	NONE = 0,
+	LOOP,
 	PIPE,
 };

@@ -5,6 +5,7 @@
 #include "PipeCourse.h"
 void CourseManager::Init()
 {
+	_currContactedCourse = new Course();
 }
 
 void CourseManager::Update()
@@ -12,10 +13,22 @@ void CourseManager::Update()
 	for (auto& course : _courses)
 	{
 		course->Update();
-		if (course->GetCourseEntered() == true)
+
+		if (course->GetCourseEntered()==true)
 		{
-			_currContactedCourse = course;
+			if (_currContactedCourse->GetCourseInfo() == eCourse::NONE)
+			{
+				SAFE_DELETE(_currContactedCourse, "Course Delete");
+				_currContactedCourse = course;
+			}
 		}
+
+
+		if (course->IsState_CourseEscaped() == true)
+		{
+			_currContactedCourse = new Course();
+		}
+		break;
 	}
 }
 

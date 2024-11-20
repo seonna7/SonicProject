@@ -352,7 +352,8 @@ void DevScene::Init()
 	//	}
 	//	AddActor(test);
 	//}
-		
+	
+	GET_SINGLE(CourseManager)->Init();
 }
 
 void DevScene::Update()

@@ -16,13 +16,6 @@ public :
 
 	Course* GetContactedCourse();
 
-	template <typename T>
-	T* GetCurrCourse()
-	{
-		T* currCourse = dynamic_cast<T*>(_currContactedCourse);
-		return currCourse;
-	}
-
 private : 
 	bool	_courseEntered = false;
 	bool	_coursePassed = false;

@@ -1,7 +1,12 @@
 #include "pch.h"
 #include "Course.h"
 
-Course::Course(Vector pos, Vector size, Actor* runner) : 
+Course::Course() : _courseInfo(eCourse::NONE)
+{
+
+}
+
+Course::Course(Vector pos, Vector size, Actor* runner) :
 	_pos(pos), _size(size), _runner(runner)
 {
 }

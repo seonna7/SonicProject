@@ -247,10 +247,14 @@ public :
 	//=======================================================
 	//						Course
 	//=======================================================
-	bool IsCourseContacted(Course* myCourse);
+	bool IsCourseContacted();
 	bool CourseMeetingFunction();
 
-	Course* _course = nullptr;
+	bool _courseMovementFlag	= false; // 파이프 코스 이동 조정
 
-	COLORREF _courseColorRef = ColorRef::RED;
+	bool _isCourseMovementAdjustNeeded= false;
+	
+	Course* _course				= nullptr;
+
+	COLORREF _courseColorRef	= ColorRef::RED;
 };
