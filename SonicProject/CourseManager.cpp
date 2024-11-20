@@ -11,8 +11,8 @@ void CourseManager::Update()
 {
 	for (auto& course : _courses)
 	{
-		course->Update(_courseEntered, _coursePassed);
-		if (_courseEntered == true)
+		course->Update();
+		if (course->GetCourseEntered() == true)
 		{
 			_currContactedCourse = course;
 		}
@@ -29,6 +29,24 @@ void CourseManager::AddCourse(Course* course)
 	{
 		_courses.push_back(course);
 	}
+}
+
+bool CourseManager::GetCourseEntered()
+{
+	if (_currContactedCourse == nullptr)
+	{
+		return false;
+	}
+	return _currContactedCourse->GetCourseEntered();
+}
+
+bool CourseManager::GetCoursePassed()
+{
+	if (_currContactedCourse == nullptr)
+	{
+		return false;
+	}
+	return _currContactedCourse->GetCoursePassed();
 }
 
 Course* CourseManager::GetContactedCourse()

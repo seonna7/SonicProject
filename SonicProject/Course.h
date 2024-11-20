@@ -7,12 +7,12 @@ public :
 	virtual ~Course();
 
 	void Init();
-	bool Update(bool& entered, bool& passed);
+	bool Update();
 	bool CourseMeetingFunction();
 
-	virtual bool EnteringCourse()						abstract;
-	virtual bool PassingCourse()						abstract;
-	virtual bool SetColorRef()							abstract;
+	virtual bool IsState_CourseEscaped()								abstract;
+	virtual bool UpdateRunnerState(bool& entered, bool& passed)			abstract;
+	virtual bool SetColorRef()											abstract;
 public : 
 
 	eCourse GetCourseInfo() { return _courseInfo; }

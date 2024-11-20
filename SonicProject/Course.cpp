@@ -14,38 +14,31 @@ void Course::Init()
 {
 }
 
-bool Course::Update(bool& entered, bool& passed)
+bool Course::Update()
 {
-	CourseMeetingFunction();
-	_courseEntered = EnteringCourse();
-	_coursePassed = PassingCourse();
-
-	if (_courseEntered == true && _coursePassed == false)
+	UpdateRunnerState(_courseEntered,_coursePassed);
+	if(_courseEntered== true)
 	{
-		entered = true;
+		CourseMeetingFunction();
 	}
-	else if (_courseEntered==true &&_coursePassed == true)
+	
+	if (IsState_CourseEscaped() == true)
 	{
-		entered = false;
-		passed = true;
-		passed = true;
-	}
-	else
-	{
-		entered = false;
-		passed = false;
 		_courseEntered = false;
 		_coursePassed = false;
 	}
-	return false;
+	return true;
 }
 
 bool Course::CourseMeetingFunction()
 {
-	if (_coursePassed == true)
+	if (_courseEntered == false)
 	{
 		return false;
 	}
-	SetColorRef();
+	else 
+	{
+		SetColorRef();
+	}
 	return true;
 }

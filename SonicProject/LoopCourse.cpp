@@ -24,14 +24,14 @@ void LoopCourse::Init()
 
 bool LoopCourse::Update(bool& entered, bool& passed)
 {
-	if (Super::Update(entered, passed) == true)
+	if (Super::Update() == true)
 	{
 		return true;
 	}
 	return false;
 }
 
-bool LoopCourse::EnteringCourse()
+bool LoopCourse::UpdateRunnerState(bool& entered, bool& passed)
 {
 	Vector runnerPos = _runner->GetPos();
 
@@ -39,15 +39,16 @@ bool LoopCourse::EnteringCourse()
 	{
 		if (_flag == false && _courseEntered == false)
 		{
-			return false; // 루프 시작 전임  
+			// before entering Course
+			_courseEntered = false;
 		}
 		else if (_flag == true && _courseEntered == false)
 		{
-			return _courseEntered = true; // 루프 코스 시작 
+			_courseEntered = true; // 루프 코스 시작 
 		}
 		else if (_flag == true && _courseEntered == true)
 		{
-			return true; // 루프 진행중임
+			_courseEntered = true;
 		}
 		else if (_flag == false && _courseEntered == true)
 		{
@@ -62,15 +63,18 @@ bool LoopCourse::EnteringCourse()
 	{
 		if (_flag == false && _courseEntered ==false)
 		{
-			return _courseEntered = true; // 루프 코스 시작 
+			//Start
+			_courseEntered = true; 
 		}
 		else if (_flag == true && _courseEntered == false)
 		{
-			return false; // 루프 시작 전임 
+			//before Entering Course
+			_courseEntered = false;
 		}
 		else if (_flag == false && _courseEntered == true)
 		{
-			return true; // 루프 진행중임
+			// Course 
+			_courseEntered = true;
 		}
 		else if (_flag == true && _courseEntered == true)
 		{
@@ -81,21 +85,18 @@ bool LoopCourse::EnteringCourse()
 			}
 		}
 	}
-	return _courseEntered == true;
+	return true;
 }
 
-bool LoopCourse::PassingCourse()
+bool LoopCourse::IsState_CourseEscaped()
 {
-	if (_flag == true && _coursePassed == true)
+	if (_courseEntered == true && _coursePassed == true)
 	{
-		if (_runner->GetPos().x > _pos.x)
+		if (_flag == true && _runner->GetPos().x > _pos.x)
 		{
-			return  true;
+			return true;
 		}
-	}
-	else if (_flag == false && _coursePassed == true)
-	{
-		if (_runner->GetPos().x < _pos.x)
+		else if (_flag == false && _runner->GetPos().x < _pos.x)
 		{
 			return true;
 		}

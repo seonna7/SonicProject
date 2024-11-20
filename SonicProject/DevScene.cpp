@@ -300,8 +300,6 @@ void DevScene::Init()
 		_backgrounds.push_back(background);
 
 	}
-	PipeCourse* pipecourse = new PipeCourse(Vector(582, 459), Vector(305, 548), player);
-
 
 #endif
 	{
@@ -329,8 +327,13 @@ void DevScene::Init()
 		AddActor(player);
 		player->BeginPlay();
 
-		LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
-		GET_SINGLE(CourseManager)->AddCourse(loopCourse);
+		//LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
+		//GET_SINGLE(CourseManager)->AddCourse(loopCourse);
+
+		PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(305, 548), player);
+		Vector info[2] = { Vector(426, 279), Vector(732, 600) };
+		pipeCourse->SetSenorInfo(info, Vector(e_Pixel_Len));
+		GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
 
 	}
 

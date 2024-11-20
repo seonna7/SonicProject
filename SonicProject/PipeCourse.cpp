@@ -16,6 +16,13 @@ PipeCourse::~PipeCourse()
 {
 }
 
+void PipeCourse::SetSenorInfo(Vector* vec, Vector size)
+{
+	_courseEnterCollideDetect[0] = vec[0];
+	_courseEnterCollideDetect[1] = vec[1];
+	_courseEnterSize = size;
+}
+
 void PipeCourse::Init()
 {
 	Super::Init();
@@ -23,14 +30,14 @@ void PipeCourse::Init()
 
 bool PipeCourse::Update(bool& entered, bool& passed)
 {
-	if (Super::Update(entered, passed) == true)
+	if (Super::Update() == true)
 	{
 		return true;
 	}
 	return false;
 }
 
-bool PipeCourse::EnteringCourse()
+bool PipeCourse::UpdateRunnerState(bool& entered, bool& passed)
 {
 	Vector runnerPos = _runner->GetPos();
 	RECT _runner	= RECT(runnerPos.x - e_Pixel_Len,
@@ -48,32 +55,56 @@ bool PipeCourse::EnteringCourse()
 
 	if (_courseEntered == false)
 	{
-		if (abs(_runner.bottom - Rect1.bottom) < 5)
+		_contactFlag = false;
+		if (abs(_runner.bottom - Rect1.bottom) < 10||
+			abs(_runner.bottom - Rect2.bottom) < 10)
 		{
 			RECT intersect = {};
 			if (IntersectRect(&intersect, &Rect1, &_runner)||
 				IntersectRect(&intersect, &Rect2, &_runner))
-				return _courseEntered = true;
+			{
+				_courseEntered = true;
+				_contactFlag = true;
+			}
 		}
 
 	}
 	else if (_courseEntered == true && _coursePassed == false)
 	{
-		if (abs(_runner.bottom - Rect1.bottom) < 5)
+		if (abs(_runner.bottom - Rect1.bottom) < 10||
+			abs(_runner.bottom - Rect2.bottom) < 10)
 		{
 			RECT intersect = {};
 			if (IntersectRect(&intersect, &Rect1, &_runner) ||
 				IntersectRect(&intersect, &Rect2, &_runner))
-				_coursePassed = true;
-				return _courseEntered = true;
+			{
+				if (_contactFlag != true)
+				{	
+					_coursePassed = true;
+				}
+			}
+			else
+			{
+				_contactFlag = false;
+			}
 		}
 	}
-	return _courseEntered == true;
+	return true;
 }
 
-bool PipeCourse::PassingCourse()
+bool PipeCourse::IsState_CourseEscaped()
 {
-	return (_coursePassed == true) && (_courseEntered == true);
+	if (_courseEntered == true && _coursePassed == true)
+	{
+		Vector runnerPos = _runner->GetPos();
+		if (runnerPos.x < _pos.x + _size.x && runnerPos.x > _pos.x - _size.x &&
+			runnerPos.y < _pos.y + _size.y && runnerPos.y > _pos.y - _size.y)
+		{
+			return false;
+		}
+		else
+			return true;
+	}
 }
 
 bool PipeCourse::SetColorRef()
@@ -82,7 +113,9 @@ bool PipeCourse::SetColorRef()
 
 	if (runner == nullptr)
 		return false;
+
 	Physic* physic = runner->GetRigidBody()->GetPhysic();
+
 	if (physic->_groundSpeed >= 0)
 	{
 		_colorRef = ColorRef::MAGENTA;

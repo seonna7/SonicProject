@@ -11,8 +11,8 @@ public :
 
 	void AddCourse(Course* course);
 	
-	bool GetCourseEntered() { return _courseEntered; }
-	bool GetCoursePassed()	{ return _coursePassed; }
+	bool GetCourseEntered();
+	bool GetCoursePassed();
 
 	Course* GetContactedCourse();
 

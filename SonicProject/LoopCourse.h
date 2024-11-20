@@ -12,9 +12,9 @@ public  :
 	void Init();
 	bool Update(bool& entered, bool& passed);
 
-	bool EnteringCourse()							override;
-	bool PassingCourse()							override;
-	bool SetColorRef()								override;
+	bool UpdateRunnerState(bool& entered, bool& passed)		override;
+	bool IsState_CourseEscaped()							override;
+	bool SetColorRef()										override;
 
 	bool CourseMeetingFunction();
 
