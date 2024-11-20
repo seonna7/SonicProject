@@ -4,15 +4,15 @@ class Course
 {
 public : 
 	Course(Vector pos, Vector size, Actor* runner);
-	~Course();
+	virtual ~Course();
 
 	void Init();
 	bool Update(bool& entered, bool& passed);
+	bool CourseMeetingFunction();
 
 	virtual bool EnteringCourse()						abstract;
 	virtual bool PassingCourse()						abstract;
-	virtual bool CourseMeetingFunction()				abstract;
-
+	virtual bool SetColorRef()							abstract;
 public : 
 
 	eCourse GetCourseInfo() { return _courseInfo; }

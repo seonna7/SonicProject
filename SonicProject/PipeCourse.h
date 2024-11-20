@@ -13,13 +13,15 @@ public :
 	void Init();
 	bool Update(bool& entered, bool& passed);
 
-	bool EnteringCourse()						override;
-	bool PassingCourse()						override;
-	bool CourseMeetingFunction()				override;
+	virtual bool EnteringCourse()						override;
+	virtual bool PassingCourse()						override;
+	virtual bool SetColorRef()							override;
 
+	bool CourseMeetingFunction();
 private :
-	Vector _enterPos	= { 0,0 };
-	Vector _endPos		= { 0,0 };
+	Vector _courseEnterCollideDetect[2];
+
+	Vector _courseEnterSize = { 0,0 };
 
 	float _width		= 0.f;
 };

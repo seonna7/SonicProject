@@ -125,14 +125,31 @@ void Player::Tick()
 	if (GET_SINGLE(CourseManager)->GetCourseEntered() == true)
 	{
 		_course = GET_SINGLE(CourseManager)->GetContactedCourse();
+
 		if (_course->GetCourseInfo() == eCourse::LOOP)
 		{
-			_courseColorRef = GET_SINGLE(CourseManager)->GetCurrCourse<LoopCourse>()->GetColorRef();
+			Gravity = false;
+			_courseColorRef = _course->GetColorRef();
 		}
 		else if (_course->GetCourseInfo() == eCourse::PIPE)
 		{
-			_courseColorRef = ColorRef::RED;
+			_courseColorRef = _course->GetColorRef();
+			if (_courseColorRef == ColorRef::MAGENTA)
+			{
+				Gravity = false;
+				// 픽셀 조건부 충돌 확인 && 중력 해제 
+			}
+			else if (_courseColorRef == ColorRef::CYAN)
+			{
+				Gravity = false;
+				// 픽셀 조건부 충돌 확인 && 중력 해제 
+
+			}
 		}
+	}
+	else if(GET_SINGLE(CourseManager)->GetCourseEntered() == false)
+	{
+		Gravity = true;
 	}
 
 	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
@@ -841,7 +858,7 @@ bool Player::IsCourseContacted(Course* myCourse)
 bool Player::CourseMeetingFunction()
 {
 	eCourse info = _course->GetCourseInfo();
-	COLORREF temp = ColorRef::MANGENTA;
+	COLORREF temp = ColorRef::MAGENTA;
 
 	switch (info)
 	{

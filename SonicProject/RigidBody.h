@@ -13,7 +13,7 @@ struct Physic
 	Vector Speed = { 0,0 };
 	float _accelerationSpeed = 6.0f;
 	float _frictionSpeed = 3.0f;
-	float _maxSpeedX = 250;
+	float _maxSpeedX = 500;
 	float _jumpForce = 600;
 
 	float _groundSpeed = 0.f;

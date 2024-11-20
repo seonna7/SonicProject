@@ -81,7 +81,7 @@ bool LoopCourse::EnteringCourse()
 			}
 		}
 	}
-	return _coursePassed = false;
+	return _courseEntered == true;
 }
 
 bool LoopCourse::PassingCourse()
@@ -105,19 +105,14 @@ bool LoopCourse::PassingCourse()
 
 bool LoopCourse::CourseMeetingFunction()
 {
-	if (_coursePassed == true)
-	{
-		return false;
-	}
-	LoopCourse::SetColorRef();
-	return true;
+	return Super::CourseMeetingFunction();
 }
 
 bool LoopCourse::SetColorRef()
 {
 	if (_flag == false)
 	{
-		_colorRef = ColorRef::MANGENTA;
+		_colorRef = ColorRef::MAGENTA;
 	}
 	else if (_flag == true)
 	{

@@ -14,10 +14,10 @@ public  :
 
 	bool EnteringCourse()							override;
 	bool PassingCourse()							override;
+	bool SetColorRef()								override;
 
-	bool CourseMeetingFunction()					override;
+	bool CourseMeetingFunction();
 
-	bool SetColorRef();
 
 private :  
 	

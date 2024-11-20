@@ -32,7 +32,7 @@ enum class KeyType
 
 enum
 {
-	e_Pixel_Len = 20
+	e_Pixel_Len = 10
 };
 
 enum class eSceneType
@@ -94,7 +94,7 @@ namespace ColorRef
 	static COLORREF RED			= RGB(255, 0, 0);
 	static COLORREF GREEN		= RGB(0, 255, 0);
 	static COLORREF BLUE		= RGB(0, 0, 255);
-	static COLORREF MANGENTA	= RGB(255, 0, 255);
+	static COLORREF MAGENTA		= RGB(255, 0, 255);
 	static COLORREF CYAN		= RGB(0, 255, 255);
 	static COLORREF BLACK		= RGB(0, 0, 0);
 };

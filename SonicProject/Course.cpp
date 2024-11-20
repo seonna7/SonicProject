@@ -20,12 +20,14 @@ bool Course::Update(bool& entered, bool& passed)
 	_courseEntered = EnteringCourse();
 	_coursePassed = PassingCourse();
 
-	if (_courseEntered == true)
+	if (_courseEntered == true && _coursePassed == false)
 	{
 		entered = true;
 	}
-	else if (_coursePassed == true)
+	else if (_courseEntered==true &&_coursePassed == true)
 	{
+		entered = false;
+		passed = true;
 		passed = true;
 	}
 	else
@@ -36,4 +38,14 @@ bool Course::Update(bool& entered, bool& passed)
 		_coursePassed = false;
 	}
 	return false;
+}
+
+bool Course::CourseMeetingFunction()
+{
+	if (_coursePassed == true)
+	{
+		return false;
+	}
+	SetColorRef();
+	return true;
 }
