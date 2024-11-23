@@ -163,7 +163,7 @@ private :
 
 
 	bool	_IsOnGround			= false;
-	bool	_IsJumped			= false;
+	bool	_canJump			= false;
 
 private : 
 	//=======================================================
@@ -213,7 +213,7 @@ public :
 	Texture*	_background		= nullptr;
 
 public :	
-
+	Vector&		GetRestDoubleCheckedPixel(uint8 currDir);
 
 
 private : 

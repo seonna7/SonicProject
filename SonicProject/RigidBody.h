@@ -55,7 +55,7 @@ public  :
 	void GravitationOnRightWall();
 	void GravitationOnCeiling();
 
-	void SetFriction();
+	void LowerGroundSpeed();
 private :
 	Physic* _physic;
 };

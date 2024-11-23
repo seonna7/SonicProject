@@ -121,22 +121,25 @@ void Player::Tick()
 	{
 		Skiddle = !Skiddle;
 	}
-	
+
 	Player::CourseMeetingFunction();
+
 
 	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
 		Player::CheckCollision((uint8)e_SlopeType::CEILING) == true ||
 		Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true ||
 		Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true)
 	{
+
 		Player::AngleFunction();
 	}
+
 
 	if (Gravity == true)
 	{
 		Player::SetGravitationVec(e_SlopeType::GROUND);
 	}
-	
+
 	if (true)
 	{
 		Player::UpdateJumpState();
@@ -146,33 +149,31 @@ void Player::Tick()
 	{
 		SetSonicState(SonicState::PAUSE);
 	}
-	
-	{
-		void OnUpPressed();
-		void OnLeftPressed();
-		void OnRightPressed();
-		void OnDownPressed();
-	}
-	
-	if(_IsOnGround==true)
-	{
-		if(_courseMovementFlag == true)
-		{
-			_physic->Speed.x = _physic->_groundSpeed * -cos(_angle);
-			_physic->Speed.y = _physic->_groundSpeed * sin(_angle);
-		}
-		
-		else
-		{
-			_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
-			_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
-		}
-	}
 
+	
+	void OnUpPressed();
+	void OnLeftPressed();
+	void OnRightPressed();
+	void OnDownPressed();
+	
+
+	if (_IsOnGround == true)
+	{
+		if (_angle > -M_PI / 2 && _angle < M_PI / 2&&
+			_physic->_groundSpeed<-0.1&& _physic->Speed.x > 0.1)
+		{
+			_physic->_groundSpeed *= -1;
+		}
+
+		_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
+		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
+		//_physic->_groundSpeed = _physic->Speed.x;
+	}
 	if (IsSkiddlingCondition() == true)
 	{
 		Player::SkiddlingMovement();
 	}
+
 
 	if (Player::SetMovement() == false)
 	{
@@ -202,27 +203,28 @@ void Player::Render(HDC hdc)
 			::TextOut(hdc, 10, 150, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Gravity : Q  ({0})", Gravity);
+			wstring str = std::format(L"groundSpeed({0})", _physic->_groundSpeed);
 			::TextOut(hdc, 10, 170, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Skiddle : E ({0})", Skiddle);
+			wstring str = std::format(L"Gravity : Q  ({0})", Gravity);
 			::TextOut(hdc, 10, 190, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"Jumped({0})", _IsJumped);
+			wstring str = std::format(L"Skiddle : E ({0})", Skiddle);
 			::TextOut(hdc, 10, 210, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"CtrlLockTimer({0})", _ctrlLockTimer);
+			wstring str = std::format(L"canJump({0})", _canJump);
 			::TextOut(hdc, 10, 230, str.c_str(), static_cast<int32>(str.size()));
 		}
+
 		{
 			wstring str = std::format(L"courseColorRef({0})", _courseColorRef);
 			::TextOut(hdc, 10, 250, str.c_str(), static_cast<int32>(str.size()));
 		}
 		{
-			wstring str = std::format(L"courseMovementFlag({0})", _courseMovementFlag);
+			wstring str = std::format(L"_isCourseMovementAdjustNeeded({0})", _isCourseMovementAdjustNeeded);
 			::TextOut(hdc, 10, 270, str.c_str(), static_cast<int32>(str.size()));
 		}
 	}
@@ -457,6 +459,7 @@ bool Player::CheckCollision(uint8 dir)
 			_Left_Bottom->SetIsCollided(true);
 			_Right_Bottom->SetIsCollided(true);
 			_pixelDoubleChecked = true;
+
 			_slopeType = e_SlopeType::GROUND;
 			return true;
 		}
@@ -685,7 +688,7 @@ bool Player::DetectCollision_ColorRef(Vector& pos, COLORREF color)
 
 void Player::OnUpPressed()
 {
-	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::W) && _IsJumped == false)
+	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::W) && _canJump == true)
 	{
 		Player::JumpMovement();
 		SetSonicState(SonicState::JUMPING);
@@ -694,7 +697,7 @@ void Player::OnUpPressed()
 
 void Player::OnLeftPressed()
 {
-	if (_IsJumped == true)
+	if (_canJump == false)
 	{
 		int a = 1;
 	}
@@ -712,12 +715,7 @@ void Player::OnLeftPressed()
 
 void Player::OnRightPressed()
 {
-	if (_IsJumped == true)
-	{
-		int a = 1;
-	}
-
-	else if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::D))
+	if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::D))
 	{
 		RightMovement();
 
@@ -730,11 +728,7 @@ void Player::OnRightPressed()
 
 void Player::OnDownPressed()
 {
-	if (_IsJumped == true)
-	{
-		int a = 1;
-	}
-	else if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::S))
+	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::S))
 	{
 		Player::SetSonicStateSitting();
 	}
@@ -742,7 +736,7 @@ void Player::OnDownPressed()
 
 bool Player::AdjustMovement()
 {
-	if (_slopeType == e_SlopeType::AIR && _isCourseMovementAdjustNeeded == false)
+	if (_IsOnGround == false && _isCourseMovementAdjustNeeded == false)
 	{
 		return false;
 	}
@@ -753,17 +747,17 @@ bool Player::AdjustMovement()
 	
 	Vector* pixel = &_pixels[_currCheckedPixel]->GetPos();
 	
-	if (_pixelDoubleChecked)
-	{
-		
-	}
 	
-	while (DetectCollision_ColorRef(*pixel, ColorRef::RED) ||
-		DetectCollision_ColorRef(*pixel, _courseColorRef))
+	while (DetectCollision_ColorRef(*pixel, _courseColorRef) ||
+		DetectCollision_ColorRef(*pixel, ColorRef::RED))
 	{
 		_pos.x -= sin(_angle);
 		_pos.y -= cos(_angle);
 		Player::RenewPixelLocation();
+	}
+	if (_pixelDoubleChecked == true)
+	{
+
 	}
 	return true;
 }
@@ -783,7 +777,7 @@ void Player::JumpMovement()
 
 	_physic->RemoveSpeedY();
 
-	_IsJumped = true;
+	_canJump = false;
 
 	_physic->_gravity = true;
 
@@ -842,42 +836,51 @@ bool Player::IsCourseContacted()
 
 bool Player::CourseMeetingFunction()
 {
-	if (GET_SINGLE(CourseManager)->GetCourseEntered() == false)
+	if (GET_SINGLE(CourseManager)->GetContactedCourse()==nullptr)
 	{
+		_isCourseMovementAdjustNeeded = false;
 		Gravity = true;
 		return false;
 	}
 	
 	_course = GET_SINGLE(CourseManager)->GetContactedCourse();
 	
-	if (_course== nullptr)
+	if (_course->GetCourseInfo() ==eCourse::NONE)
 	{
+		_isCourseMovementAdjustNeeded = false;
 		Gravity = true;
 		return false;
 	}
 
-	eCourse info = _course->GetCourseInfo();
 
 	_courseColorRef = _course->GetColorRef();
 
-	if (info == eCourse::PIPE)
+	eCourse info = _course->GetCourseInfo();
+
+	switch (info)
 	{
-		if(_courseColorRef == ColorRef::MAGENTA)
+	case eCourse::PIPE : 
+		if (_physic->_groundSpeed > 0)
 		{
-			Vector pixel = _pixels[_currCheckedPixel]->GetPos();
-			if (DetectCollision_ColorRef(pixel, ColorRef::MAGENTA))
-			{
-				_courseMovementFlag = true;
-			}
+			_isCourseMovementAdjustNeeded = true;
 		}
-		_isCourseMovementAdjustNeeded = true;
-	}
-	else
-	{
+		Player::SetGravitationVec(e_SlopeType::LEFT_WALL);
+		break;
+	case eCourse::LOOP :
+		if (_canJump == false)
+		{
+			Gravity = true;
+		}
+		else
+		{
+			Gravity = false;
+		}
 		_courseMovementFlag = false;
 		_isCourseMovementAdjustNeeded = false;
+
+		
 	}
-	Gravity = false;
+	return true;
 }
 
 
@@ -925,6 +928,10 @@ void Player::AngleFunction()
 				SetAnglePixel(_A_Left_Top, _A_Left_Bottom);
 				return;
 			}
+			else
+			{
+				_angle = 0;
+			}
 		}
 	}
 	else if (_currCheckedPixel == _Right_Bottom->GetDir())
@@ -939,6 +946,10 @@ void Player::AngleFunction()
 			{
 				SetAnglePixel(_A_Right_Bottom, _A_Right_Top);
 				return;
+			}
+			else
+			{
+				_angle = 0;
 			}
 		}
 	}
@@ -955,6 +966,10 @@ void Player::AngleFunction()
 				SetAnglePixel(_A_Right_Top, _A_Left_Top);
 				return;
 			}
+			else
+			{
+				_angle = 0;
+			}
 		}
 	}
 	else if (_currCheckedPixel == _Left_Top->GetDir())
@@ -970,6 +985,11 @@ void Player::AngleFunction()
 				SetAnglePixel(_A_Left_Top, _A_Left_Bottom);
 				return;
 			}
+			else
+			{
+				_angle = 0;
+			}
+
 		}
 	}
 }
@@ -1286,7 +1306,7 @@ bool Player::SetAngle(float& ref, float Yval, float Xval)
 
 	float DegreeRef = ref * 180 / M_PI;
 
-	if (DegreeRef > -5.f && DegreeRef < 5.f)
+	if (DegreeRef > -7.f && DegreeRef < 7.f)
 	{
 		ref = 0.f;
 	}
@@ -1324,15 +1344,23 @@ void Player::SetSonicStateSitting()
 
 void Player::UpdateJumpState()
 {
-	if (_IsOnGround == true)
+	if (_isCourseMovementAdjustNeeded == true)
 	{
-		_IsJumped = false;
+		_canJump = false;
+	}
+	else if (_isCourseMovementAdjustNeeded == false)
+	{
+		if (_IsOnGround == true)
+		{
+			_canJump = true;
+		}
 	}
 }
 
 void Player::SkiddlingMovement()
 {
-	_rigidBody->SetFriction();
+	_rigidBody->LowerGroundSpeed();
+
 
 	if (_physic->Speed.x > 0)
 	{
@@ -1344,8 +1372,6 @@ void Player::SkiddlingMovement()
 		if (_state == SonicState::ROLLING || _state == SonicState::JUMPING);
 		else _state = SonicState::SKIDDLING_LEFT;
 	}
-	if (_IsOnGround == true)
-		Player::AdjustMovement();
 }
 
 void Player::SetGravitationVec(e_SlopeType vec)
@@ -1377,6 +1403,13 @@ bool Player::SetMovement()
 	Player::RenewPixelLocation();
 
 	return true;
+}
+
+Vector& Player::GetRestDoubleCheckedPixel(uint8 currDir)
+{
+	Vector vector;
+	return vector;
+	// TODO: 여기에 return 문을 삽입합니다.
 }
 
 void Player::RenewPixelLocation()

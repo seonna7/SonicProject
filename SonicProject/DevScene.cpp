@@ -202,7 +202,7 @@ void DevScene::Init()
 	//
 	//	_backgrounds.push_back(background);
 	//}
-#if 0
+#if 1
 
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest4");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest4", tex, 0, 0, 0, 0);
@@ -327,13 +327,13 @@ void DevScene::Init()
 		AddActor(player);
 		player->BeginPlay();
 
-		//LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
-		//GET_SINGLE(CourseManager)->AddCourse(loopCourse);
+		LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
+		GET_SINGLE(CourseManager)->AddCourse(loopCourse);
 
-		PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(305, 548), player);
-		Vector info[2] = { Vector(426, 279), Vector(732, 600) };
-		pipeCourse->SetSenorInfo(info, Vector(e_Pixel_Len));
-		GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
+		//PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(305, 548), player);
+		//Vector info[2] = { Vector(426, 279), Vector(732, 600) };
+		//pipeCourse->SetSenorInfo(info, Vector(2));
+		//GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
 
 	}
 

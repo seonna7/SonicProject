@@ -40,6 +40,7 @@ bool PipeCourse::Update(bool& entered, bool& passed)
 bool PipeCourse::UpdateRunnerState(bool& entered, bool& passed)
 {
 	Vector runnerPos = _runner->GetPos();
+	Player* player = dynamic_cast<Player*>(_runner);
 	RECT _runner	= RECT(runnerPos.x - e_Pixel_Len,
 						runnerPos.y - e_Pixel_Len,
 						runnerPos.x + e_Pixel_Len,
@@ -56,8 +57,7 @@ bool PipeCourse::UpdateRunnerState(bool& entered, bool& passed)
 	if (_courseEntered == false)
 	{
 		_contactFlag = false;
-		if (abs(_runner.bottom - Rect1.bottom) < 10||
-			abs(_runner.bottom - Rect2.bottom) < 10)
+		if (player->GetIsOnGround()==true)
 		{
 			RECT intersect = {};
 			if (IntersectRect(&intersect, &Rect1, &_runner)||
@@ -71,8 +71,7 @@ bool PipeCourse::UpdateRunnerState(bool& entered, bool& passed)
 	}
 	else if (_courseEntered == true && _coursePassed == false)
 	{
-		if (abs(_runner.bottom - Rect1.bottom) < 10||
-			abs(_runner.bottom - Rect2.bottom) < 10)
+		if (player->GetIsOnGround() == true)
 		{
 			RECT intersect = {};
 			if (IntersectRect(&intersect, &Rect1, &_runner) ||
@@ -118,7 +117,8 @@ bool PipeCourse::SetColorRef()
 
 	if (physic->_groundSpeed >= 0)
 	{
-		_colorRef = ColorRef::MAGENTA;
+		//  컬러 레퍼런스 값으로 통맵에서 캐릭터 충돌 RGB 추가
+		_colorRef = ColorRef::CYAN;//ColorRef::MAGENTA;
 	}
 	else if (physic->_groundSpeed < 0)
 	{
@@ -128,6 +128,7 @@ bool PipeCourse::SetColorRef()
 
 bool PipeCourse::CourseMeetingFunction()
 {
+	// SetColorRef() 호출 코드 
 	return Super::CourseMeetingFunction();
 }
 

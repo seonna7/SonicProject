@@ -32,7 +32,7 @@ enum class KeyType
 
 enum
 {
-	e_Pixel_Len = 18	
+	e_Pixel_Len = 15	
 };
 
 enum class eSceneType

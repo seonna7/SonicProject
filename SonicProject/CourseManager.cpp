@@ -55,7 +55,8 @@ bool CourseManager::GetCourseEntered()
 
 bool CourseManager::GetCoursePassed()
 {
-	if (_currContactedCourse == nullptr)
+	if (_currContactedCourse == nullptr||
+		_currContactedCourse->GetCourseInfo() == eCourse::NONE)
 	{
 		return false;
 	}
@@ -64,7 +65,10 @@ bool CourseManager::GetCoursePassed()
 
 Course* CourseManager::GetContactedCourse()
 {
-	return _currContactedCourse;
+	if (_currContactedCourse->GetCourseEntered() == true)
+		return _currContactedCourse;
+	else
+		return nullptr;
 }
 
 
