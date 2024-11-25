@@ -10,25 +10,30 @@ void CourseManager::Init()
 
 void CourseManager::Update()
 {
-	for (auto& course : _courses)
+	if (_currContactedCourse->GetCourseInfo() == eCourse::NONE)
 	{
-		course->Update();
-
-		if (course->GetCourseEntered()==true)
+		for (auto& course : _courses)
 		{
-			if (_currContactedCourse->GetCourseInfo() == eCourse::NONE)
+			course->Update();
+
+			if (course->GetCourseEntered() == true)
 			{
-				SAFE_DELETE(_currContactedCourse, "Course Delete");
-				_currContactedCourse = course;
+				if (_currContactedCourse->GetCourseInfo() == eCourse::NONE)
+				{
+					SAFE_DELETE(_currContactedCourse, "Course Delete");
+					_currContactedCourse = course;
+				}
 			}
 		}
-
-
-		if (course->IsState_CourseEscaped() == true)
+	}
+	else
+	{
+		_currContactedCourse->Update();
+		if (_currContactedCourse->IsState_CourseEscaped() == true)
 		{
+			_currContactedCourse->InitCourseEnterInfo();
 			_currContactedCourse = new Course();
 		}
-		break;
 	}
 }
 

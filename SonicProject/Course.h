@@ -12,8 +12,10 @@ public :
 	bool CourseMeetingFunction();
 
 	virtual bool IsState_CourseEscaped() { return false; }
-	virtual bool UpdateRunnerState(bool& entered, bool& passed) { return false; }
+	virtual bool UpdateRunnerState() { return false; }
 	virtual bool SetColorRef() { return false; }
+
+	inline void InitCourseEnterInfo() { _courseEntered = false;	_coursePassed = false; }
 public : 
 
 	eCourse GetCourseInfo() { return _courseInfo; }

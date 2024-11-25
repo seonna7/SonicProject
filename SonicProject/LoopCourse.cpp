@@ -31,7 +31,7 @@ bool LoopCourse::Update(bool& entered, bool& passed)
 	return false;
 }
 
-bool LoopCourse::UpdateRunnerState(bool& entered, bool& passed)
+bool LoopCourse::UpdateRunnerState()
 {
 	Vector runnerPos = _runner->GetPos();
 
@@ -44,7 +44,7 @@ bool LoopCourse::UpdateRunnerState(bool& entered, bool& passed)
 		}
 		else if (_flag == true && _courseEntered == false)
 		{
-			_courseEntered = true; // 루프 코스 시작 
+			_courseEntered = true;
 		}
 		else if (_flag == true && _courseEntered == true)
 		{

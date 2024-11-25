@@ -9,7 +9,12 @@ PipeCourse::PipeCourse(Vector pos, Vector size, Actor* runner) :
 {
 	_courseInfo = eCourse::PIPE;
 
-	_width = 2 * e_Pixel_Len;
+	_PipeSection = RECT(pos.x - size.x,
+						pos.y - size.y,
+						pos.x + size.x,
+						pos.y + size.y);
+
+	_currEnterSectionIndex = Index::NONE;
 }
 
 PipeCourse::~PipeCourse()
@@ -18,9 +23,15 @@ PipeCourse::~PipeCourse()
 
 void PipeCourse::SetSenorInfo(Vector* vec, Vector size)
 {
-	_courseEnterCollideDetect[0] = vec[0];
-	_courseEnterCollideDetect[1] = vec[1];
-	_courseEnterSize = size;
+	_RectSize = size;
+	_EnterSection[1] = RECT(vec[0].x - _RectSize.x,
+							vec[0].y - _RectSize.y,
+							vec[0].x + _RectSize.x,
+							vec[0].y + _RectSize.y);
+	_EnterSection[2] = RECT(vec[1].x - _RectSize.x,
+							vec[1].y - _RectSize.y,
+							vec[1].x + _RectSize.x,
+							vec[1].y + _RectSize.y);
 }
 
 void PipeCourse::Init()
@@ -37,54 +48,52 @@ bool PipeCourse::Update(bool& entered, bool& passed)
 	return false;
 }
 
-bool PipeCourse::UpdateRunnerState(bool& entered, bool& passed)
+bool PipeCourse::UpdateRunnerState()
 {
 	Vector runnerPos = _runner->GetPos();
 	Player* player = dynamic_cast<Player*>(_runner);
-	RECT _runner	= RECT(runnerPos.x - e_Pixel_Len,
-						runnerPos.y - e_Pixel_Len,
-						runnerPos.x + e_Pixel_Len,
-						runnerPos.y + e_Pixel_Len);
-	RECT Rect1		= RECT(_courseEnterCollideDetect[0].x - _width, 
-							_courseEnterCollideDetect[0].y - _width,
-							_courseEnterCollideDetect[0].x + _width, 
-							_courseEnterCollideDetect[0].y + _width);
-	RECT Rect2		= RECT(_courseEnterCollideDetect[1].x - _width, 
-							_courseEnterCollideDetect[1].y - _width,
-							_courseEnterCollideDetect[1].x + _width, 
-							_courseEnterCollideDetect[1].y + _width);
+
+	if (IsContactedEnterSection() == true)
+	{
+		// 진입 시작 	
+	}
 
 	if (_courseEntered == false)
 	{
-		_contactFlag = false;
-		if (player->GetIsOnGround()==true)
+		if (IsContactedEnterSection(_currEnterSectionIndex) == false)
 		{
-			RECT intersect = {};
-			if (IntersectRect(&intersect, &Rect1, &_runner)||
-				IntersectRect(&intersect, &Rect2, &_runner))
+			_currEnterSectionIndex = Index::NONE;
+
+			if (IsRunnerInPipeSection() == true)
 			{
 				_courseEntered = true;
-				_contactFlag = true;
+				_colorRef = ColorRef::MAGENTA;
+			}
+			else 
+			{
+				_courseEntered = false;
 			}
 		}
-
 	}
-	else if (_courseEntered == true && _coursePassed == false)
+	else if (_courseEntered == true)
 	{
-		if (player->GetIsOnGround() == true)
+		if (IsRunnerInPipeSection() == false)
 		{
-			RECT intersect = {};
-			if (IntersectRect(&intersect, &Rect1, &_runner) ||
-				IntersectRect(&intersect, &Rect2, &_runner))
+			_courseEntered = false;
+		}
+		Player* player = dynamic_cast<Player*>(_runner);
+
+		if (IsContactedEnterSection() == true)
+		{
+			_coursePassed = true;
+		}
+		if (_coursePassed == true && IsContactedEnterSection() == false)
+		{
+			if (IsRunnerInPipeSection() == true)
 			{
-				if (_contactFlag != true)
-				{	
-					_coursePassed = true;
-				}
-			}
-			else
-			{
-				_contactFlag = false;
+				//코스 수행 실패
+				_courseEntered = true;
+				_coursePassed = false;
 			}
 		}
 	}
@@ -93,37 +102,91 @@ bool PipeCourse::UpdateRunnerState(bool& entered, bool& passed)
 
 bool PipeCourse::IsState_CourseEscaped()
 {
-	if (_courseEntered == true && _coursePassed == true)
+	if ((_courseEntered == false && _coursePassed == false) || 
+		(_courseEntered == true && _coursePassed == true))
 	{
-		Vector runnerPos = _runner->GetPos();
-		if (runnerPos.x < _pos.x + _size.x && runnerPos.x > _pos.x - _size.x &&
-			runnerPos.y < _pos.y + _size.y && runnerPos.y > _pos.y - _size.y)
-		{
-			return false;
-		}
-		else
+		if (IsContactedEnterSection() == false)
 			return true;
 	}
+	return false;
 }
 
 bool PipeCourse::SetColorRef()
 {
-	Player* runner = dynamic_cast<Player*>(_runner);
+	Player* player = dynamic_cast<Player*>(_runner);
 
-	if (runner == nullptr)
+	if (player == nullptr)
 		return false;
 
-	Physic* physic = runner->GetRigidBody()->GetPhysic();
+	if (player->GetAngleSetted() == false)
+	{
+		if (_colorRef == ColorRef::MAGENTA)
+			_colorRef = ColorRef::CYAN;
+		else 
+			_colorRef = ColorRef::MAGENTA;
+	}
+	
+	return true;
+}
 
-	if (physic->_groundSpeed >= 0)
+bool PipeCourse::IsContactedEnterSection()
+{
+	RECT intersect = {};
+
+	Vector runnerPos = _runner->GetPos();
+
+	RECT _runner = RECT(runnerPos.x - e_Pixel_Len,
+		runnerPos.y - e_Pixel_Len,
+		runnerPos.x + e_Pixel_Len,
+		runnerPos.y + e_Pixel_Len);
+
+	if (IntersectRect(&intersect, &_EnterSection[1], &_runner))
 	{
-		//  컬러 레퍼런스 값으로 통맵에서 캐릭터 충돌 RGB 추가
-		_colorRef = ColorRef::CYAN;//ColorRef::MAGENTA;
+		_currEnterSectionIndex = Index::FIRST;
+		return true;
 	}
-	else if (physic->_groundSpeed < 0)
+	else if (IntersectRect(&intersect, &_EnterSection[2], &_runner))
 	{
-		_colorRef = ColorRef::CYAN;
+		_currEnterSectionIndex = Index::SECOND;
+		return true;
 	}
+	return false;
+}
+
+bool PipeCourse::IsContactedEnterSection(uint8 index)
+{
+	RECT intersect = {};
+
+	Vector runnerPos = _runner->GetPos();
+
+	RECT _runner = RECT(runnerPos.x - e_Pixel_Len,
+		runnerPos.y - e_Pixel_Len,
+		runnerPos.x + e_Pixel_Len,
+		runnerPos.y + e_Pixel_Len);
+
+	if (IntersectRect(&intersect, &_EnterSection[index], &_runner))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool PipeCourse::IsRunnerInPipeSection()
+{
+	RECT intersect = {};
+
+	Vector runnerPos = _runner->GetPos();
+
+	RECT _runner = RECT(runnerPos.x - e_Pixel_Len,
+		runnerPos.y - e_Pixel_Len,
+		runnerPos.x + e_Pixel_Len,
+		runnerPos.y + e_Pixel_Len);
+
+	if (IntersectRect(&intersect, &_PipeSection, &_runner))
+	{
+		return true;
+	}
+	return false;
 }
 
 bool PipeCourse::CourseMeetingFunction()

@@ -1,5 +1,12 @@
 #pragma once
 #include "Course.h"
+enum Index
+{
+	NONE = 0,
+	FIRST = 1,
+	SECOND = 2
+};
+
 class PipeCourse : public Course
 {
 public : 
@@ -14,16 +21,20 @@ public :
 	void Init();
 	bool Update(bool& entered, bool& passed);
 
-	virtual bool UpdateRunnerState(bool& entered, bool& passed)			override;
+	virtual bool UpdateRunnerState()			override;
 	virtual bool IsState_CourseEscaped()								override;
 	virtual bool SetColorRef()											override;
 
+	bool IsContactedEnterSection();
+	bool IsContactedEnterSection(uint8 index);
+	bool IsRunnerInPipeSection();
 	bool CourseMeetingFunction();
 private :
-	Vector _courseEnterCollideDetect[2] = { {0,0},{0,0} };
-	Vector _courseEnterSize				= { 0,0 };
-	float _width						= 0.f;
 
-	bool _contactFlag					= false;
+	uint8	_currEnterSectionIndex;
+
+	Vector	_RectSize	= { 0,0 };
+	RECT	_EnterSection[3];
+	RECT	_PipeSection;
 };
 

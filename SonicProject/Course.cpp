@@ -21,9 +21,9 @@ void Course::Init()
 
 bool Course::Update()
 {
-	UpdateRunnerState(_courseEntered,_coursePassed);
+	UpdateRunnerState();
 
-	if(_courseEntered== true)
+	if(_courseEntered == true)
 	{
 		CourseMeetingFunction();
 	}

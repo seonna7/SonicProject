@@ -12,7 +12,7 @@ public  :
 	void Init();
 	bool Update(bool& entered, bool& passed);
 
-	bool UpdateRunnerState(bool& entered, bool& passed)		override;
+	bool UpdateRunnerState()		override;
 	bool IsState_CourseEscaped()							override;
 	bool SetColorRef()										override;
 

@@ -327,13 +327,18 @@ void DevScene::Init()
 		AddActor(player);
 		player->BeginPlay();
 
-		LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
-		GET_SINGLE(CourseManager)->AddCourse(loopCourse);
-
-		//PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(305, 548), player);
-		//Vector info[2] = { Vector(426, 279), Vector(732, 600) };
-		//pipeCourse->SetSenorInfo(info, Vector(2));
-		//GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
+		if(1)
+		{
+			LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
+			GET_SINGLE(CourseManager)->AddCourse(loopCourse);
+		}
+		else
+		{
+			PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(152, 274), player);
+			Vector info[2] = { Vector(442, 282), Vector(732, 600) };
+			pipeCourse->SetSenorInfo(info, Vector(2));
+			GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
+		}
 
 	}
 

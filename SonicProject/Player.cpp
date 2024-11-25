@@ -122,18 +122,36 @@ void Player::Tick()
 		Skiddle = !Skiddle;
 	}
 
-	Player::CourseMeetingFunction();
-
-
-	if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
-		Player::CheckCollision((uint8)e_SlopeType::CEILING) == true ||
-		Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true ||
-		Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true)
+	if (_isCourseMovementAdjustNeeded == false)
 	{
-
-		Player::AngleFunction();
+		if (Player::CheckCollision((uint8)e_SlopeType::GROUND) == true ||
+			Player::CheckCollision((uint8)e_SlopeType::CEILING) == true ||
+			Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true ||
+			Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true)
+		{
+			Player::AngleFunction();
+			_angleSetted = true;
+		}
+	}
+	else if (_isCourseMovementAdjustNeeded == true)
+	{
+		if (Player::CheckCollision((uint8)e_SlopeType::CEILING) == true ||
+			Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true ||
+			Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true ||
+			Player::CheckCollision((uint8)e_SlopeType::GROUND) == true)
+		{
+			if (Player::AngleFunction() == false)
+			{
+				_angleSetted = false;
+			}
+			else
+			{
+				_angleSetted = true;
+			}
+		}
 	}
 
+	Player::CourseMeetingFunction();
 
 	if (Gravity == true)
 	{
@@ -156,7 +174,10 @@ void Player::Tick()
 	void OnRightPressed();
 	void OnDownPressed();
 	
-
+	if (IsSkiddlingCondition() == true)
+	{
+		Player::SkiddlingMovement();
+	}
 	if (_IsOnGround == true)
 	{
 		if (_angle > -M_PI / 2 && _angle < M_PI / 2&&
@@ -164,15 +185,18 @@ void Player::Tick()
 		{
 			_physic->_groundSpeed *= -1;
 		}
+		if (_isCourseMovementAdjustNeeded == true)
+		{
+			_physic->Speed.x = _physic->_groundSpeed * -cos(_angle);
+			_physic->Speed.y = _physic->_groundSpeed * sin(_angle);
+		}
+		else
+		{
+			_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
+			_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
+		}
+	}
 
-		_physic->Speed.x = _physic->_groundSpeed * cos(_angle);
-		_physic->Speed.y = _physic->_groundSpeed * -sin(_angle);
-		//_physic->_groundSpeed = _physic->Speed.x;
-	}
-	if (IsSkiddlingCondition() == true)
-	{
-		Player::SkiddlingMovement();
-	}
 
 
 	if (Player::SetMovement() == false)
@@ -860,11 +884,15 @@ bool Player::CourseMeetingFunction()
 	switch (info)
 	{
 	case eCourse::PIPE : 
-		if (_physic->_groundSpeed > 0)
+		if (_courseColorRef == ColorRef::MAGENTA)
 		{
 			_isCourseMovementAdjustNeeded = true;
+			Player::SetGravitationVec(e_SlopeType::CEILING);
 		}
-		Player::SetGravitationVec(e_SlopeType::LEFT_WALL);
+		else if (_courseColorRef == ColorRef::CYAN)
+		{
+			Player::SetGravitationVec(e_SlopeType::LEFT_WALL);
+		}
 		break;
 	case eCourse::LOOP :
 		if (_canJump == false)
@@ -911,7 +939,7 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 	}
 }
 
-void Player::AngleFunction()
+bool Player::AngleFunction()
 {
 	bool LParamCollideCheck = false;
 	bool RParamCollideCheck = true;
@@ -921,16 +949,17 @@ void Player::AngleFunction()
 			if (AngleCalc(_Left_Bottom->GetPos(), _Right_Bottom->GetPos(),LParamCollideCheck)==true)
 			{
 				SetAnglePixel(_A_Left_Bottom, _A_Right_Bottom);
-				return;
+				return true;
 			}
 			else if (AngleCalc(_Left_Top->GetPos(), _Left_Bottom->GetPos(),RParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Left_Top, _A_Left_Bottom);
-				return;
+				return true;
 			}
 			else
 			{
 				_angle = 0;
+				return false;
 			}
 		}
 	}
@@ -940,16 +969,17 @@ void Player::AngleFunction()
 			if (AngleCalc(_Left_Bottom->GetPos(), _Right_Bottom->GetPos(), RParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Left_Bottom, _A_Right_Bottom);
-				return;
+				return true;
 			}
 			else if (AngleCalc(_Right_Bottom->GetPos(), _Right_Top->GetPos(),LParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Right_Bottom, _A_Right_Top);
-				return;
+				return true;
 			}
 			else
 			{
 				_angle = 0;
+				return false;
 			}
 		}
 	}
@@ -959,16 +989,17 @@ void Player::AngleFunction()
 			if (AngleCalc(_Right_Bottom->GetPos(), _Right_Top->GetPos(), RParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Right_Bottom, _A_Right_Top);
-				return;
+				return true;
 			}
 			else if (AngleCalc(_Right_Top->GetPos(), _Left_Top->GetPos(),LParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Right_Top, _A_Left_Top);
-				return;
+				return true;
 			}
 			else
 			{
 				_angle = 0;
+				return false;
 			}
 		}
 	}
@@ -978,16 +1009,17 @@ void Player::AngleFunction()
 			if (AngleCalc(_Right_Top->GetPos(), _Left_Top->GetPos(), RParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Right_Top, _A_Left_Top);
-				return;
+				return true;
 			}
 			else if (AngleCalc(_Left_Top->GetPos(), _Left_Bottom->GetPos(), LParamCollideCheck) == true)
 			{
 				SetAnglePixel(_A_Left_Top, _A_Left_Bottom);
-				return;
+				return true;
 			}
 			else
 			{
 				_angle = 0;
+				return false;
 			}
 
 		}

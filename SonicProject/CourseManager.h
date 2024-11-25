@@ -19,7 +19,8 @@ public :
 private : 
 	bool	_courseEntered = false;
 	bool	_coursePassed = false;
-	Course* _currContactedCourse = nullptr;
+
+	Course* _currContactedCourse;
 	vector<Course*> _courses;
 };
 
