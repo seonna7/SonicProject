@@ -51,7 +51,7 @@ void CourseManager::AddCourse(Course* course)
 
 bool CourseManager::GetCourseEntered()
 {
-	if (_currContactedCourse == nullptr)
+	if (_currContactedCourse->GetCourseInfo() == eCourse::NONE)
 	{
 		return false;
 	}
@@ -60,8 +60,7 @@ bool CourseManager::GetCourseEntered()
 
 bool CourseManager::GetCoursePassed()
 {
-	if (_currContactedCourse == nullptr||
-		_currContactedCourse->GetCourseInfo() == eCourse::NONE)
+	if (_currContactedCourse->GetCourseInfo() == eCourse::NONE)
 	{
 		return false;
 	}
@@ -72,8 +71,8 @@ Course* CourseManager::GetContactedCourse()
 {
 	if (_currContactedCourse->GetCourseEntered() == true)
 		return _currContactedCourse;
-	else
-		return nullptr;
+	
+	return nullptr;
 }
 
 
