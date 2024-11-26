@@ -886,11 +886,20 @@ bool Player::CourseMeetingFunction()
 	case eCourse::PIPE : 
 		if (_courseColorRef == ColorRef::MAGENTA)
 		{
-			_isCourseMovementAdjustNeeded = true;
-			Player::SetGravitationVec(e_SlopeType::CEILING);
+			Vector curr = _pixels[_currCheckedPixel]->GetPos();
+
+			if (DetectCollision_ColorRef(curr, ColorRef::MAGENTA) == true)
+			{
+				
+				_isCourseMovementAdjustNeeded = true;
+			}
+
+			Player::SetGravitationVec(e_SlopeType::RIGHT_WALL);
 		}
 		else if (_courseColorRef == ColorRef::CYAN)
 		{
+			_isCourseMovementAdjustNeeded = false;
+
 			Player::SetGravitationVec(e_SlopeType::LEFT_WALL);
 		}
 		break;

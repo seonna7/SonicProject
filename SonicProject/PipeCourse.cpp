@@ -21,7 +21,7 @@ PipeCourse::~PipeCourse()
 {
 }
 
-void PipeCourse::SetSenorInfo(Vector* vec, Vector size)
+void PipeCourse::SetSensorsInfo(Vector* vec, Vector size, float flagSwitcher)
 {
 	_RectSize = size;
 	_EnterSection[1] = RECT(vec[0].x - _RectSize.x,
@@ -32,6 +32,7 @@ void PipeCourse::SetSenorInfo(Vector* vec, Vector size)
 							vec[1].y - _RectSize.y,
 							vec[1].x + _RectSize.x,
 							vec[1].y + _RectSize.y);
+	_flagSwitcher = flagSwitcher;
 }
 
 void PipeCourse::Init()
@@ -118,12 +119,14 @@ bool PipeCourse::SetColorRef()
 	if (player == nullptr)
 		return false;
 
-	if (player->GetAngleSetted() == false)
+	Vector runnerPos = _runner->GetPos();
+	if (runnerPos.y < _flagSwitcher)
 	{
-		if (_colorRef == ColorRef::MAGENTA)
-			_colorRef = ColorRef::CYAN;
-		else 
-			_colorRef = ColorRef::MAGENTA;
+		_colorRef = ColorRef::MAGENTA;
+	}
+	else
+	{
+		_colorRef = ColorRef::CYAN;
 	}
 	
 	return true;

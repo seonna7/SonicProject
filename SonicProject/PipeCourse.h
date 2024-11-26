@@ -17,7 +17,7 @@ public :
 	~PipeCourse();
 
 public :
-	void SetSenorInfo(Vector vec[2], Vector size);
+	void SetSensorsInfo(Vector vec[2], Vector size, float flagSwitcher);
 	void Init();
 	bool Update(bool& entered, bool& passed);
 
@@ -32,7 +32,7 @@ public :
 private :
 
 	uint8	_currEnterSectionIndex;
-
+	float	_flagSwitcher = 0.f;
 	Vector	_RectSize	= { 0,0 };
 	RECT	_EnterSection[3];
 	RECT	_PipeSection;
