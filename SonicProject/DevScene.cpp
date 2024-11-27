@@ -336,10 +336,9 @@ void DevScene::Init()
 		{
 			PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(304, 548), player);
 			Vector info[2] = { Vector(442, 282), Vector(732, 600) };
-			pipeCourse->SetSensorsInfo(info, Vector(2),439);
+			pipeCourse->SetSensorsInfo(info, Vector(2),450);
 			GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
 		}
-
 	}
 
 	//{
