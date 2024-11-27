@@ -50,10 +50,7 @@ public  :
 
 	void Jump();
 
-	void GravitationOnGround();
-	void GravitationOnLeftWall();
-	void GravitationOnRightWall();
-	void GravitationOnCeiling();
+	void SetGravityVector(float radian);
 
 	void LowerGroundSpeed();
 private :

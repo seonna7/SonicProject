@@ -54,16 +54,16 @@ void EventManager::DevSceneFunc()
 
 	// W 키 콜백 등록 (점프)
 
-	RegisterKeyCallback(L"KeyType::W_Pressed", std::bind(&Player::OnUpPressed, player));
-
-	// A 키 콜백 등록 (왼쪽 이동)
-	RegisterKeyCallback(L"KeyType::S_Pressed", std::bind(&Player::OnDownPressed, player));
-
-	// D 키 콜백 등록 (오른쪽 이동)
-	RegisterKeyCallback(L"KeyType::A_Pressed", std::bind(&Player::OnLeftPressed, player));
-
-	// S 키 콜백 등록 (앉기)
-	RegisterKeyCallback(L"KeyType::D_Pressed", std::bind(&Player::OnRightPressed, player));
+	//RegisterKeyCallback(L"KeyType::W_Pressed", std::bind(&Player::OnUpPressed, player));
+	//
+	//// A 키 콜백 등록 (왼쪽 이동)
+	//RegisterKeyCallback(L"KeyType::S_Pressed", std::bind(&Player::OnDownPressed, player));
+	//
+	//// D 키 콜백 등록 (오른쪽 이동)
+	//RegisterKeyCallback(L"KeyType::A_Pressed", std::bind(&Player::OnLeftPressed, player));
+	//
+	//// S 키 콜백 등록 (앉기)
+	//RegisterKeyCallback(L"KeyType::D_Pressed", std::bind(&Player::OnRightPressed, player));
 }
 
 void EventManager::SetCallBacks(eSceneType type)

@@ -9,10 +9,10 @@ PipeCourse::PipeCourse(Vector pos, Vector size, Actor* runner) :
 {
 	_courseInfo = eCourse::PIPE;
 
-	_PipeSection = RECT(pos.x - size.x,
-						pos.y - size.y,
-						pos.x + size.x,
-						pos.y + size.y);
+	_PipeSection = RECT(pos.x - size.x/2,
+						pos.y - size.y/2,
+						pos.x + size.x/2,
+						pos.y + size.y/2);
 
 	_currEnterSectionIndex = Index::NONE;
 }
@@ -73,6 +73,7 @@ bool PipeCourse::UpdateRunnerState()
 			else 
 			{
 				_courseEntered = false;
+				_coursePassed = false;
 			}
 		}
 	}
@@ -196,5 +197,24 @@ bool PipeCourse::CourseMeetingFunction()
 {
 	// SetColorRef() 호출 코드 
 	return Super::CourseMeetingFunction();
+}
+
+bool PipeCourse::IsRunnerCorrectlyInPipeSection()
+{
+	RECT intersect = {};
+
+	Vector runnerPos = _runner->GetPos();
+
+	RECT _runner = RECT(runnerPos.x - e_Pixel_Len,
+		runnerPos.y - e_Pixel_Len,
+		runnerPos.x + e_Pixel_Len,
+		runnerPos.y + e_Pixel_Len);
+
+	if (_runner.left > _PipeSection.left &&
+		_runner.right < _PipeSection.right &&
+		_runner.top > _PipeSection.top &&
+		_runner.bottom < _PipeSection.bottom)
+		return true;
+	return false;
 }
 

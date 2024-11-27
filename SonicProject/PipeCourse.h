@@ -28,7 +28,9 @@ public :
 	bool IsContactedEnterSection();
 	bool IsContactedEnterSection(uint8 index);
 	bool IsRunnerInPipeSection();
-	bool CourseMeetingFunction();
+	bool CourseMeetingFunction(); 
+
+	bool IsRunnerCorrectlyInPipeSection();
 private :
 
 	uint8	_currEnterSectionIndex;

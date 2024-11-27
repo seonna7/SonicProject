@@ -334,7 +334,7 @@ void DevScene::Init()
 		}
 		else
 		{
-			PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(152, 274), player);
+			PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(304, 548), player);
 			Vector info[2] = { Vector(442, 282), Vector(732, 600) };
 			pipeCourse->SetSensorsInfo(info, Vector(2),439);
 			GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
@@ -366,13 +366,14 @@ void DevScene::Update()
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
 	
 	GET_SINGLE(CollisionManager)->Update();
-	
+
 	for (Actor* actor : _actors)
  		actor->Tick();
 	if (GET_SINGLE(InputManager)->GetButtonDown(KeyType::SPACE))
 		exit(0);
-
 	GET_SINGLE(CourseManager)->Update();
+
+	//GET_SINGLE(EventManager)->Update();
 }
 
 void DevScene::Render(HDC hdc)

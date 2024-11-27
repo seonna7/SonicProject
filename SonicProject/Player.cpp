@@ -155,7 +155,7 @@ void Player::Tick()
 
 	if (Gravity == true)
 	{
-		Player::SetGravitationVec(e_SlopeType::GROUND);
+		Player::SetGravityVector(3 * M_PI / 2);
 	}
 
 	if (true)
@@ -168,23 +168,30 @@ void Player::Tick()
 		SetSonicState(SonicState::PAUSE);
 	}
 
-	
-	void OnUpPressed();
-	void OnLeftPressed();
-	void OnRightPressed();
-	void OnDownPressed();
+	OnUpPressed();
+	OnLeftPressed();
+	OnRightPressed();
+	OnDownPressed();
 	
 	if (IsSkiddlingCondition() == true)
 	{
 		Player::SkiddlingMovement();
 	}
+
+	if(_course!=nullptr)
+	{
+		if (_course->GetCourseInfo() == eCourse::PIPE)
+		{
+			SetSonicState(SonicState::ROLLING);
+		}
+	}
 	if (_IsOnGround == true)
 	{
-		if (_angle > -M_PI / 2 && _angle < M_PI / 2&&
-			_physic->_groundSpeed<-0.1&& _physic->Speed.x > 0.1)
-		{
-			_physic->_groundSpeed *= -1;
-		}
+		//if (_angle > -M_PI / 2 && _angle < M_PI / 2&&
+		//	_physic->_groundSpeed<-0.1&& _physic->Speed.x > 0.1 && _isCourseMovementAdjustNeeded == false)
+		//{
+		//	_physic->_groundSpeed *= -1;
+		//}
 		if (_isCourseMovementAdjustNeeded == true)
 		{
 			_physic->Speed.x = _physic->_groundSpeed * -cos(_angle);
@@ -721,12 +728,7 @@ void Player::OnUpPressed()
 
 void Player::OnLeftPressed()
 {
-	if (_canJump == false)
-	{
-		int a = 1;
-	}
-
-	else if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::A))
+	if (GET_SINGLE(InputManager)->GetButtonPress(KeyType::A))
 	{
 		LeftMovement();
 
@@ -795,7 +797,7 @@ void Player::JumpMovement()
 		_pos.y -= 10;
 	else
 	{
-		_pos.x -= 20 * sin(_angle);
+		_pos.x += 20 * sin(_angle);
 		_pos.y -= 20 * cos(_angle);
 	}
 
@@ -864,9 +866,9 @@ bool Player::CourseMeetingFunction()
 	{
 		_isCourseMovementAdjustNeeded = false;
 		Gravity = true;
+		_course = new Course();
 		return false;
 	}
-	
 	_course = GET_SINGLE(CourseManager)->GetContactedCourse();
 	
 	if (_course->GetCourseInfo() ==eCourse::NONE)
@@ -884,24 +886,21 @@ bool Player::CourseMeetingFunction()
 	switch (info)
 	{
 	case eCourse::PIPE : 
+	{
+		PipeCourse* pipe = dynamic_cast<PipeCourse*>(_course);
 		if (_courseColorRef == ColorRef::MAGENTA)
 		{
-			Vector curr = _pixels[_currCheckedPixel]->GetPos();
-
-			if (DetectCollision_ColorRef(curr, ColorRef::MAGENTA) == true)
-			{
-				
+			if (pipe->IsRunnerCorrectlyInPipeSection() == true)
 				_isCourseMovementAdjustNeeded = true;
-			}
-
-			Player::SetGravitationVec(e_SlopeType::RIGHT_WALL);
+			Player::SetGravityVector(M_PI / 3);
 		}
 		else if (_courseColorRef == ColorRef::CYAN)
 		{
 			_isCourseMovementAdjustNeeded = false;
-
-			Player::SetGravitationVec(e_SlopeType::LEFT_WALL);
+			Player::SetGravityVector(M_PI);
 		}
+	}
+		
 		break;
 	case eCourse::LOOP :
 		if (_canJump == false)
@@ -930,7 +929,7 @@ void Player::OnComponentBeginOverlap_Ground_Pixel(Collider* collider)
 		//
 		break;
 	case ePixelColliderType::GROUND:
-		Player::SetGravitationVec(e_SlopeType::GROUND);
+		Player::SetGravityVector(3*M_PI/2);
 		_physic->RemoveSpeedY();
 		_physic->_gravity = false;
 		Player::AdjustMovement();
@@ -1351,7 +1350,7 @@ bool Player::SetAngle(float& ref, float Yval, float Xval)
 	{
 		ref = 0.f;
 	}
-	else if (DegreeRef > 87 && DegreeRef < 93)
+	else if (DegreeRef > 83 && DegreeRef < 97)
 	{
 		ref = M_PI / 2;
 	}
@@ -1385,16 +1384,17 @@ void Player::SetSonicStateSitting()
 
 void Player::UpdateJumpState()
 {
-	if (_isCourseMovementAdjustNeeded == true)
+	if (_course!=nullptr)
 	{
-		_canJump = false;
-	}
-	else if (_isCourseMovementAdjustNeeded == false)
-	{
-		if (_IsOnGround == true)
+		if(_course->GetCourseInfo() == eCourse::PIPE)
 		{
-			_canJump = true;
+			_canJump = false;
+			return;
 		}
+	}
+	if (_IsOnGround == true)
+	{
+		_canJump = true;
 	}
 }
 
@@ -1415,24 +1415,10 @@ void Player::SkiddlingMovement()
 	}
 }
 
-void Player::SetGravitationVec(e_SlopeType vec)
+bool Player::SetGravityVector(float radian)
 {
-	_rigidBody->GetPhysic()->SetGravity(true);
-	switch (vec)
-	{
-	case e_SlopeType::GROUND:
-		_rigidBody->GravitationOnGround();
-		break;
-	case e_SlopeType::LEFT_WALL:
-		_rigidBody->GravitationOnLeftWall();
-		break;
-	case e_SlopeType::RIGHT_WALL:
-		_rigidBody->GravitationOnRightWall();
-		break;
-	case e_SlopeType::CEILING:
-		_rigidBody->GravitationOnCeiling();
-
-	}
+	_rigidBody->SetGravityVector(radian);
+	return true;
 }
 
 bool Player::SetMovement()

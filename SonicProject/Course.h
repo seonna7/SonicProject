@@ -37,7 +37,7 @@ protected :
 	Vector _size	= {};
 
 	Actor* _runner			= nullptr;
-	eCourse _courseInfo;
+	eCourse _courseInfo		= eCourse::NONE;
 	COLORREF	_colorRef	= ColorRef::RED;
 
 };

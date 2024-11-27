@@ -117,8 +117,7 @@ private :
 	bool IsSkiddlingCondition();
 	void SkiddlingMovement();
 
-
-	void SetGravitationVec(e_SlopeType vec);
+	bool SetGravityVector(float radian);
 private : 
 	uint8 _ctrlLockTimer = 0;
 

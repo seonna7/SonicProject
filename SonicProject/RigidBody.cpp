@@ -58,6 +58,7 @@ void RigidBody::Jump()
 	Player* player = static_cast<Player*>(GetOwner());
 	float angle = player->GetAngle();
 	_physic->_groundSpeed -= _physic->_jumpForce * deltaTime * sin(angle);
+	
 	_physic->Speed.y -= _physic->_jumpForce * deltaTime * cos(angle);
 
 	_physic->Speed.x = _physic->_groundSpeed;
@@ -101,60 +102,64 @@ void RigidBody::MoveBottom()
 	}
 #endif
 }
-void RigidBody::GravitationOnGround()
+void RigidBody::SetGravityVector(float radian)
 {
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-	if (_physic->Speed.y > 200 * deltaTime)
+	float angle = radian * 180 / M_PI;
+	
+	if (angle == 270)
 	{
-		//_physic->Speed.y = 200 * deltaTime;
-		return;
+		if (_physic->Speed.y < 200 * deltaTime)
+		{
+			_physic->Speed.y += 40 * deltaTime;
+			return;
+		}
 	}
-	if (_physic->_gravity == true)
+	if (angle < 90&& angle >= 0)
 	{
-		_physic->Speed.y += 40 * deltaTime;
+		if(_physic->Speed.x < 700 * cos(radian))
+		{
+			_physic->Speed.x += 40 * deltaTime;
+		}
+		if (_physic->Speed.y > 700 * -sin(radian))
+		{
+			_physic->Speed.y -= 40 * deltaTime;
+		}
 	}
-}
+	else if (angle >= 90 && angle < 180)
+	{
+		if (_physic->Speed.x > 700 * cos(radian))
+		{
+			_physic->Speed.x -= 40 * deltaTime;
+		}
+		if (_physic->Speed.y > 700 * -sin(radian))
+		{
+			_physic->Speed.y -= 40 * deltaTime;
+		}
+	}
+	else if (angle >= 180 && angle < 270)
+	{
+		if (_physic->Speed.x > 700 * cos(radian))
+		{
+			_physic->Speed.x -= 40 * deltaTime;
+		}
+		if (_physic->Speed.y < 700 * -sin(radian))
+		{
+			_physic->Speed.y += 40 * deltaTime;
+		}
+	}
+	else if (angle > 270 && angle < 360)
+	{
+		if (_physic->Speed.x < 700 * cos(radian))
+		{
+			_physic->Speed.x += 40 * deltaTime;
+		}
+		if (_physic->Speed.y < 700 * -sin(radian))
+		{
+			_physic->Speed.y += 40 * deltaTime;
+		}
+	}
 
-void RigidBody::GravitationOnLeftWall()
-{
-	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-	if (_physic->Speed.x < -700 * deltaTime)
-	{
-		//_physic->Speed.x = 700 * deltaTime;
-		return;
-	}
-	if (_physic->_gravity == true)
-	{
-		_physic->Speed.x -= 40 * deltaTime;
-	}
-}
-
-void RigidBody::GravitationOnRightWall()
-{
-	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-	if (_physic->Speed.x > 700 * deltaTime)
-	{
-		//_physic->Speed.x = 700 * deltaTime;
-		return;
-	}
-	if (_physic->_gravity == true)
-	{
-		_physic->Speed.x += 40 * deltaTime;
-	}
-}
-
-void RigidBody::GravitationOnCeiling()
-{
-	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-	if (_physic->Speed.y < -700 * deltaTime)
-	{
-		///_physic->Speed.y = -700 * deltaTime;
-		return;
-	}
-	if (_physic->_gravity == true)
-	{
-		_physic->Speed.y -= 10 * deltaTime;
-	}
 }
 
 void RigidBody::LowerGroundSpeed()
