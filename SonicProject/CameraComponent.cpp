@@ -20,8 +20,8 @@ void CameraComponent::TickComponent()
 	if (_owner == nullptr)
 		return;
 	Vector pos = _owner->GetPos();
-	pos.x = ::clamp(pos.x, 640.f, 3024.f - 640.f);
-	pos.y = ::clamp(pos.y, 360.f, 2064.f - 360.f);
+	pos.x = ::clamp(pos.x, 640.f, 5000.f - 640.f);
+	pos.y = ::clamp(pos.y, 360.f, 4000.f - 360.f);
 	GET_SINGLE(SceneManager)->SetCameraPos(pos);
 
 }

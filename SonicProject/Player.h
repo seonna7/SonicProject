@@ -136,13 +136,11 @@ private :
 	Vector* _A_Left_Bottom	= nullptr;
 	Vector* _A_Right_Bottom = nullptr;
 
-	bool _angleSetted = false;
 
 	void SetAnglePixel(Vector *v1, Vector *v2);
 	Vector* _A_Pixel[2]		= { nullptr,nullptr };
 public : 
 	float GetAngle() { return _angle; }
-	bool GetAngleSetted() { return _angleSetted; }
 	bool GetIsOnGround() { return _IsOnGround; }
 	bool SetAngle(float &ref, float Yval, float Xval);
 

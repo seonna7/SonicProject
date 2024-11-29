@@ -130,7 +130,6 @@ void Player::Tick()
 			Player::CheckCollision((uint8)e_SlopeType::RIGHT_WALL) == true)
 		{
 			Player::AngleFunction();
-			_angleSetted = true;
 		}
 	}
 	else if (_isCourseMovementAdjustNeeded == true)
@@ -140,14 +139,7 @@ void Player::Tick()
 			Player::CheckCollision((uint8)e_SlopeType::LEFT_WALL) == true ||
 			Player::CheckCollision((uint8)e_SlopeType::GROUND) == true)
 		{
-			if (Player::AngleFunction() == false)
-			{
-				_angleSetted = false;
-			}
-			else
-			{
-				_angleSetted = true;
-			}
+			Player::AngleFunction();
 		}
 	}
 
@@ -187,11 +179,11 @@ void Player::Tick()
 	}
 	if (_IsOnGround == true)
 	{
-		//if (_angle > -M_PI / 2 && _angle < M_PI / 2&&
-		//	_physic->_groundSpeed<-0.1&& _physic->Speed.x > 0.1 && _isCourseMovementAdjustNeeded == false)
-		//{
-		//	_physic->_groundSpeed *= -1;
-		//}
+		if (_angle > -M_PI / 2 && _angle < M_PI / 2&&
+			_physic->_groundSpeed<-0.1&& _physic->Speed.x > 0.1 && _isCourseMovementAdjustNeeded == false)
+		{
+			_physic->_groundSpeed *= -1;
+		}
 		if (_isCourseMovementAdjustNeeded == true)
 		{
 			_physic->Speed.x = _physic->_groundSpeed * -cos(_angle);
@@ -842,7 +834,7 @@ bool Player::IsSkiddlingCondition()
 void Player::GetAccBuff(Vector dir)
 {
 	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
-	_physic->_groundSpeed = _physic->_maxSpeedX * deltaTime;
+	_physic->_groundSpeed = _physic->_maxSpeedX *3* deltaTime;
 
 	float angle = atan2(dir.y, dir.x);
 
@@ -862,6 +854,7 @@ bool Player::IsCourseContacted()
 
 bool Player::CourseMeetingFunction()
 {
+	float deltaTime = GET_SINGLE(TimeManager)->Get_deltaTime();
 	if (GET_SINGLE(CourseManager)->GetContactedCourse()==nullptr)
 	{
 		_isCourseMovementAdjustNeeded = false;
@@ -899,6 +892,7 @@ bool Player::CourseMeetingFunction()
 			_isCourseMovementAdjustNeeded = false;
 			Player::SetGravityVector(M_PI);
 		}
+		
 	}
 		
 		break;
@@ -966,7 +960,6 @@ bool Player::AngleFunction()
 			}
 			else
 			{
-				_angle = 0;
 				return false;
 			}
 		}
@@ -986,7 +979,6 @@ bool Player::AngleFunction()
 			}
 			else
 			{
-				_angle = 0;
 				return false;
 			}
 		}
@@ -1006,7 +998,6 @@ bool Player::AngleFunction()
 			}
 			else
 			{
-				_angle = 0;
 				return false;
 			}
 		}
@@ -1026,7 +1017,6 @@ bool Player::AngleFunction()
 			}
 			else
 			{
-				_angle = 0;
 				return false;
 			}
 

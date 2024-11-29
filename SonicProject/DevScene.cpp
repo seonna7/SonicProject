@@ -220,7 +220,7 @@ void DevScene::Init()
 		_backgrounds.push_back(background);
 	}
 
-	if(false)
+	if(true)
 	{
 		Actor* test = new Actor();
 		test->SetPos(Pos(830, 300));
@@ -256,10 +256,10 @@ void DevScene::Init()
 
 
 #elif 0
-	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest2");
-	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest2", tex, 0, 0, 0, 0);
+	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest1");
+	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest1", tex, 0, 0, 0, 0);
 	{
-		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(L"maptest2");
+		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(L"maptest1");
 		SpriteActor* background = new SpriteActor();
 		
 		const Vector size = sprite->GetSize();
@@ -274,15 +274,21 @@ void DevScene::Init()
 			background->AddComponent(backgroundcollider);
 			GET_SINGLE(CollisionManager)->AddCollider(backgroundcollider);
 		}
-
-		LoopCollider* loopcollider = new LoopCollider(Vector(938, 410));
-		loopcollider->SetOwner(background);
-		_LoopColliders.push_back(loopcollider);
-		// 다 넣으면 player에 세팅 & ColliderManager에 추가
-		for (auto& loopInfo : _LoopColliders)
-			GET_SINGLE(CollisionManager)->AddCollider(loopInfo);
 	}
 
+	Actor* test = new Actor();
+	test->SetPos(Pos(830, 300));
+	AccelObj* accObj = new AccelObj(Vector(1, 1));
+	{
+		accObj->SetOwner(test);
+		accObj->SetSize(Vector(50, 50));
+		accObj->SetCollisionLayerType(CLT_GROUND);
+		uint32 flag = 0;
+
+		GET_SINGLE(CollisionManager)->AddCollider(accObj);
+		test->AddComponent(accObj);
+	}
+	AddActor(test);
 #else 
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"fuck");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"fuck", tex, 0, 0, 0, 0);
@@ -327,12 +333,12 @@ void DevScene::Init()
 		AddActor(player);
 		player->BeginPlay();
 
-		if(0)
+		if(false)
 		{
-			LoopCourse* loopCourse = new LoopCourse(Vector(1345, 516), Vector(600), player);
+			LoopCourse* loopCourse = new LoopCourse(Vector(4505, 790), Vector(600), player);
 			GET_SINGLE(CourseManager)->AddCourse(loopCourse);
 		}
-		else
+		else if (true)
 		{
 			PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(304, 548), player);
 			Vector info[2] = { Vector(442, 282), Vector(732, 600) };
