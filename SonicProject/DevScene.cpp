@@ -45,6 +45,8 @@ void DevScene::Init()
 	GET_SINGLE(ResourceManager)->LoadTexture(L"fuck", L"Sprite\\MAP\\fuck.bmp");
 	GET_SINGLE(ResourceManager)->LoadTexture(L"maptest4", L"Sprite\\MAP\\maptest4.bmp");
 
+	GET_SINGLE(ResourceManager)->LoadTexture(L"loop", L"Sprite\\MAP\\loop.bmp");
+
 	GET_SINGLE(ResourceManager)->LoadTexture(L"Sonic_Standing", L"Sprite\\Player\\Sonic_Standing.bmp", RGB(0, 255, 0));
 	
 	GET_SINGLE(ResourceManager)->LoadTexture(L"Sonic_Running_Left_0", L"Sprite\\Player\\Sonic_Running_Left_0.bmp", RGB(0, 255, 0));
@@ -187,6 +189,22 @@ void DevScene::Init()
 	}
 
 
+	_player = new Player();
+	
+	GET_SINGLE(EventManager)->SetEventActor(_player);
+	BoxCollider* boxCollider = new BoxCollider();
+		// 박스 콜라이더 
+	{
+		boxCollider->SetOwner(_player);
+		boxCollider->SetSize(Vector(40, 40));
+		boxCollider->SetCollisionLayerType(CLT_OBJECT);
+
+		boxCollider->AddCollisionFlagLayer(CLT_WALL);
+		boxCollider->AddCollisionFlagLayer(CLT_GROUND);
+		GET_SINGLE(CollisionManager)->AddCollider(boxCollider);
+		_player->AddComponent(boxCollider);
+	}
+
 	//{
 	//	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"mapview");
 	//	GET_SINGLE(ResourceManager)->CreateSprite(L"mapview", tex, 0, 0, 0, 0);
@@ -202,7 +220,7 @@ void DevScene::Init()
 	//
 	//	_backgrounds.push_back(background);
 	//}
-#if 0
+#if 1
 
 	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(L"maptest4");
 	GET_SINGLE(ResourceManager)->CreateSprite(L"maptest4", tex, 0, 0, 0, 0);
@@ -237,20 +255,19 @@ void DevScene::Init()
 		AddActor(test);
 	}
 
+	if (true)
 	{
-		Actor* test = new Actor();
-		test->SetPos(Pos(500, 500));
-		BoxCollider* boxCollider = new BoxCollider();
-		{
-			boxCollider->SetOwner(test);
-			boxCollider->SetSize(Vector(100, 100));
-			boxCollider->SetCollisionLayerType(CLT_GROUND);
-			uint32 flag = 0;
+		Texture* loopTexture = GET_SINGLE(ResourceManager)->GetTexture(L"loop");
+		GET_SINGLE(ResourceManager)->CreateSprite(L"loop", loopTexture, 0, 0, 0, 0);
+		Sprite* loopSprite = GET_SINGLE(ResourceManager)->GetSprite(L"loop");
+		SpriteActor* loopSpriteActor = new SpriteActor();
 
-			GET_SINGLE(CollisionManager)->AddCollider(boxCollider);
-			test->AddComponent(boxCollider);
-		}
-		AddActor(test);
+		const Vector lsize = loopSprite->GetSize();
+		loopSpriteActor->SetPos(Vector(300, 400));
+		loopSpriteActor->SetSprite(loopSprite);
+		_backgrounds.push_back(loopSpriteActor);
+		LoopCourse* loopCourse = new LoopCourse(Vector(300, 205), Vector(600), _player);
+		GET_SINGLE(CourseManager)->AddCourse(loopCourse);
 	}
 
 
@@ -266,14 +283,7 @@ void DevScene::Init()
 
 		background->SetPos(Vector(size.x / 2, size.y / 2));
 		background->SetSprite(sprite);
-		_backgrounds.push_back(background);
-		// 백그라운드 충돌체 추가 
-		{
-			BackGroundCollider* backgroundcollider = new BackGroundCollider();
-			backgroundcollider->SetOwner(background);
-			background->AddComponent(backgroundcollider);
-			GET_SINGLE(CollisionManager)->AddCollider(backgroundcollider);
-		}
+		_backgrounds.push_back(background);		
 	}
 
 	Actor* test = new Actor();
@@ -306,47 +316,25 @@ void DevScene::Init()
 		_backgrounds.push_back(background);
 
 	}
-
 #endif
+
+
+	if(true)
 	{
-		Player* player = new Player();
-		{
-			GET_SINGLE(EventManager)->SetEventActor(player);
-			BoxCollider* boxCollider = new BoxCollider();
-			// 박스 콜라이더 
-			{
-				boxCollider->SetOwner(player);
-				boxCollider->SetSize(Vector(40, 40));
-				boxCollider->SetCollisionLayerType(CLT_OBJECT);
-
-				boxCollider->AddCollisionFlagLayer(CLT_WALL);
-				boxCollider->AddCollisionFlagLayer(CLT_GROUND);
-
-				GET_SINGLE(CollisionManager)->AddCollider(boxCollider);
-				player->AddComponent(boxCollider);
-			}
-
-			player->SetBackGround(tex);
-
-
-		}		
-		AddActor(player);
-		player->BeginPlay();
-
-		if(false)
-		{
-			LoopCourse* loopCourse = new LoopCourse(Vector(4505, 790), Vector(600), player);
-			GET_SINGLE(CourseManager)->AddCourse(loopCourse);
-		}
-		else if (true)
-		{
-			PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(304, 548), player);
-			Vector info[2] = { Vector(442, 282), Vector(732, 600) };
-			pipeCourse->SetSensorsInfo(info, Vector(2),450);
-			GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
-		}
+		LoopCourse* loopCourse = new LoopCourse(Vector(4505, 790), Vector(600), _player);
+		GET_SINGLE(CourseManager)->AddCourse(loopCourse);
 	}
-
+	else 
+	{
+		PipeCourse* pipeCourse = new PipeCourse(Vector(582, 459), Vector(304, 548), _player);
+		Vector info[2] = { Vector(442, 282), Vector(732, 600) };
+		pipeCourse->SetSensorsInfo(info, Vector(2),450);
+		GET_SINGLE(CourseManager)->AddCourse(pipeCourse);
+	}
+	
+	_player->SetBackGround(tex);
+	AddActor(_player);
+	_player->BeginPlay();
 	//{
 	//	Actor* test = new Actor();
 	//	test->SetPos(Pos(500, 500));
@@ -388,4 +376,29 @@ void DevScene::Render(HDC hdc)
 		actor->Render(hdc);
 	for (Actor* actor : _actors)
 		actor->Render(hdc);
+}
+
+void DevScene::RemoveActor(Actor* actor)
+{
+
+}
+
+bool DevScene::RenderOnBackground(const wstring& key)
+{
+	Texture* tex = GET_SINGLE(ResourceManager)->GetTexture(key);
+	GET_SINGLE(ResourceManager)->CreateSprite(key, tex, 0, 0, 0, 0);
+	{
+		Sprite* sprite = GET_SINGLE(ResourceManager)->GetSprite(key);
+		SpriteActor* background = new SpriteActor();
+
+		const Vector size = sprite->GetSize();
+
+		// 포지션 변경 
+		background->SetPos(Vector(size.x / 2, size.y / 2));
+
+		background->SetSprite(sprite);
+
+		_backgrounds.push_back(background);
+	}
+	return false;
 }

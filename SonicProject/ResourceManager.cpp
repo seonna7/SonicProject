@@ -44,7 +44,12 @@ Texture* ResourceManager::LoadTexture(const wstring& key, const wstring& path, u
 	if (_textures.find(key) != _textures.end())
 		return _textures[key];
 	
-	fs::path fullPath = _resourcePath / path;
+	
+	fs::path fullPath;
+	if (path[0] == L'C')
+		fullPath = path;
+	else 
+		fullPath = _resourcePath / path;
 
 	Texture* texture = new Texture();
 
@@ -85,5 +90,16 @@ Flipbook* ResourceManager::CreateFlipbook(const wstring& key)
 	_flipbooks[key] = fb;
 	
 	return fb;
+}
+
+bool ResourceManager::LoadTexture_Sprite(const wstring& path)
+{
+	Texture* openFileTexture = GET_SINGLE(ResourceManager)->LoadTexture(path, path, 0, 0);
+	Sprite *temp = GET_SINGLE(ResourceManager)->CreateSprite(path, openFileTexture, 0, 0, 0, 0);
+
+	if (temp != nullptr)
+		return true;
+
+	return false;
 }
 

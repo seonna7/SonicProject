@@ -22,7 +22,7 @@ public :
 	//맨 처음 눌렀을 때
 	bool GetButtonDown(KeyType type) { return GetState(type) == KeyState::Down; }
 	//버튼을 뗐을 때 
-	bool GetButtonUp(KeyType type) { return GetState(type) == KeyState::Up; }
+	bool GetButtonUp(KeyType type) { return GetState(type) == KeyState::UP; }
 
 	bool GetButtonNone(KeyType type) { return GetState(type) == KeyState::None; }
 

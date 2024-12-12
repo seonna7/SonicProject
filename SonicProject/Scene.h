@@ -11,6 +11,8 @@ public:
 	virtual void Update()		   abstract ;
 	virtual void Render(HDC hdc) abstract ;
 
+	virtual bool RenderOnBackground(const wstring& key);
+
 protected : 
 
 };

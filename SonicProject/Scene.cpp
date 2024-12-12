@@ -20,3 +20,8 @@ void Scene::Update()
 void Scene::Render(HDC hdc)
 {
 }
+
+bool Scene::RenderOnBackground(const wstring& key)
+{
+	return false;
+}

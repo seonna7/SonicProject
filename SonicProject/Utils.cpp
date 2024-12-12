@@ -33,3 +33,9 @@ float Utils::DegreeToRadian(float degree)
 	return degree * M_PI / 180;
 }
 
+string Utils::ToString(std::wstring value)
+{
+	std::string temp;
+	temp.assign(value.begin(), value.end());
+	return temp;
+}

@@ -1,4 +1,4 @@
-﻿// SonicProject.cpp : 애플리케이션에 대한 진입점을 정의합니다.
+﻿    // SonicProject.cpp : 애플리케이션에 대한 진입점을 정의합니다.
 //
 
 #include "pch.h"
@@ -6,9 +6,12 @@
 #include "SonicProject.h"
 #include "Game.h"
 #include "TimeManager.h"
+#include "ResourceManager.h"
+#include "Utils.h"
+#include "SceneManager.h"
 #define MAX_LOADSTRING 100
 
-// 전역 변수:
+// 전역 변수:Utils
 HINSTANCE hInst;                              
 WCHAR szTitle[MAX_LOADSTRING];                
 WCHAR szWindowClass[MAX_LOADSTRING];          
@@ -124,8 +127,35 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             case IDM_EXIT:
                 DestroyWindow(hWnd);
                 break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
+            case OPEN_FILE : 
+                OPENFILENAME OFN;
+                TCHAR filePathName[400] = L"";
+                TCHAR lpstrFile[400] = L"";
+                static TCHAR filter[] = L"모든 파일\0*.*\0텍스트 파일\0*.txt\0fbx 파일\0*.fbx";
+
+                memset(&OFN, 0, sizeof(OPENFILENAME));
+                OFN.lStructSize = sizeof(OPENFILENAME);
+                OFN.hwndOwner = hWnd;
+                OFN.lpstrFilter = filter;
+                OFN.lpstrFile = lpstrFile;
+                OFN.nMaxFile = 100;
+                OFN.lpstrInitialDir = L".";
+
+                if (GetOpenFileName(&OFN) != 0) {
+                    // 안전한 문자열 복사 함수 wcscpy_s 사용
+                    wcscpy_s(filePathName, MAX_PATH, OFN.lpstrFile);
+
+                    // MessageBox에 파일 경로만 표시
+                    MessageBox(hWnd, filePathName, L"열기 선택", MB_OK);
+
+                    // Utils를 사용해 파일 경로를 std::string으로 변환
+                    std::string t = Utils::ToString(OFN.lpstrFile);
+
+                    // ResourceManager와 SceneManager에 파일 경로 전달
+                    GET_SINGLE(ResourceManager)->LoadTexture_Sprite(filePathName);
+                    GET_SINGLE(SceneManager)->AddBackGround(filePathName);
+                }
+                break;
             }
         }
         break;

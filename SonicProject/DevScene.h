@@ -2,6 +2,7 @@
 #include "Scene.h"
 class Actor;
 class GameObject;
+class Player; 
 
 struct BackGroundInfo
 {
@@ -22,9 +23,12 @@ public:
 	void RemoveActor(Actor* actor);
 
 
+	virtual bool RenderOnBackground(const wstring& key) override;
 
-protected : 
+
+protected:
 	vector<Actor*> _actors;
 	vector<Actor*> _backgrounds;
 	
+	Player* _player = nullptr;
 };

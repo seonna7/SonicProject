@@ -55,4 +55,9 @@ void SceneManager::ChangeScene(eSceneType scenetype)
 	newScene->Init();
 }
 
+void SceneManager::AddBackGround(const wstring& key)
+{
+	_scene->RenderOnBackground(key);
+}
+
 

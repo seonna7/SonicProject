@@ -42,7 +42,7 @@ void Game::Init(HWND hwnd)
 	GET_SINGLE(SceneManager)->Init();
 	GET_SINGLE(ResourceManager)->Init(_Hwnd, fs::path(L"C:\\Workspace\\SonicProject\\SonicProject\\Resources"));
 
-	GET_SINGLE(SceneManager)->ChangeScene(eSceneType::DEVSCENE);
+	GET_SINGLE(SceneManager)->ChangeScene(eSceneType::EDITSCENE);
 	GET_SINGLE(EventManager)->Init();
 
 }

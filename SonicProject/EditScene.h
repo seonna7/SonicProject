@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene.h"
+class Actor;
 class EditScene : public Scene
 {
 public:
@@ -11,10 +12,12 @@ public:
 	virtual void Update()		     override;
 	virtual void Render(HDC hdc)	 override;
 
+	virtual bool RenderOnBackground(const wstring& key) override;
 private : 
-	vector<pair<POINT, POINT>> _lines;
-	bool _setOrigin = true;
-	POINT _lastPos = {};
+	vector<Actor*> _actors;
+	vector<Actor*> _backgrounds;
+
+	Player* _player = nullptr;
 };
 
 

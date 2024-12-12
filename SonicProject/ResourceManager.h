@@ -23,10 +23,12 @@ public :
 	Flipbook*	GetFlipbook(const wstring& key) { return _flipbooks[key]; }
 	Flipbook*	CreateFlipbook(const wstring& key);
 
+	bool		LoadTexture_Sprite(const wstring& path);
+
 private : 
 	HWND _hwnd;
 	fs::path _resourcePath;
-
+	
 	unordered_map<wstring, Texture*> _textures;
 	unordered_map<wstring, Sprite *> _sprites;
 	unordered_map<wstring, Flipbook*> _flipbooks;

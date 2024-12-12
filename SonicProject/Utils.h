@@ -20,5 +20,7 @@ public :
 	static float RadianToDegree(float radian);
 
 	static float DegreeToRadian(float degree);
+
+	static string ToString(std::wstring value);
 };
 

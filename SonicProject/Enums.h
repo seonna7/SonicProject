@@ -5,7 +5,7 @@ enum class KeyState
 	None,
 	Press,
 	Down,
-	Up,
+	UP,
 
 	End
 };
@@ -15,7 +15,7 @@ enum class KeyType
 	MouseLeft = VK_LBUTTON,
 	MouseRight = VK_RBUTTON,
 
-	Up = VK_UP,
+	UP = VK_UP,
 	DOWN = VK_DOWN,
 	LEFT = VK_LEFT,
 	RIGHT = VK_RIGHT,

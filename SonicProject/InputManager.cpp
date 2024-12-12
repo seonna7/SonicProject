@@ -29,7 +29,7 @@ void InputManager::Update()
 		else
 		{
 			if (state == KeyState::Press || state == KeyState::Down)
-				state = KeyState::Up;
+				state = KeyState::UP;
 			else
 				state = KeyState::None;
 		}
